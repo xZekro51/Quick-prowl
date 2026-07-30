@@ -1,0 +1,13 @@
+Scenes:
+  $id: 2
+  $values: []
+Config: 1
+OutputDirectory: "Builds"
+PackagingMode: 1
+AssetMode: 1
+MaxPakSizeMB: 2048
+PlatformProfiles:
+  $id: 3
+  $values: []
+$id: 1
+$type: "Prowl.Editor.Projects.Settings.BuildSettings, Prowl.Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
