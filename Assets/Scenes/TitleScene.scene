@@ -611,7 +611,70 @@
                       "_calls": {
                         "$id": 32,
                         "$values": [
-
+                          {
+                            "$id": 33,
+                            "_target": {
+                              "$id": 34,
+                              "$type": "GameMaster, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                              "GameSceneRef": {
+                                "AssetID": "f133067d-d6b6-435d-a91f-ba4117ebcc9e"
+                              },
+                              "TransitionManager": {
+                                "$id": 35,
+                                "Image": {
+                                  "$id": 36,
+                                  "_sprite": {
+                                    "AssetID": "4caf9098-7b2e-10cd-3734-3c8924f199d9"
+                                  },
+                                  "_material": {
+                                    "AssetID": "27b120bf-f774-4a35-9eb9-4707762a1b53"
+                                  },
+                                  "_color": {
+                                    "R": 1F,
+                                    "G": 1F,
+                                    "B": 1F,
+                                    "A": 1F
+                                  },
+                                  "_preserveAspect": false,
+                                  "_type": 0L,
+                                  "_pixelsPerUnitMultiplier": 1F,
+                                  "_fillMethod": 4L,
+                                  "_fillOrigin": 0,
+                                  "_fillAmount": 1F,
+                                  "_fillClockwise": false,
+                                  "_raycastTarget": true,
+                                  "_identifier": "b4b1d69d-3d9a-4685-9a80-fb94fe9a40b6",
+                                  "_enabled": true,
+                                  "_enabledInHierarchy": true,
+                                  "HideFlags": 0L,
+                                  "AssetPath": "",
+                                  "AssetID": "00000000-0000-0000-0000-000000000000",
+                                  "Name": "NewUIImage"
+                                },
+                                "_identifier": "7230e891-22bc-48d5-bd82-42539ca2650f",
+                                "_enabled": true,
+                                "_enabledInHierarchy": true,
+                                "HideFlags": 0L,
+                                "AssetPath": "",
+                                "AssetID": "00000000-0000-0000-0000-000000000000",
+                                "Name": "NewTransitionManager"
+                              },
+                              "_identifier": "75979232-cabf-448f-ace9-8085c0698528",
+                              "_enabled": true,
+                              "_enabledInHierarchy": true,
+                              "HideFlags": 0L,
+                              "AssetPath": "",
+                              "AssetID": "00000000-0000-0000-0000-000000000000",
+                              "Name": "NewGameMaster"
+                            },
+                            "_member": "ChangeScene",
+                            "_argType": 0L,
+                            "_boolArg": false,
+                            "_intArg": 0,
+                            "_floatArg": 0F,
+                            "_stringArg": "",
+                            "_objectArg": NULL
+                          }
                         ]
                       }
                     },
@@ -661,7 +724,7 @@
                 ],
                 "Children": [
                   {
-                    "$id": 33,
+                    "$id": 37,
                     "Name": "Text",
                     "AssetPath": "",
                     "Identifier": "e6dd81cc-0e41-4ae5-ba87-adfaad0c80af",
@@ -672,7 +735,7 @@
                     "LayerIndex": 0,
                     "HideFlags": 0,
                     "Transform": {
-                      "$id": 34,
+                      "$id": 38,
                       "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                       "_localPosition": {
                         "X": 0F,
@@ -693,7 +756,7 @@
                     },
                     "Components": [
                       {
-                        "$id": 35,
+                        "$id": 39,
                         "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                         "_anchorMin": {
                           "X": 0.5F,
@@ -724,7 +787,7 @@
                         "Name": "NewRectTransform"
                       },
                       {
-                        "$id": 36,
+                        "$id": 40,
                         "$type": "Prowl.Runtime.TextComponent, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                         "_font": {
                           "AssetID": "f796868d-77dd-4313-837e-d7fcc4cd2ef6"
@@ -759,7 +822,7 @@
                 ]
               },
               {
-                "$id": 37,
+                "$id": 41,
                 "Name": "Options",
                 "AssetPath": "",
                 "Identifier": "32d88535-7dac-470b-9989-d347a93ca648",
@@ -770,7 +833,7 @@
                 "LayerIndex": 0,
                 "HideFlags": 0,
                 "Transform": {
-                  "$id": 38,
+                  "$id": 42,
                   "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                   "_localPosition": {
                     "X": 0F,
@@ -791,7 +854,7 @@
                 },
                 "Components": [
                   {
-                    "$id": 39,
+                    "$id": 43,
                     "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                     "_anchorMin": {
                       "X": 0.5F,
@@ -822,7 +885,7 @@
                     "Name": "NewRectTransform"
                   },
                   {
-                    "$id": 40,
+                    "$id": 44,
                     "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                     "_sprite": {
                       "AssetID": "bff73be2-cd62-785e-928f-0efd1487829c"
@@ -853,12 +916,12 @@
                     "Name": "NewUIImage"
                   },
                   {
-                    "$id": 41,
+                    "$id": 45,
                     "$type": "Prowl.Runtime.UI.UIButton, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                     "_onClick": {
-                      "$id": 42,
+                      "$id": 46,
                       "_calls": {
-                        "$id": 43,
+                        "$id": 47,
                         "$values": [
 
                         ]
@@ -866,7 +929,7 @@
                     },
                     "_interactable": true,
                     "_targetGraphic": {
-                      "$id": 40
+                      "$id": 44
                     },
                     "_normalColor": {
                       "R": 1F,
@@ -910,7 +973,7 @@
                 ],
                 "Children": [
                   {
-                    "$id": 44,
+                    "$id": 48,
                     "Name": "Text",
                     "AssetPath": "",
                     "Identifier": "f4c52722-efcb-42b6-8c0b-6af7fedd3813",
@@ -921,7 +984,7 @@
                     "LayerIndex": 0,
                     "HideFlags": 0,
                     "Transform": {
-                      "$id": 45,
+                      "$id": 49,
                       "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                       "_localPosition": {
                         "X": 0F,
@@ -942,7 +1005,7 @@
                     },
                     "Components": [
                       {
-                        "$id": 46,
+                        "$id": 50,
                         "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                         "_anchorMin": {
                           "X": 0.5F,
@@ -973,7 +1036,7 @@
                         "Name": "NewRectTransform"
                       },
                       {
-                        "$id": 47,
+                        "$id": 51,
                         "$type": "Prowl.Runtime.TextComponent, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                         "_font": {
                           "AssetID": "f796868d-77dd-4313-837e-d7fcc4cd2ef6"
@@ -1008,7 +1071,7 @@
                 ]
               },
               {
-                "$id": 48,
+                "$id": 52,
                 "Name": "QuitGame",
                 "AssetPath": "",
                 "Identifier": "329731e6-c3c5-4a4a-9787-2b8e64524e1b",
@@ -1019,7 +1082,7 @@
                 "LayerIndex": 0,
                 "HideFlags": 0,
                 "Transform": {
-                  "$id": 49,
+                  "$id": 53,
                   "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                   "_localPosition": {
                     "X": 0F,
@@ -1040,7 +1103,7 @@
                 },
                 "Components": [
                   {
-                    "$id": 50,
+                    "$id": 54,
                     "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                     "_anchorMin": {
                       "X": 0.5F,
@@ -1071,7 +1134,7 @@
                     "Name": "NewRectTransform"
                   },
                   {
-                    "$id": 51,
+                    "$id": 55,
                     "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                     "_sprite": {
                       "AssetID": "bff73be2-cd62-785e-928f-0efd1487829c"
@@ -1102,12 +1165,12 @@
                     "Name": "NewUIImage"
                   },
                   {
-                    "$id": 52,
+                    "$id": 56,
                     "$type": "Prowl.Runtime.UI.UIButton, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                     "_onClick": {
-                      "$id": 53,
+                      "$id": 57,
                       "_calls": {
-                        "$id": 54,
+                        "$id": 58,
                         "$values": [
 
                         ]
@@ -1115,7 +1178,7 @@
                     },
                     "_interactable": true,
                     "_targetGraphic": {
-                      "$id": 51
+                      "$id": 55
                     },
                     "_normalColor": {
                       "R": 1F,
@@ -1159,7 +1222,7 @@
                 ],
                 "Children": [
                   {
-                    "$id": 55,
+                    "$id": 59,
                     "Name": "Text",
                     "AssetPath": "",
                     "Identifier": "730a7ad6-7a93-4cc1-bedd-8249c5074c67",
@@ -1170,7 +1233,7 @@
                     "LayerIndex": 0,
                     "HideFlags": 0,
                     "Transform": {
-                      "$id": 56,
+                      "$id": 60,
                       "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                       "_localPosition": {
                         "X": 0F,
@@ -1191,7 +1254,7 @@
                     },
                     "Components": [
                       {
-                        "$id": 57,
+                        "$id": 61,
                         "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                         "_anchorMin": {
                           "X": 0.5F,
@@ -1222,7 +1285,7 @@
                         "Name": "NewRectTransform"
                       },
                       {
-                        "$id": 58,
+                        "$id": 62,
                         "$type": "Prowl.Runtime.TextComponent, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                         "_font": {
                           "AssetID": "f796868d-77dd-4313-837e-d7fcc4cd2ef6"
@@ -1276,22 +1339,22 @@
         "$id": 26
       },
       {
-        "$id": 33
-      },
-      {
         "$id": 37
       },
       {
-        "$id": 44
+        "$id": 41
       },
       {
         "$id": 48
       },
       {
-        "$id": 55
+        "$id": 52
       },
       {
-        "$id": 59,
+        "$id": 59
+      },
+      {
+        "$id": 63,
         "Name": "Event System",
         "AssetPath": "",
         "Identifier": "90b402b1-75ce-4380-84dd-9c760b07f5ee",
@@ -1302,7 +1365,7 @@
         "LayerIndex": 0,
         "HideFlags": 0,
         "Transform": {
-          "$id": 60,
+          "$id": 64,
           "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
           "_localPosition": {
             "X": 0F,
@@ -1323,7 +1386,7 @@
         },
         "Components": [
           {
-            "$id": 61,
+            "$id": 65,
             "$type": "Prowl.Runtime.UI.EventSystem, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
             "_dragThreshold": 4F,
             "_multiClickWindow": 0.4F,
@@ -1343,7 +1406,7 @@
         ]
       },
       {
-        "$id": 62,
+        "$id": 66,
         "Name": "GameMaster",
         "AssetPath": "",
         "Identifier": "cfc421bd-aafc-4504-a7b4-ac3a76469266",
@@ -1354,7 +1417,7 @@
         "LayerIndex": 0,
         "HideFlags": 0,
         "Transform": {
-          "$id": 63,
+          "$id": 67,
           "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
           "_localPosition": {
             "X": 0F,
@@ -1374,11 +1437,14 @@
           }
         },
         "Components": [
-
+          {
+            "$id": 34,
+            "$type": "GameMaster, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
+          }
         ],
         "Children": [
           {
-            "$id": 64,
+            "$id": 68,
             "Name": "Canvas",
             "AssetPath": "",
             "Identifier": "9cb19346-4724-49e9-b414-60ef623e3317",
@@ -1389,7 +1455,7 @@
             "LayerIndex": 0,
             "HideFlags": 0,
             "Transform": {
-              "$id": 65,
+              "$id": 69,
               "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
               "_localPosition": {
                 "X": 0F,
@@ -1410,7 +1476,7 @@
             },
             "Components": [
               {
-                "$id": 66,
+                "$id": 70,
                 "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "_anchorMin": {
                   "X": 0.5F,
@@ -1441,7 +1507,7 @@
                 "Name": "NewRectTransform"
               },
               {
-                "$id": 67,
+                "$id": 71,
                 "$type": "Prowl.Runtime.GameCanvas, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "_renderMode": 0L,
                 "_scaleFactor": 1F,
@@ -1464,7 +1530,7 @@
             ],
             "Children": [
               {
-                "$id": 68,
+                "$id": 72,
                 "Name": "Transition",
                 "AssetPath": "",
                 "Identifier": "2d424365-27f8-4cd7-ac98-7eebe5641462",
@@ -1475,7 +1541,7 @@
                 "LayerIndex": 0,
                 "HideFlags": 0,
                 "Transform": {
-                  "$id": 69,
+                  "$id": 73,
                   "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                   "_localPosition": {
                     "X": 0F,
@@ -1496,23 +1562,23 @@
                 },
                 "Components": [
                   {
-                    "$id": 70,
+                    "$id": 74,
                     "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                     "_anchorMin": {
-                      "X": 0.5F,
-                      "Y": 0.5F
+                      "X": 0F,
+                      "Y": 0F
                     },
                     "_anchorMax": {
-                      "X": 0.5F,
-                      "Y": 0.5F
+                      "X": 1F,
+                      "Y": 1F
                     },
                     "_pivot": {
                       "X": 0.5F,
                       "Y": 0.5F
                     },
                     "_sizeDelta": {
-                      "X": 100F,
-                      "Y": 100F
+                      "X": -0F,
+                      "Y": -0F
                     },
                     "_anchoredPosition": {
                       "X": 0F,
@@ -1527,35 +1593,12 @@
                     "Name": "NewRectTransform"
                   },
                   {
-                    "$id": 71,
-                    "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-                    "_sprite": {
-                      "AssetID": "bff73be2-cd62-785e-928f-0efd1487829c"
-                    },
-                    "_material": {
-                      "AssetID": "27b120bf-f774-4a35-9eb9-4707762a1b53"
-                    },
-                    "_color": {
-                      "R": 1F,
-                      "G": 1F,
-                      "B": 1F,
-                      "A": 1F
-                    },
-                    "_preserveAspect": false,
-                    "_type": 1L,
-                    "_pixelsPerUnitMultiplier": 1F,
-                    "_fillMethod": 4L,
-                    "_fillOrigin": 0,
-                    "_fillAmount": 1F,
-                    "_fillClockwise": false,
-                    "_raycastTarget": true,
-                    "_identifier": "b4b1d69d-3d9a-4685-9a80-fb94fe9a40b6",
-                    "_enabled": true,
-                    "_enabledInHierarchy": true,
-                    "HideFlags": 0L,
-                    "AssetPath": "",
-                    "AssetID": "00000000-0000-0000-0000-000000000000",
-                    "Name": "NewUIImage"
+                    "$id": 36,
+                    "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+                  },
+                  {
+                    "$id": 35,
+                    "$type": "TransitionManager, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
                   }
                 ],
                 "Children": [
@@ -1567,15 +1610,15 @@
         ]
       },
       {
-        "$id": 64
+        "$id": 68
       },
       {
-        "$id": 68
+        "$id": 72
       }
     ]
   },
   "_goIdentifiers": {
-    "$id": 72,
+    "$id": 75,
     "array": [
       "124a797e-0cb2-4208-8080-4bb2342e18aa",
       "6fb7454c-251c-4108-9bc8-7130a58a6f6a",
@@ -1596,7 +1639,7 @@
     ]
   },
   "_compIdentifiers": {
-    "$id": 73,
+    "$id": 76,
     "array": [
       "ad43f62f-e806-4c52-b428-92334319c114",
       "4b084248-f3b7-4b4c-b976-753001f3c818",
@@ -1624,14 +1667,16 @@
       "4a1eb894-3c25-4996-9a31-343908841d52",
       "ec003307-408a-4eae-a81d-6497babb4536",
       "144f457a-2edc-4ac1-9235-55e977f6e889",
+      "75979232-cabf-448f-ace9-8085c0698528",
       "1efb0a8b-21cd-412c-be15-66adfba91fe8",
       "e5f1e5f0-7e5d-422b-b7f2-710969b23d46",
       "138f3452-4b55-4b26-a860-f4f6365aebe2",
-      "b4b1d69d-3d9a-4685-9a80-fb94fe9a40b6"
+      "b4b1d69d-3d9a-4685-9a80-fb94fe9a40b6",
+      "7230e891-22bc-48d5-bd82-42539ca2650f"
     ]
   },
   "_compIdOffsets": {
-    "$id": 74,
+    "$id": 77,
     "array": [
       0,
       1,
@@ -1647,9 +1692,9 @@
       23,
       25,
       26,
-      26,
-      28,
-      30
+      27,
+      29,
+      32
     ]
   },
   "Fog": {
@@ -1712,37 +1757,37 @@
     }
   },
   "BakedLighting": {
-    "$id": 75,
+    "$id": 78,
     "Lightmaps": {
-      "$id": 76,
+      "$id": 79,
       "$values": [
 
       ]
     },
     "ProbePositions": {
-      "$id": 77,
+      "$id": 80,
       "array": [
 
       ]
     },
     "ProbeSH": {
-      "$id": 78,
+      "$id": 81,
       "array": [
 
       ]
     },
     "ProbeTetrahedra": {
-      "$id": 79,
+      "$id": 82,
       "array": [
 
       ]
     },
     "ProbeTetNeighbours": {
-      "$id": 79
+      "$id": 82
     }
   },
   "LightmapBake": {
-    "$id": 80,
+    "$id": 83,
     "AtlasSize": 1024,
     "TexelsPerUnit": 20F,
     "DilatePixels": 2,
@@ -1758,5 +1803,5 @@
   },
   "AssetPath": "",
   "AssetID": "00000000-0000-0000-0000-000000000000",
-  "Name": "TItleScene"
+  "Name": "TitleScene"
 }

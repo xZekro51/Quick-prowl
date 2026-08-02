@@ -102,7 +102,7 @@ Pass "DefaultUI"
 			void main()
 			{
 				vec4 albedo = texture(_MainTex, texCoord0) * vColor * _MainColor;
-				fragColor = vec4(0,0,0,albedo.a > _TransitionStep);//albedo * uiClipCoverage(worldPos);
+				fragColor = vec4(0,     0, 0, albedo.r >= _TransitionStep);//albedo * uiClipCoverage(worldPos);
 			}
 		}
 	ENDGLSL

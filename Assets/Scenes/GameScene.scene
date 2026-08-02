@@ -1,0 +1,414 @@
+{
+  "$id": 1,
+  "$type": "Prowl.Runtime.Resources.Scene, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "serializeObj": {
+    "$id": 2,
+    "array": [
+      {
+        "$id": 3,
+        "Name": "Plane",
+        "AssetPath": "",
+        "Identifier": "c454d86b-a2f9-4062-b40b-63160b9a5deb",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 4,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 5,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "38151a92-9ae6-525d-b9cd-13fbcd700c8a"
+            },
+            "Materials": {
+              "$id": 6,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "LightmapIndex": -1,
+            "LightmapScaleOffset": {
+              "X": 1F,
+              "Y": 1F,
+              "Z": 0F,
+              "W": 0F
+            },
+            "_identifier": "8378b5d2-c09e-4508-904f-c3f56a748098",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 7,
+        "Name": "Cube",
+        "AssetPath": "",
+        "Identifier": "8c003a47-904d-40c2-86a6-89e1747324f4",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 8,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 0.5F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 9,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "97e8b0a9-e054-0d51-9663-eb372d776c90"
+            },
+            "Materials": {
+              "$id": 10,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "LightmapIndex": -1,
+            "LightmapScaleOffset": {
+              "X": 1F,
+              "Y": 1F,
+              "Z": 0F,
+              "W": 0F
+            },
+            "_identifier": "70cad536-905e-42cc-96b2-f54b3dd3e838",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 11,
+        "Name": "Directional Light",
+        "AssetPath": "",
+        "Identifier": "627f222b-c8b2-4a4f-b19a-1f273c8ca060",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 12,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": -0.40821797F,
+            "Y": 0.23456974F,
+            "Z": 0.10938167F,
+            "W": 0.8754262F
+          }
+        },
+        "Components": [
+          {
+            "$id": 13,
+            "$type": "Prowl.Runtime.DirectionalLight, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "ShadowResolution": 2048L,
+            "Cascades": 2L,
+            "ShadowDistance": 70F,
+            "Color": {
+              "R": 1F,
+              "G": 1F,
+              "B": 1F,
+              "A": 1F
+            },
+            "Intensity": 1F,
+            "ShadowStrength": 1F,
+            "ShadowBias": 0.001F,
+            "ShadowNormalBias": 0F,
+            "CastShadows": true,
+            "ShadowQuality": 1L,
+            "BakeMode": 0L,
+            "_identifier": "d42199d3-108f-433c-afaf-58d84ec81790",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewDirectionalLight"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 14,
+        "Name": "Camera",
+        "AssetPath": "",
+        "Identifier": "22370bba-4fc2-4571-a7f9-a0c3d40eee8c",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 15,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 3.349998F,
+            "Z": -8.250008F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0.16633889F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 0.98606867F
+          }
+        },
+        "Components": [
+          {
+            "$id": 16,
+            "$type": "Prowl.Runtime.Camera, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Effects": {
+              "$id": 17,
+              "$values": [
+
+              ]
+            },
+            "ClearFlags": 3L,
+            "ClearColor": {
+              "R": 0F,
+              "G": 0F,
+              "B": 0F,
+              "A": 1F
+            },
+            "CullingMask": {
+              "mask": 4294967295U
+            },
+            "ProjectionMode": 0L,
+            "FieldOfView": 60F,
+            "OrthographicSize": 0.5F,
+            "NearClipPlane": 0.1F,
+            "FarClipPlane": 100F,
+            "Depth": -1,
+            "Pipeline": NULL,
+            "Target": NULL,
+            "HDR": false,
+            "RenderScale": 1F,
+            "_identifier": "26fa0beb-22eb-47ae-865f-5d33d9c24799",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewCamera"
+          }
+        ],
+        "Children": [
+
+        ]
+      }
+    ]
+  },
+  "_goIdentifiers": {
+    "$id": 18,
+    "array": [
+      "c454d86b-a2f9-4062-b40b-63160b9a5deb",
+      "8c003a47-904d-40c2-86a6-89e1747324f4",
+      "627f222b-c8b2-4a4f-b19a-1f273c8ca060",
+      "22370bba-4fc2-4571-a7f9-a0c3d40eee8c"
+    ]
+  },
+  "_compIdentifiers": {
+    "$id": 19,
+    "array": [
+      "8378b5d2-c09e-4508-904f-c3f56a748098",
+      "70cad536-905e-42cc-96b2-f54b3dd3e838",
+      "d42199d3-108f-433c-afaf-58d84ec81790",
+      "26fa0beb-22eb-47ae-865f-5d33d9c24799"
+    ]
+  },
+  "_compIdOffsets": {
+    "$id": 20,
+    "array": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "Fog": {
+    "Mode": 3L,
+    "Color": {
+      "R": 0.5F,
+      "G": 0.5F,
+      "B": 0.5F,
+      "A": 1F
+    },
+    "Start": 20F,
+    "End": 100F,
+    "Density": 0.01F
+  },
+  "Ambient": {
+    "Mode": 0L,
+    "Strength": 1F,
+    "Color": {
+      "X": 0.43F,
+      "Y": 0.55F,
+      "Z": 0.65F,
+      "W": 1F
+    },
+    "SkyColor": {
+      "X": 0.3F,
+      "Y": 0.3F,
+      "Z": 0.4F,
+      "W": 1F
+    },
+    "GroundColor": {
+      "X": 0.2F,
+      "Y": 0.2F,
+      "Z": 0.2F,
+      "W": 1F
+    }
+  },
+  "Skybox": {
+    "Mode": 0L,
+    "SolidColor": {
+      "R": 0.2F,
+      "G": 0.3F,
+      "B": 0.5F,
+      "A": 1F
+    },
+    "GradientTop": {
+      "R": 0.4F,
+      "G": 0.6F,
+      "B": 0.9F,
+      "A": 1F
+    },
+    "GradientBottom": {
+      "R": 0.8F,
+      "G": 0.8F,
+      "B": 0.7F,
+      "A": 1F
+    },
+    "GradientExponent": 1F,
+    "CustomMaterial": {
+      "AssetID": "00000000-0000-0000-0000-000000000000"
+    }
+  },
+  "BakedLighting": {
+    "$id": 21,
+    "Lightmaps": {
+      "$id": 22,
+      "$values": [
+
+      ]
+    },
+    "ProbePositions": {
+      "$id": 23,
+      "array": [
+
+      ]
+    },
+    "ProbeSH": {
+      "$id": 24,
+      "array": [
+
+      ]
+    },
+    "ProbeTetrahedra": {
+      "$id": 25,
+      "array": [
+
+      ]
+    },
+    "ProbeTetNeighbours": {
+      "$id": 25
+    }
+  },
+  "LightmapBake": {
+    "$id": 26,
+    "AtlasSize": 1024,
+    "TexelsPerUnit": 20F,
+    "DilatePixels": 2,
+    "Bounces": 2,
+    "Samples": 64,
+    "ProbeSamples": 256,
+    "DoBackfaceCull": false,
+    "RussianRoulette": 0F,
+    "Denoise": false,
+    "DenoiseRadius": 5,
+    "BakeSkyLighting": false,
+    "IgnoreAlbedo": false
+  },
+  "AssetPath": "",
+  "AssetID": "00000000-0000-0000-0000-000000000000",
+  "Name": "GameScene"
+}

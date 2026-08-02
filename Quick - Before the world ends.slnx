@@ -1,0 +1,14 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  
+  <!--<Folder Name="/">
+    <File Path="Directory.Build.props" />
+  </Folder>-->
+  
+  <Project Path="Quick - Before the world ends.Game.csproj" />
+  <Project Path="Quick - Before the world ends.Editor.csproj" />
+</Solution>
