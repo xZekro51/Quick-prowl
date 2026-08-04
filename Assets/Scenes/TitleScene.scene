@@ -114,7 +114,7 @@
             "$id": 9,
             "$type": "Prowl.Runtime.GameCanvas, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
             "_renderMode": 0L,
-            "_scaleFactor": 0.9636927F,
+            "_scaleFactor": 0.54128593F,
             "_sortOrder": 0,
             "_uiScaleMode": 1L,
             "_referenceResolution": {
@@ -624,16 +624,16 @@
                                 "Image": {
                                   "$id": 36,
                                   "_sprite": {
-                                    "AssetID": "4caf9098-7b2e-10cd-3734-3c8924f199d9"
+                                    "AssetID": "79dbea95-d346-ed7f-22ba-d3b427e5c6bd"
                                   },
                                   "_material": {
-                                    "AssetID": "27b120bf-f774-4a35-9eb9-4707762a1b53"
+                                    "AssetID": "00000000-0000-0000-0000-000000000000"
                                   },
                                   "_color": {
                                     "R": 1F,
                                     "G": 1F,
                                     "B": 1F,
-                                    "A": 1F
+                                    "A": 0.5019608F
                                   },
                                   "_preserveAspect": false,
                                   "_type": 0L,
@@ -667,7 +667,7 @@
                               "AssetID": "00000000-0000-0000-0000-000000000000",
                               "Name": "NewGameMaster"
                             },
-                            "_member": "ChangeScene",
+                            "_member": "NonAsyncChangeScene",
                             "_argType": 0L,
                             "_boolArg": false,
                             "_intArg": 0,
@@ -1510,9 +1510,9 @@
                 "$id": 71,
                 "$type": "Prowl.Runtime.GameCanvas, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "_renderMode": 0L,
-                "_scaleFactor": 1F,
+                "_scaleFactor": 0.81192887F,
                 "_sortOrder": 0,
-                "_uiScaleMode": 0L,
+                "_uiScaleMode": 1L,
                 "_referenceResolution": {
                   "X": 1280F,
                   "Y": 720F
@@ -1577,8 +1577,8 @@
                       "Y": 0.5F
                     },
                     "_sizeDelta": {
-                      "X": -0F,
-                      "Y": -0F
+                      "X": -24F,
+                      "Y": -24F
                     },
                     "_anchoredPosition": {
                       "X": 0F,

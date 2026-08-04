@@ -16,14 +16,30 @@ public class GameMaster : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            ChangeScene();
+            NonAsyncChangeScene();
         }
     }
 
-    public void ChangeScene()
+    public void NonAsyncChangeScene()
     {
-        TransitionManager.Transition(0f, 0.5f);
-        GameSceneRef.EnsureLoaded();
-        Scene.Load(GameSceneRef.Res);
+        _ = ChangeScene();
+    }
+    
+    public async System.Threading.Tasks.Task ChangeScene()
+    {
+        try
+        {
+            var masterInstance = GameObject;
+            await TransitionManager.Transition(0f, 0.5f);
+            Scene.Remove(masterInstance);
+            GameSceneRef.EnsureLoaded();
+            Scene.Load(GameSceneRef.Res);
+            Scene.Current.Add(masterInstance);
+            await TransitionManager.Transition(1.01f, 0.5f);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogException(e);
+        }
     }
 }

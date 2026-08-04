@@ -1,13 +1,26 @@
 Scenes:
   $id: 2
-  $values: []
-Config: 1
+  $values:
+    - Path: "Scenes/TitleScene.scene"
+      SceneGuid: "73212004-e735-4361-b2a1-4063f7b96213"
+      Enabled: true
+      $id: 3
+Config: 0
 OutputDirectory: "Builds"
 PackagingMode: 1
 AssetMode: 1
 MaxPakSizeMB: 2048
+SelectedPipeline: ""
 PlatformProfiles:
-  $id: 3
-  $values: []
+  $id: 4
+  $values:
+    - Platform: 0
+      SelectedTargetId: ""
+      SelfContained: true
+      PublishTrimmed: false
+      WindowWidth: 1920
+      WindowHeight: 1080
+      $id: 5
+      $type: "Prowl.Editor.Build.DesktopBuildProfile, Prowl.Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
 $id: 1
 $type: "Prowl.Editor.Projects.Settings.BuildSettings, Prowl.Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
