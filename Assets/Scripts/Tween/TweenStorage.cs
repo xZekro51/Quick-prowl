@@ -68,6 +68,10 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
     public Tween Create(in T from, in T to, float duration, Action<T, object?>? setter, object? state, TweenFlags extraFlags = TweenFlags.None)
     {
+        // Every creation path funnels through here, so this is the one place the host engine has to
+        // be asked for a ticker - a tween that nothing drives would just sit at its start value.
+        TweenManager.EnsureRuntime();
+
         if (_count == _entries.Length)
             Grow();
 

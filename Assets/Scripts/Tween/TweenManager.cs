@@ -71,6 +71,22 @@ public static class TweenManager
 
     internal static void NotifyUpdateType(UpdateType type) => s_usesUpdateType[(int)type] = true;
 
+    #region Runtime bootstrap
+
+    /// <summary>
+    /// Invoked just before every tween is created, so the host engine can bring up whatever drives
+    /// the ticks below. Prowl points this at <c>TweenMaster.Ensure</c>, which spawns the ticking
+    /// component on demand; leaving it null simply means nothing is auto-created and you call
+    /// <see cref="Update"/> and friends yourself.
+    /// </summary>
+    public static Action? RuntimeBootstrap;
+
+    /// <summary>Runs <see cref="RuntimeBootstrap"/>, if the host installed one.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void EnsureRuntime() => RuntimeBootstrap?.Invoke();
+
+    #endregion
+
     #region Ticking
 
     /// <summary>
