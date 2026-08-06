@@ -105,7 +105,11 @@ public static class KinoEditorGUI
             .Alignment(TextAlignment.MiddleCenter);
     }
 
-    /// <summary>A button that reads as an action rather than a value.</summary>
+    /// <summary>
+    /// A button that reads as an action rather than a value. A full-width one carries the inspector's
+    /// own gutter, so it lines up with the rows above it instead of running to the panel edge; one
+    /// inside a row the caller already padded does not.
+    /// </summary>
     public static void Button(Paper paper, string id, string label, Action onClick, SColor? tint = null, bool grow = true)
     {
         var font = EditorTheme.DefaultFont;
@@ -116,7 +120,8 @@ public static class KinoEditorGUI
 
         var box = paper.Box(id)
             .Width(grow ? UnitValue.Stretch() : UnitValue.Auto)
-            .Height(24)
+            .Height(22)
+            .Margin(grow ? m.PaddingLarge : 0f, grow ? m.PaddingLarge : 0f, 0f, grow ? m.Spacing : 0f)
             .Padding(m.PaddingLarge, m.PaddingLarge, 0, 0)
             .Rounded(m.SmallRounding)
             .BackgroundColor(SColor.FromArgb(38, color))

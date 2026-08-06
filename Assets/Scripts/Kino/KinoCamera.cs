@@ -76,6 +76,32 @@ public class KinoCamera : MonoBehaviour
     /// <summary>The shot this camera worked out, as of its last update.</summary>
     public KinoState State => _state;
 
+    /// <summary>
+    /// The body component this camera actually runs, out of however many are attached. Null when the
+    /// camera's position is simply wherever its GameObject is.
+    /// </summary>
+    public KinoComponent? ActiveBody
+    {
+        get
+        {
+            ResolveComponents();
+            return _body.IsValid() ? _body : null;
+        }
+    }
+
+    /// <summary>
+    /// The aim component this camera actually runs. Null when nothing is turning the camera, which is
+    /// what lets a body component fill the rotation in for itself.
+    /// </summary>
+    public KinoComponent? ActiveAim
+    {
+        get
+        {
+            ResolveComponents();
+            return _aim.IsValid() ? _aim : null;
+        }
+    }
+
     /// <summary>True while this camera is what you are looking at, blends included.</summary>
     public bool IsLive => LiveFrame >= Time.FrameCount - 1;
 

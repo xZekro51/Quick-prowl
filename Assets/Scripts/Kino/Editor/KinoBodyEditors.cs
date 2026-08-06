@@ -154,6 +154,32 @@ public class KinoFramingTransposerEditor : CustomEditor
 
         KinoCamera? vcam = body.VirtualCamera;
 
+        // Placement first: which way the camera faces is what decides where a distance actually puts it,
+        // and it is the thing this component used to leave unsaid.
+        KinoEditorGUI.Section(paper, $"{id}_placement", "Placement", () =>
+        {
+            KinoEditorGUI.EnumRow(paper, $"{id}_facing", "Facing", body.Facing, v => body.Facing = v);
+            KinoEditorGUI.Note(paper, $"{id}_facingnote", ExplainFacing(body, vcam));
+
+            if (body.Facing != KinoFacing.CameraRotation)
+            {
+                KinoEditorGUI.Float3Row(paper, $"{id}_angles",
+                    body.Facing == KinoFacing.BehindTarget ? "Angles From Target" : "Facing Angles",
+                    body.FacingAngles, v => body.FacingAngles = v);
+                KinoEditorGUI.Note(paper, $"{id}_anglesnote",
+                    "Degrees: pitch, yaw, roll. Positive pitch looks down at the subject.");
+            }
+
+            if (body.Facing == KinoFacing.BehindTarget)
+                KinoEditorGUI.DampingRow(paper, $"{id}_fd", "Facing Damping", body.FacingDamping,
+                    v => body.FacingDamping = v);
+
+            KinoEditorGUI.FloatRow(paper, $"{id}_dist", "Camera Distance", body.CameraDistance,
+                v => body.CameraDistance = v, "m", 0f);
+            KinoEditorGUI.FloatRow(paper, $"{id}_ddz", "Distance Dead Zone", body.DistanceDeadZone,
+                v => body.DistanceDeadZone = v, "m", 0f);
+        });
+
         KinoEditorGUI.Section(paper, $"{id}_framing", "Framing", () =>
         {
             var composition = new KinoComposition(body.ScreenX, body.ScreenY,
@@ -162,14 +188,8 @@ public class KinoFramingTransposerEditor : CustomEditor
             KinoCompositionGuide.Section(paper, $"{id}_comp", composition, hasPreview: false);
             KinoEditorGUI.Float3Row(paper, $"{id}_toff", "Tracked Object Offset", body.TrackedObjectOffset,
                 v => body.TrackedObjectOffset = v);
-        });
-
-        KinoEditorGUI.Section(paper, $"{id}_distance", "Distance", () =>
-        {
-            KinoEditorGUI.FloatRow(paper, $"{id}_dist", "Camera Distance", body.CameraDistance,
-                v => body.CameraDistance = v, "m", 0f);
-            KinoEditorGUI.FloatRow(paper, $"{id}_ddz", "Distance Dead Zone", body.DistanceDeadZone,
-                v => body.DistanceDeadZone = v, "m", 0f);
+            KinoEditorGUI.Note(paper, $"{id}_toffnote",
+                "Moves the point being framed, so the camera moves with it. To aim off-centre without moving the camera, use the aim component's offset instead.");
         });
 
         KinoEditorGUI.Section(paper, $"{id}_damping", "Damping", () =>
@@ -215,6 +235,33 @@ public class KinoFramingTransposerEditor : CustomEditor
                 v => body.MaximumDistance = v, "m", 0f);
         });
     }
+
+    private static string ExplainFacing(KinoFramingTransposer body, KinoCamera? vcam)
+    {
+        bool hasAim = vcam.IsValid() && KinoEditorUtil.OfStage(vcam, KinoStage.Aim).Count > 0;
+        return KinoFramingHelp.Explain(body.Facing, hasAim);
+    }
+}
+
+/// <summary>
+/// Says what the chosen facing actually means for this camera, including the case that used to be
+/// invisible: a distance and nothing else, with the direction coming from somewhere off-screen.
+/// </summary>
+internal static class KinoFramingHelp
+{
+    public static string Explain(KinoFacing facing, bool hasAim) => facing switch
+    {
+        KinoFacing.FixedDirection =>
+            "The camera sits on the same side of the subject whatever it does, at the angles below.",
+        KinoFacing.BehindTarget =>
+            "The camera stays behind the follow target, coming around as it turns.",
+        _ when hasAim =>
+            "The direction comes from the aim component, which decides it from the subject - so the camera can end up on any side. "
+            + "Pick Fixed Direction or Behind Target to say which side it should be.",
+        _ =>
+            "The direction comes from this GameObject's own rotation - rotate it in the scene view to choose the angle. "
+            + "Right for 2D and top-down; pick Fixed Direction or Behind Target to state it outright instead."
+    };
 }
 
 /// <summary>

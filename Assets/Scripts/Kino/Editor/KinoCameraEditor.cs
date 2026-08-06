@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Prowl.Editor.Core;
 using Prowl.Editor.GUI;
@@ -28,13 +29,24 @@ public class KinoCameraEditor : CustomEditor
     private readonly KinoShotPreview _preview = new();
     private bool _showPreview = true;
 
-    /// <summary>Every stage, and what to offer adding when it is empty.</summary>
-    private static readonly (KinoStage Stage, string Label, Type[] Options)[] s_stages =
+    // What each stage can be filled with. Body and Aim are one-of - the pipeline only ever runs the
+    // first - so they are a single choice. Noise and Finalize genuinely stack, so those are multiple.
+    private static readonly Type[] s_bodyTypes =
     [
-        (KinoStage.Body, "Body", [typeof(KinoTransposer), typeof(KinoOrbitalTransposer), typeof(KinoFramingTransposer), typeof(KinoHardLockToTarget), typeof(KinoTrackedDolly)]),
-        (KinoStage.Aim, "Aim", [typeof(KinoComposer), typeof(KinoHardLookAt), typeof(KinoPOV), typeof(KinoSameAsFollowTarget)]),
-        (KinoStage.Noise, "Noise", [typeof(KinoShake)]),
-        (KinoStage.Finalize, "Finalize", [typeof(KinoCollider), typeof(KinoConfiner), typeof(KinoImpulseListener)])
+        typeof(KinoTransposer), typeof(KinoOrbitalTransposer), typeof(KinoFramingTransposer),
+        typeof(KinoHardLockToTarget), typeof(KinoTrackedDolly)
+    ];
+
+    private static readonly Type[] s_aimTypes =
+    [
+        typeof(KinoComposer), typeof(KinoHardLookAt), typeof(KinoPOV), typeof(KinoSameAsFollowTarget)
+    ];
+
+    private static readonly Type[] s_noiseTypes = [typeof(KinoShake)];
+
+    private static readonly Type[] s_finalizeTypes =
+    [
+        typeof(KinoCollider), typeof(KinoConfiner), typeof(KinoImpulseListener)
     ];
 
     public override void OnGUI(Paper paper, string id, object target)
@@ -252,74 +264,131 @@ public class KinoCameraEditor : CustomEditor
     {
         KinoEditorGUI.Section(paper, $"{id}_h", "Pipeline", () =>
         {
-            foreach ((KinoStage stage, string label, Type[] options) in s_stages)
-                DrawStageRow(paper, $"{id}_{stage}", vcam, stage, label, options);
+            SingleStage(paper, $"{id}_body", vcam, KinoStage.Body, "Body", s_bodyTypes);
+            SingleStage(paper, $"{id}_aim", vcam, KinoStage.Aim, "Aim", s_aimTypes);
+            MultiStage(paper, $"{id}_noise", vcam, KinoStage.Noise, "Noise", s_noiseTypes);
+            MultiStage(paper, $"{id}_final", vcam, KinoStage.Finalize, "Finalize", s_finalizeTypes);
         });
     }
 
-    private static void DrawStageRow(Paper paper, string id, KinoCamera vcam, KinoStage stage, string label, Type[] options)
+    /// <summary>
+    /// A stage the pipeline only runs one of. Picking from the dropdown swaps the component out, so the
+    /// inspector cannot end up describing a camera with two body components where only one runs.
+    /// </summary>
+    private static void SingleStage(Paper paper, string id, KinoCamera vcam, KinoStage stage, string label, Type[] options)
     {
         List<KinoComponent> attached = KinoEditorUtil.OfStage(vcam, stage);
-        KinoComponent? winner = KinoEditorUtil.StageWinner(vcam, stage);
-        bool single = stage is KinoStage.Body or KinoStage.Aim;
+        Type? current = attached.Count > 0 ? attached[0].GetType() : null;
+        bool known = current == null || Array.IndexOf(options, current) >= 0;
+
+        // Index 0 is "None", so the options line up one along. A component this list has never heard of
+        // - one someone wrote themselves - gets an entry of its own rather than being shown as "None"
+        // and quietly deleted by the next pick.
+        var labels = new List<string>(options.Length + 2) { "None" };
+        foreach (Type option in options)
+            labels.Add(ShortName(option));
+        if (!known)
+            labels.Add(ShortName(current!));
+
+        int custom = labels.Count - 1;
+        int selected = current == null ? 0 : known ? Array.IndexOf(options, current) + 1 : custom;
 
         EditorGUI.Row(paper, id, label, () =>
-        {
-            var font = EditorTheme.DefaultFont;
-            if (font == null) return;
-
-            var m = Origami.Current.Metrics;
-            using (paper.Row($"{id}_w").Width(UnitValue.Stretch()).Height(UnitValue.Auto)
-                .MinHeight(KinoEditorGUI.RowHeight).RowBetween(m.Spacing).Enter())
-            {
-                if (attached.Count == 0)
-                {
-                    paper.Box($"{id}_none").Width(UnitValue.Stretch()).Height(KinoEditorGUI.RowHeight)
-                        .IsNotInteractable()
-                        .Text("none", font).TextColor(EditorTheme.Ink200)
-                        .FontSize(m.FontSizeSmall).Alignment(TextAlignment.MiddleLeft);
-                }
-                else
-                {
-                    for (int i = 0; i < attached.Count; i++)
+            Origami.Dropdown(paper, $"{id}_dd", selected, choice =>
                     {
-                        KinoComponent component = attached[i];
-                        bool running = ReferenceEquals(component, winner) || (!single && component.EnabledInHierarchy && component.IsUsable);
-                        KinoEditorGUI.Badge(paper, $"{id}_c{i}", KinoEditorUtil.DisplayName(component.GetType()),
-                            running ? EditorTheme.Green400 : EditorTheme.Ink300);
-                    }
-                }
-            }
-        });
+                        if (!known && choice == custom)
+                            return; // already the one it is on
 
-        // Adding the usual component for an empty stage, without hunting through the Add Component menu.
-        if (attached.Count == 0 && options.Length > 0)
-        {
-            var m = Origami.Current.Metrics;
-            using (paper.Row($"{id}_add").Height(UnitValue.Auto)
-                .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing).RowBetween(m.Spacing).Enter())
-            {
-                foreach (Type option in options)
-                {
-                    Type captured = option;
-                    KinoEditorGUI.Button(paper, $"{id}_add_{option.Name}",
-                        "+ " + KinoEditorUtil.DisplayName(option).Replace("Kino ", string.Empty),
-                        () => AddComponent(vcam, captured), EditorTheme.Purple400, grow: false);
-                }
-            }
-        }
+                        SetStage(vcam, stage, choice <= 0 ? null : options[choice - 1]);
+                    }, labels)
+                .Width(UnitValue.Stretch())
+                .Show());
+
+        if (attached.Count > 1)
+            KinoEditorGUI.Note(paper, $"{id}_dupe",
+                $"{attached.Count} {label} components are attached and only the first runs. Choosing from the dropdown removes the rest.",
+                KinoNoteKind.Warning);
     }
 
-    private static void AddComponent(KinoCamera vcam, Type type)
+    /// <summary>
+    /// A stage the pipeline runs all of, so the dropdown is a multi-select: ticking adds the component,
+    /// unticking removes it.
+    /// </summary>
+    private static void MultiStage(Paper paper, string id, KinoCamera vcam, KinoStage stage, string label, Type[] options)
+    {
+        List<KinoComponent> attached = KinoEditorUtil.OfStage(vcam, stage);
+
+        var present = new List<Type>();
+        foreach (KinoComponent component in attached)
+        {
+            Type type = component.GetType();
+            if (Array.IndexOf(options, type) >= 0 && !present.Contains(type))
+                present.Add(type);
+        }
+
+        EditorGUI.Row(paper, id, label, () =>
+            Origami.MultiDropdown(paper, $"{id}_dd", present,
+                    chosen => SyncStage(vcam, stage, options, chosen), options)
+                .Display(ShortName)
+                .Width(UnitValue.Stretch())
+                .Show());
+    }
+
+    /// <summary>Leaves the camera with exactly one component of <paramref name="stage"/>, or none.</summary>
+    private static void SetStage(KinoCamera vcam, KinoStage stage, Type? wanted)
     {
         if (vcam.IsNotValid() || vcam.GameObject.IsNotValid())
             return;
 
         Undo.Snapshot(vcam.GameObject);
-        vcam.GameObject.AddComponent(type);
+
+        bool alreadyThere = false;
+        foreach (KinoComponent component in KinoEditorUtil.OfStage(vcam, stage))
+        {
+            // The one being asked for is kept rather than replaced, so re-picking the current entry does
+            // not quietly reset everything that was configured on it.
+            if (wanted != null && component.GetType() == wanted && !alreadyThere)
+                alreadyThere = true;
+            else
+                vcam.GameObject.RemoveComponent(component);
+        }
+
+        if (wanted != null && !alreadyThere)
+            vcam.GameObject.AddComponent(wanted);
+
         vcam.InvalidateComponentCache();
         EditorSceneManager.MarkDirty();
     }
+
+    /// <summary>Adds and removes until the camera carries exactly the chosen set for a stage.</summary>
+    private static void SyncStage(KinoCamera vcam, KinoStage stage, Type[] options, IReadOnlyList<Type> chosen)
+    {
+        if (vcam.IsNotValid() || vcam.GameObject.IsNotValid())
+            return;
+
+        Undo.Snapshot(vcam.GameObject);
+
+        foreach (KinoComponent component in KinoEditorUtil.OfStage(vcam, stage))
+        {
+            Type type = component.GetType();
+
+            // Anything the dropdown does not know about is left alone: it is a component someone wrote
+            // themselves, and this list is not the authority on it.
+            if (Array.IndexOf(options, type) >= 0 && !chosen.Contains(type))
+                vcam.GameObject.RemoveComponent(component);
+        }
+
+        foreach (Type type in chosen)
+            if (vcam.GameObject.GetComponent(type).IsNotValid())
+                vcam.GameObject.AddComponent(type);
+
+        vcam.InvalidateComponentCache();
+        EditorSceneManager.MarkDirty();
+    }
+
+    /// <summary>"Orbital Transposer" - the type name without the prefix every one of them shares.</summary>
+    private static string ShortName(Type type)
+        => KinoEditorUtil.DisplayName(type).Replace("Kino ", string.Empty);
 
     #endregion
 }

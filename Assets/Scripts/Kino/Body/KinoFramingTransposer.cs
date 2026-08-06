@@ -6,12 +6,34 @@ using Prowl.Vector;
 
 namespace Prowl.Kino;
 
+/// <summary>Which way the camera faces while it frames - and so which side of the subject it sits on.</summary>
+public enum KinoFacing : byte
+{
+    /// <summary>
+    /// Whatever the camera is already pointing. The angle comes from rotating the camera's own
+    /// GameObject, or from an aim component when there is one. Right for 2D and top-down, where the
+    /// angle is fixed and the camera only ever slides.
+    /// </summary>
+    CameraRotation,
+
+    /// <summary>A direction stated outright, so the camera always sits on the same side of the subject.</summary>
+    FixedDirection,
+
+    /// <summary>The follow target's own heading, so the camera stays behind it as it turns.</summary>
+    BehindTarget
+}
+
 /// <summary>
 /// Keeps the subject at a chosen spot on the screen by moving the camera, not by turning it. The
 /// component for side-on and top-down games, and for any shot where the framing matters more than
 /// where the camera happens to be.
 /// </summary>
 /// <remarks>
+/// <para>
+/// Two things decide where the camera ends up: <see cref="Facing"/> - which way it looks, and so which
+/// side of the subject it sits on - and <see cref="CameraDistance"/>, how far back along that. Screen
+/// position and zones then slide it within the plane facing the subject.
+/// </para>
 /// <para>
 /// The dead zone is the part of the screen where the subject can wander without the camera reacting
 /// at all; the soft zone is the part it is allowed to reach while the camera catches up. Widen the
@@ -26,10 +48,33 @@ namespace Prowl.Kino;
 [ComponentIcon("\uf125")] // Crop
 public class KinoFramingTransposer : KinoComponent
 {
-    /// <summary>World-space offset from the follow target to the point actually being framed.</summary>
+    /// <summary>
+    /// Which way the camera faces while framing, and so which side of the subject it sits on. See
+    /// <see cref="KinoFacing"/>.
+    /// </summary>
+    public KinoFacing Facing = KinoFacing.CameraRotation;
+
+    /// <summary>
+    /// The direction the camera looks along, in degrees: pitch, yaw, roll. Positive pitch looks down at
+    /// the subject. Used by <see cref="KinoFacing.FixedDirection"/>, and added on top of the target's
+    /// heading by <see cref="KinoFacing.BehindTarget"/>.
+    /// </summary>
+    public Float3 FacingAngles = new(20f, 0f, 0f);
+
+    /// <summary>
+    /// Seconds for the camera to come around when the direction it faces changes. Only used by
+    /// <see cref="KinoFacing.BehindTarget"/>, where it stops a turning target whipping the camera.
+    /// </summary>
+    public float FacingDamping = 0.5f;
+
+    /// <summary>
+    /// World-space offset from the follow target to the point actually being framed. The camera frames
+    /// that point, so moving this moves the camera with it - to aim off-centre without moving the
+    /// camera, use the aim component's own offset instead.
+    /// </summary>
     public Float3 TrackedObjectOffset = Float3.Zero;
 
-    /// <summary>How far in front of the camera the subject should sit, in metres.</summary>
+    /// <summary>How far back from the subject the camera sits, in metres.</summary>
     public float CameraDistance = 10f;
 
     /// <summary>Horizontal screen position for the subject. 0 is the left edge, 1 the right.</summary>
@@ -87,6 +132,8 @@ public class KinoFramingTransposer : KinoComponent
     private Float3 _lookaheadVelocity;
     private float _distance;
     private bool _initialised;
+    private Quaternion _facing = Quaternion.Identity;
+    private bool _hasFacing;
 
     public override KinoStage Stage => KinoStage.Body;
 
@@ -95,6 +142,7 @@ public class KinoFramingTransposer : KinoComponent
     public override void ResetDamping()
     {
         _initialised = false;
+        _hasFacing = false;
         _lookaheadVelocity = Float3.Zero;
     }
 
@@ -116,17 +164,18 @@ public class KinoFramingTransposer : KinoComponent
         subject += Lookahead(subject, ctx.DeltaTime) + TrackedObjectOffset;
 
         float distance = ResolveDistance(state.Lens, ctx);
+        Quaternion facing = ResolveFacing(state, ctx);
 
         // The position that frames the subject exactly where it was asked for. Everything after this is
         // about how quickly the camera is allowed to get there.
         Float2 want = KinoScreen.FromScreenPoint(ScreenX, ScreenY);
         Float2 halfExtents = KinoScreen.HalfExtentsAt(distance, state.Lens, ctx.Aspect);
         Float3 framed = new(want.X * halfExtents.X, want.Y * halfExtents.Y, distance);
-        Float3 desired = subject - state.Rotation * framed;
+        Float3 desired = subject - facing * framed;
 
-        // Worked in the camera's own axes, where sideways, vertical and distance are separate ideas
+        // Worked in the facing frame's axes, where sideways, vertical and distance are separate ideas
         // with separate zones and separate damping.
-        Float3 gap = Quaternion.Inverse(state.Rotation) * (desired - state.Position);
+        Float3 gap = Quaternion.Inverse(facing) * (desired - state.Position);
 
         // A soft zone inside the dead zone would have the camera correcting what it just decided to
         // ignore, so it is never allowed to be the smaller of the two.
@@ -134,7 +183,71 @@ public class KinoFramingTransposer : KinoComponent
         float moveY = Correct(gap.Y, DeadZoneHeight * halfExtents.Y, Maths.Max(SoftZoneHeight, DeadZoneHeight) * halfExtents.Y, VerticalDamping, ctx.DeltaTime);
         float moveZ = Correct(gap.Z, DistanceDeadZone, 0f, DistanceDamping, ctx.DeltaTime);
 
-        state.Position += state.Rotation * new Float3(moveX, moveY, moveZ);
+        state.Position += facing * new Float3(moveX, moveY, moveZ);
+
+        // Only when nothing else will. An aim component damps from the rotation it is handed, so
+        // overwriting that every frame would restart its smoothing every frame and leave the shot
+        // shivering in place instead of settling.
+        if (Facing != KinoFacing.CameraRotation && !AimOwnsRotation)
+            state.Rotation = facing;
+    }
+
+    /// <summary>
+    /// True when an aim component is going to decide the rotation after this runs. The rotation belongs
+    /// to exactly one stage, and when that stage is filled this component keeps its hands off it - both
+    /// writing to it and reading from it.
+    /// </summary>
+    private bool AimOwnsRotation
+    {
+        get
+        {
+            KinoCamera? vcam = VirtualCamera;
+            return vcam.IsValid() && vcam.ActiveAim.IsValid();
+        }
+    }
+
+    /// <summary>
+    /// The frame the camera slides in. This is the direction the whole component is built around: with
+    /// no answer to "which way is it facing" a distance alone cannot say where a camera goes.
+    /// </summary>
+    private Quaternion ResolveFacing(in KinoState state, in KinoContext ctx)
+    {
+        if (Facing == KinoFacing.CameraRotation)
+        {
+            // With nothing aiming the camera its rotation is authored and cannot change underneath us,
+            // so it is read live and rotating the GameObject in the scene view simply works.
+            if (!AimOwnsRotation)
+                return state.Rotation;
+
+            // With an aim component that rotation is the aim's own output from last frame. Placing the
+            // camera from it would feed this component's result back through the aim and into itself -
+            // two controllers on one shot, which rings rather than settles. The direction is taken once
+            // and held instead; Fixed Direction and Behind Target are the ways to state it outright.
+            if (!_hasFacing)
+            {
+                _facing = state.Rotation;
+                _hasFacing = true;
+            }
+
+            return _facing;
+        }
+
+        Quaternion offset = Quaternion.FromEuler(FacingAngles);
+        Quaternion wanted = Facing == KinoFacing.BehindTarget
+            ? KinoMath.FlattenToUp(FollowRotation, ctx.WorldUp) * offset
+            : KinoMath.HeadingFrame(ctx.WorldUp) * offset;
+
+        if (!_hasFacing || ctx.IsSnap)
+        {
+            _facing = wanted;
+            _hasFacing = true;
+        }
+        else
+        {
+            _facing = KinoMath.DampTowards(_facing, wanted, FacingDamping, ctx.DeltaTime);
+        }
+
+        return _facing;
     }
 
     private static float Correct(float gap, float deadZone, float softZone, float damping, float deltaTime)

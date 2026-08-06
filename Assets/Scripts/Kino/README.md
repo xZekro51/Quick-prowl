@@ -93,11 +93,16 @@ where the subject actually is right now. Drag the target, watch the dot move aga
 to check one shot in a scene full of them. **Make Live** is the permanent version: it raises the
 priority above every other camera.
 
-**The pipeline is spelled out.** The bottom of a Kino Camera lists what is attached at each stage and
-which of it is actually running - a second body component is shown greyed out rather than silently
-ignored, and an empty stage offers the components that go there. Every body and aim component says so
-in its own inspector too, along with the reason it is sitting the frame out: no follow target, no
-path, or another component of the same stage got there first.
+**The pipeline is a set of dropdowns.** At the bottom of a Kino Camera, Body and Aim are one-of - the
+pipeline only ever runs the first, so picking from the dropdown swaps the component out. Noise and
+Finalize genuinely stack, so those are multi-selects: tick to add, untick to remove. Every body and
+aim component also says in its own inspector when it is sitting the frame out, and why: no follow
+target, no path, or another component of the same stage got there first.
+
+**The brain lists every other brain.** Two of them quietly driving two cameras is what split screen
+wants and a mistake everywhere else, and it is otherwise invisible until the shot starts flickering -
+so the brain's inspector always shows who else is enabled and what each one is showing. Click a row to
+select it.
 
 **In the scene view**, selecting a camera draws its frame, the lines to its targets, and a drag handle
 on whatever its body component uses to place it - the follow offset, the orbit pivot, the tracked
@@ -157,9 +162,20 @@ Keeps the subject at a chosen spot on screen by *moving* the camera rather than 
 component for side-on and top-down games, and for any shot where the framing matters more than where
 the camera is.
 
+Two things decide where the camera ends up: **which way it faces**, and how far back it sits along
+that. Facing is the one that is easy to miss - a distance on its own cannot say where a camera goes:
+
+- **Camera Rotation** - whatever the camera is already pointing, which means this GameObject's own
+  rotation, or an aim component when there is one. Right for 2D and top-down, where the angle is fixed
+  and the camera only ever slides.
+- **Fixed Direction** - a direction you state outright, so the camera always sits on the same side of
+  the subject however it moves.
+- **Behind Target** - the follow target's own heading, so the camera comes around as it turns.
+
 | | |
 |---|---|
-| `CameraDistance` | How far in front of the camera the subject sits. |
+| `Facing` / `FacingAngles` | Which way the camera looks while framing, and so which side it sits on. |
+| `CameraDistance` | How far back from the subject the camera sits. |
 | `ScreenX` / `ScreenY` | Where the subject belongs. `0,0` is bottom-left, `1,1` is top-right. |
 | `DeadZoneWidth` / `DeadZoneHeight` | Room to move before the camera reacts at all. |
 | `SoftZoneWidth` / `SoftZoneHeight` | As far out as the subject is ever allowed to get. |
@@ -170,6 +186,16 @@ the camera is.
 Zones are fractions of the screen, measured from the point you asked for: `DeadZoneWidth = 0.2` lets the
 subject wander a fifth of the screen either side before the camera bothers. A dead zone of zero is a
 camera welded to its subject; widen it and the shot starts to breathe.
+
+`TrackedObjectOffset` moves the point being framed, and the camera moves with it - that is what framing
+a different point means. To aim off-centre *without* moving the camera, use the aim component's own
+offset instead.
+
+Rotation belongs to the aim stage. When an aim component is present this one neither writes it nor
+reads it: writing it would restart the aim's damping every frame, and reading it would feed this
+component's own result back through the aim - two controllers on one shot, which rings instead of
+settling. With no aim component the rotation is the GameObject's own, and `Camera Rotation` facing
+follows it live.
 
 ### Kino Tracked Dolly
 

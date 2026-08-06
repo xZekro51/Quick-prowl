@@ -10,6 +10,8 @@ using Prowl.PaperUI.LayoutEngine;
 using Prowl.Runtime;
 using Prowl.Vector;
 
+using SColor = System.Drawing.Color;
+
 namespace Prowl.Kino.Editor;
 
 /// <summary>
@@ -27,6 +29,7 @@ public class KinoBrainEditor : CustomEditor
         Undo.Snapshot(brain);
 
         DrawStatus(paper, $"{id}_status", brain);
+        DrawBrainList(paper, $"{id}_brains", brain);
 
         KinoEditorGUI.Section(paper, $"{id}_blend", "Blending", () =>
         {
@@ -92,11 +95,6 @@ public class KinoBrainEditor : CustomEditor
                 "No Camera on this GameObject, so there is nothing for the brain to drive.", KinoNoteKind.Problem);
         }
 
-        if (KinoCore.Brains.Count > 1)
-            KinoEditorGUI.Note(paper, $"{id}_manybrains",
-                $"{KinoCore.Brains.Count} brains are enabled. Each drives its own camera - fine for split screen, a mistake otherwise.",
-                KinoNoteKind.Warning);
-
         KinoCamera? active = brain.ActiveCamera;
         if (active.IsNotValid())
         {
@@ -128,6 +126,69 @@ public class KinoBrainEditor : CustomEditor
             () => Origami.ProgressBar(paper, $"{id}_pb", brain.BlendWeight).Show());
 
         KinoEditorGUI.Note(paper, $"{id}_blendnote", $"From {fromName}, {brain.BlendWeight * 100f:0}% of the way across.");
+    }
+
+    /// <summary>
+    /// Every enabled brain, and what each one is showing. Two brains quietly fighting over the same
+    /// camera - a leftover on a prefab, a second one added to a rig - is otherwise invisible until the
+    /// shot starts flickering, so the list is always there rather than only when something looks wrong.
+    /// </summary>
+    private static void DrawBrainList(Paper paper, string id, KinoBrain self)
+    {
+        var font = EditorTheme.DefaultFont;
+        if (font == null) return;
+
+        var m = Origami.Current.Metrics;
+        int count = KinoCore.Brains.Count;
+
+        KinoEditorGUI.Section(paper, id, count == 1 ? "Brain" : $"Brains ({count})", () =>
+        {
+            for (int i = 0; i < count; i++)
+            {
+                KinoBrain other = KinoCore.Brains[i];
+                if (other.IsNotValid())
+                    continue;
+
+                bool isSelf = ReferenceEquals(other, self);
+                bool driving = other.ActiveCamera.IsValid();
+                string showing = driving ? other.ActiveCamera!.GameObject.Name : "nothing yet";
+                if (other.IsBlending)
+                    showing += $"  ({other.BlendWeight * 100f:0}%)";
+
+                KinoBrain captured = other;
+
+                using (paper.Row($"{id}_b{i}").Height(UnitValue.Auto).MinHeight(22)
+                    .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing)
+                    .Padding(m.SpacingLarge, m.SpacingLarge, m.SpacingSmall, m.SpacingSmall)
+                    .RowBetween(m.SpacingMedium)
+                    .Rounded(m.SmallRounding)
+                    .BackgroundColor(isSelf ? SColor.FromArgb(36, EditorTheme.Purple400) : EditorTheme.Glass)
+                    .BorderColor(isSelf ? SColor.FromArgb(110, EditorTheme.Purple400) : EditorTheme.BorderSoft)
+                    .BorderWidth(1)
+                    .OnClick(_ => Selection.Select(captured.GameObject))
+                    .Enter())
+                {
+                    KinoEditorGUI.Badge(paper, $"{id}_b{i}_state",
+                        driving ? "DRIVING" : "IDLE",
+                        driving ? EditorTheme.Green400 : EditorTheme.Ink300);
+
+                    paper.Box($"{id}_b{i}_n").Width(UnitValue.Stretch()).Height(20).IsNotInteractable()
+                        .Text($"{captured.GameObject.Name}  →  {showing}", font)
+                        .TextColor(isSelf ? EditorTheme.Ink500 : EditorTheme.Ink300)
+                        .FontSize(m.FontSizeSmall).Alignment(TextAlignment.MiddleLeft).TextTruncate();
+
+                    if (isSelf)
+                        KinoEditorGUI.Badge(paper, $"{id}_b{i}_self", "THIS", EditorTheme.Purple400);
+                    else if (!Application.IsPlaying && captured.PreviewInEditMode)
+                        KinoEditorGUI.Badge(paper, $"{id}_b{i}_prev", "PREVIEW", EditorTheme.Blue400);
+                }
+            }
+
+            if (count > 1)
+                KinoEditorGUI.Note(paper, $"{id}_many",
+                    "Each brain drives the Camera on its own GameObject - which is what split screen wants, and a mistake otherwise. Click a row to select it.",
+                    KinoNoteKind.Warning);
+        });
     }
 
     private static void DrawEditModeSection(Paper paper, string id, KinoBrain brain)
