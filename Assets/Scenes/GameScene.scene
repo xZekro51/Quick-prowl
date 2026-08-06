@@ -215,9 +215,9 @@
           "$id": 15,
           "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
           "_localPosition": {
-            "X": 0F,
-            "Y": 3.349998F,
-            "Z": -8.250008F
+            "X": 2F,
+            "Y": 5.5F,
+            "Z": -5F
           },
           "_localScale": {
             "X": 1F,
@@ -225,10 +225,10 @@
             "Z": 1F
           },
           "_localRotation": {
-            "X": 0.16633889F,
-            "Y": 0F,
-            "Z": 0F,
-            "W": 0.98606867F
+            "X": 0.33362103F,
+            "Y": -0.051498752F,
+            "Z": 0.018255929F,
+            "W": 0.94112253F
           }
         },
         "Components": [
@@ -253,9 +253,9 @@
             },
             "ProjectionMode": 0L,
             "FieldOfView": 60F,
-            "OrthographicSize": 0.5F,
+            "OrthographicSize": 5F,
             "NearClipPlane": 0.1F,
-            "FarClipPlane": 100F,
+            "FarClipPlane": 1000F,
             "Depth": -1,
             "Pipeline": NULL,
             "Target": {
@@ -264,6 +264,522 @@
             "HDR": false,
             "RenderScale": 1F,
             "_identifier": "26fa0beb-22eb-47ae-865f-5d33d9c24799",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewCamera"
+          },
+          {
+            "$id": 18,
+            "$type": "Prowl.Kino.KinoBrain, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "DefaultBlend": {
+              "Style": 3L,
+              "Duration": 1F
+            },
+            "UpdateMethod": 0L,
+            "IgnoreTimeScale": false,
+            "WorldUp": {
+              "X": 0F,
+              "Y": 1F,
+              "Z": 0F
+            },
+            "PreviewInEditMode": true,
+            "_identifier": "37e3bfb7-8cd2-4cb1-9783-3f6a8291c057",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewKinoBrain"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 19,
+        "Name": "KinoCamera",
+        "AssetPath": "",
+        "Identifier": "a03891ec-9001-4b51-b9aa-850df0702cab",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 20,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 2F,
+            "Y": 5.5F,
+            "Z": -5F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0.33362103F,
+            "Y": -0.051498752F,
+            "Z": 0.018255929F,
+            "W": 0.94112253F
+          }
+        },
+        "Components": [
+          {
+            "$id": 21,
+            "$type": "Prowl.Kino.KinoCamera, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Priority": 10,
+            "Follow": {
+              "$id": 7
+            },
+            "LookAt": {
+              "$id": 7
+            },
+            "Lens": {
+              "FieldOfView": 60F,
+              "OrthographicSize": 5F,
+              "NearClip": 0.1F,
+              "FarClip": 1000F,
+              "Dutch": 0F,
+              "Orthographic": false
+            },
+            "BlendIn": {
+              "Style": 0L,
+              "Duration": 0F
+            },
+            "StandbyUpdate": 0L,
+            "_identifier": "2f0b1491-da60-4db3-8345-f163f0ce9354",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewKinoCamera"
+          },
+          {
+            "$id": 22,
+            "$type": "Prowl.Kino.KinoFramingTransposer, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "TrackedObjectOffset": {
+              "X": 2F,
+              "Y": 5F,
+              "Z": -5F
+            },
+            "CameraDistance": 0F,
+            "ScreenX": 0.5F,
+            "ScreenY": 0.5F,
+            "DeadZoneWidth": 0F,
+            "DeadZoneHeight": 0F,
+            "SoftZoneWidth": 0.8F,
+            "SoftZoneHeight": 0.8F,
+            "DistanceDeadZone": 0F,
+            "HorizontalDamping": 1F,
+            "VerticalDamping": 1F,
+            "DistanceDamping": 1F,
+            "LookaheadTime": 0F,
+            "LookaheadSmoothing": 0.3F,
+            "GroupFraming": true,
+            "GroupFramingSize": 0.8F,
+            "MinimumDistance": 2F,
+            "MaximumDistance": 100F,
+            "_identifier": "57984a8a-945a-4ad0-8e3f-8f793322408b",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewKinoFramingTransposer"
+          },
+          {
+            "$id": 23,
+            "$type": "Prowl.Kino.KinoComposer, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "TrackedObjectOffset": {
+              "X": 0F,
+              "Y": 0F,
+              "Z": 0F
+            },
+            "ScreenX": 0.40212032F,
+            "ScreenY": 0.42571455F,
+            "DeadZoneWidth": 0.05F,
+            "DeadZoneHeight": 0.05F,
+            "SoftZoneWidth": 0.8F,
+            "SoftZoneHeight": 0.8F,
+            "HorizontalDamping": 0.5F,
+            "VerticalDamping": 0.5F,
+            "_identifier": "6ef42532-af51-4387-bf27-8dc669293ee8",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewKinoComposer"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 24,
+        "Name": "Kino Shot Preview",
+        "AssetPath": "",
+        "Identifier": "a93855d6-a3fc-41f9-b530-7d181a6ff7e4",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 24,
+        "Transform": {
+          "$id": 25,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": -13.479997F,
+            "Y": 0F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 26,
+            "$type": "Prowl.Runtime.Camera, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Effects": {
+              "$id": 27,
+              "$values": [
+
+              ]
+            },
+            "ClearFlags": 3L,
+            "ClearColor": {
+              "R": 0F,
+              "G": 0F,
+              "B": 0F,
+              "A": 1F
+            },
+            "CullingMask": {
+              "mask": 4294967295U
+            },
+            "ProjectionMode": 0L,
+            "FieldOfView": 60F,
+            "OrthographicSize": 5F,
+            "NearClipPlane": 0.1F,
+            "FarClipPlane": 1000F,
+            "Depth": -2147483648,
+            "Pipeline": NULL,
+            "Target": {
+              "AssetID": "00000000-0000-0000-0000-000000000000"
+            },
+            "HDR": false,
+            "RenderScale": 1F,
+            "_identifier": "3c358a3c-1ad5-4c70-88ee-d0397fe4459c",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewCamera"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 28,
+        "Name": "Kino Shot Preview",
+        "AssetPath": "",
+        "Identifier": "6ba298d4-5d25-42cf-ad70-f56f2679d4f3",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 24,
+        "Transform": {
+          "$id": 29,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0.08001801F,
+            "Y": 0F,
+            "Z": -13.959982F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": -0.060720995F,
+            "Y": 0.09566269F,
+            "Z": 0.0058464855F,
+            "W": 0.99354285F
+          }
+        },
+        "Components": [
+          {
+            "$id": 30,
+            "$type": "Prowl.Runtime.Camera, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Effects": {
+              "$id": 31,
+              "$values": [
+
+              ]
+            },
+            "ClearFlags": 3L,
+            "ClearColor": {
+              "R": 0F,
+              "G": 0F,
+              "B": 0F,
+              "A": 1F
+            },
+            "CullingMask": {
+              "mask": 4294967295U
+            },
+            "ProjectionMode": 0L,
+            "FieldOfView": 60F,
+            "OrthographicSize": 5F,
+            "NearClipPlane": 0.1F,
+            "FarClipPlane": 1000F,
+            "Depth": -2147483648,
+            "Pipeline": NULL,
+            "Target": {
+              "AssetID": "00000000-0000-0000-0000-000000000000"
+            },
+            "HDR": false,
+            "RenderScale": 1F,
+            "_identifier": "b05eaeb0-a184-44d8-9ace-756cc97256f6",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewCamera"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 32,
+        "Name": "Kino Shot Preview",
+        "AssetPath": "",
+        "Identifier": "f309b948-f5ab-4102-97b5-06f32fa76db3",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 24,
+        "Transform": {
+          "$id": 33,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 2F,
+            "Y": 5.5F,
+            "Z": -5F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0.33362103F,
+            "Y": -0.051498752F,
+            "Z": 0.018255929F,
+            "W": 0.94112253F
+          }
+        },
+        "Components": [
+          {
+            "$id": 34,
+            "$type": "Prowl.Runtime.Camera, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Effects": {
+              "$id": 35,
+              "$values": [
+
+              ]
+            },
+            "ClearFlags": 3L,
+            "ClearColor": {
+              "R": 0F,
+              "G": 0F,
+              "B": 0F,
+              "A": 1F
+            },
+            "CullingMask": {
+              "mask": 4294967295U
+            },
+            "ProjectionMode": 0L,
+            "FieldOfView": 60F,
+            "OrthographicSize": 5F,
+            "NearClipPlane": 0.1F,
+            "FarClipPlane": 1000F,
+            "Depth": -2147483648,
+            "Pipeline": NULL,
+            "Target": {
+              "AssetID": "00000000-0000-0000-0000-000000000000"
+            },
+            "HDR": false,
+            "RenderScale": 1F,
+            "_identifier": "887e3d59-e9a7-4e12-99b0-84d6cfde1061",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewCamera"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 36,
+        "Name": "Kino Camera",
+        "AssetPath": "",
+        "Identifier": "ee36c665-d5c8-46af-8f26-a84bbc1f90cc",
+        "Static": 0B,
+        "Enabled": 0B,
+        "EnabledInHierarchy": 0B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 37,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 9.359992F,
+            "Y": 4.640004F,
+            "Z": -5.840014F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": -0.13989824F,
+            "Y": 0.44957972F,
+            "Z": -0.0715283F,
+            "W": -0.8793124F
+          }
+        },
+        "Components": [
+          {
+            "$id": 38,
+            "$type": "Prowl.Kino.KinoCamera, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Priority": 15,
+            "Follow": NULL,
+            "LookAt": NULL,
+            "Lens": {
+              "FieldOfView": 60F,
+              "OrthographicSize": 5F,
+              "NearClip": 0.1F,
+              "FarClip": 1000F,
+              "Dutch": 0F,
+              "Orthographic": false
+            },
+            "BlendIn": {
+              "Style": 0L,
+              "Duration": 0F
+            },
+            "StandbyUpdate": 0L,
+            "_identifier": "ada23e54-357e-41d2-b236-79fa5cd29fca",
+            "_enabled": true,
+            "_enabledInHierarchy": false,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewKinoCamera"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 39,
+        "Name": "Kino Shot Preview",
+        "AssetPath": "",
+        "Identifier": "ea99730d-87ec-4cc4-8339-0cf228423bd6",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 24,
+        "Transform": {
+          "$id": 40,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 9.359992F,
+            "Y": 4.640004F,
+            "Z": -5.840014F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": -0.13989824F,
+            "Y": 0.44957972F,
+            "Z": -0.0715283F,
+            "W": -0.8793124F
+          }
+        },
+        "Components": [
+          {
+            "$id": 41,
+            "$type": "Prowl.Runtime.Camera, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Effects": {
+              "$id": 42,
+              "$values": [
+
+              ]
+            },
+            "ClearFlags": 3L,
+            "ClearColor": {
+              "R": 0F,
+              "G": 0F,
+              "B": 0F,
+              "A": 1F
+            },
+            "CullingMask": {
+              "mask": 4294967295U
+            },
+            "ProjectionMode": 0L,
+            "FieldOfView": 60F,
+            "OrthographicSize": 5F,
+            "NearClipPlane": 0.1F,
+            "FarClipPlane": 1000F,
+            "Depth": -2147483648,
+            "Pipeline": NULL,
+            "Target": {
+              "AssetID": "00000000-0000-0000-0000-000000000000"
+            },
+            "HDR": false,
+            "RenderScale": 1F,
+            "_identifier": "6d38d5cc-370b-4e44-9e63-e36e7ffa7217",
             "_enabled": true,
             "_enabledInHierarchy": true,
             "HideFlags": 0L,
@@ -279,31 +795,52 @@
     ]
   },
   "_goIdentifiers": {
-    "$id": 18,
+    "$id": 43,
     "array": [
       "c454d86b-a2f9-4062-b40b-63160b9a5deb",
       "8c003a47-904d-40c2-86a6-89e1747324f4",
       "627f222b-c8b2-4a4f-b19a-1f273c8ca060",
-      "22370bba-4fc2-4571-a7f9-a0c3d40eee8c"
+      "22370bba-4fc2-4571-a7f9-a0c3d40eee8c",
+      "a03891ec-9001-4b51-b9aa-850df0702cab",
+      "a93855d6-a3fc-41f9-b530-7d181a6ff7e4",
+      "6ba298d4-5d25-42cf-ad70-f56f2679d4f3",
+      "f309b948-f5ab-4102-97b5-06f32fa76db3",
+      "ee36c665-d5c8-46af-8f26-a84bbc1f90cc",
+      "ea99730d-87ec-4cc4-8339-0cf228423bd6"
     ]
   },
   "_compIdentifiers": {
-    "$id": 19,
+    "$id": 44,
     "array": [
       "8378b5d2-c09e-4508-904f-c3f56a748098",
       "70cad536-905e-42cc-96b2-f54b3dd3e838",
       "d42199d3-108f-433c-afaf-58d84ec81790",
-      "26fa0beb-22eb-47ae-865f-5d33d9c24799"
+      "26fa0beb-22eb-47ae-865f-5d33d9c24799",
+      "37e3bfb7-8cd2-4cb1-9783-3f6a8291c057",
+      "2f0b1491-da60-4db3-8345-f163f0ce9354",
+      "57984a8a-945a-4ad0-8e3f-8f793322408b",
+      "6ef42532-af51-4387-bf27-8dc669293ee8",
+      "3c358a3c-1ad5-4c70-88ee-d0397fe4459c",
+      "b05eaeb0-a184-44d8-9ace-756cc97256f6",
+      "887e3d59-e9a7-4e12-99b0-84d6cfde1061",
+      "ada23e54-357e-41d2-b236-79fa5cd29fca",
+      "6d38d5cc-370b-4e44-9e63-e36e7ffa7217"
     ]
   },
   "_compIdOffsets": {
-    "$id": 20,
+    "$id": 45,
     "array": [
       0,
       1,
       2,
       3,
-      4
+      5,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
     ]
   },
   "Fog": {
@@ -366,37 +903,37 @@
     }
   },
   "BakedLighting": {
-    "$id": 21,
+    "$id": 46,
     "Lightmaps": {
-      "$id": 22,
+      "$id": 47,
       "$values": [
 
       ]
     },
     "ProbePositions": {
-      "$id": 23,
+      "$id": 48,
       "array": [
 
       ]
     },
     "ProbeSH": {
-      "$id": 24,
+      "$id": 49,
       "array": [
 
       ]
     },
     "ProbeTetrahedra": {
-      "$id": 25,
+      "$id": 50,
       "array": [
 
       ]
     },
     "ProbeTetNeighbours": {
-      "$id": 25
+      "$id": 50
     }
   },
   "LightmapBake": {
-    "$id": 26,
+    "$id": 51,
     "AtlasSize": 1024,
     "TexelsPerUnit": 20F,
     "DilatePixels": 2,
