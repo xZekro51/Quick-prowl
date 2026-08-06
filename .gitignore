@@ -1,6 +1,7 @@
 Library/
 Temp/
 Logs/
+Builds/
 *.csproj
 *.sln
 .vs/

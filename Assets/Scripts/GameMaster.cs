@@ -9,7 +9,7 @@ public class GameMaster : MonoBehaviour
     
     public override void Start()
     {
-        
+        Scene.DontDestroyOnLoad(GameObject);
     }
 
     public override void Update()
@@ -31,10 +31,10 @@ public class GameMaster : MonoBehaviour
         {
             var masterInstance = GameObject;
             await TransitionManager.Transition(0f, 0.5f);
-            Scene.Remove(masterInstance);
+            //Scene.Remove(masterInstance);
             GameSceneRef.EnsureLoaded();
             Scene.Load(GameSceneRef.Res);
-            Scene.Current.Add(masterInstance);
+            //Scene.Current.Add(masterInstance);
             await TransitionManager.Transition(1.01f, 0.5f);
         }
         catch (System.Exception e)

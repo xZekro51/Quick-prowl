@@ -62,7 +62,9 @@
             "FarClipPlane": 100F,
             "Depth": -1,
             "Pipeline": NULL,
-            "Target": NULL,
+            "Target": {
+              "AssetID": "00000000-0000-0000-0000-000000000000"
+            },
             "HDR": false,
             "RenderScale": 1F,
             "_identifier": "ad43f62f-e806-4c52-b428-92334319c114",
@@ -114,7 +116,7 @@
             "$id": 9,
             "$type": "Prowl.Runtime.GameCanvas, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
             "_renderMode": 0L,
-            "_scaleFactor": 0.54128593F,
+            "_scaleFactor": 1.2914726F,
             "_sortOrder": 0,
             "_uiScaleMode": 1L,
             "_referenceResolution": {
@@ -202,6 +204,14 @@
                 "_sprite": {
                   "AssetID": "bff73be2-cd62-785e-928f-0efd1487829c"
                 },
+                "_preserveAspect": false,
+                "_type": 1L,
+                "_pixelsPerUnitMultiplier": 1F,
+                "_fillMethod": 4L,
+                "_fillOrigin": 0,
+                "_fillAmount": 1F,
+                "_fillClockwise": false,
+                "_raycastTarget": true,
                 "_material": {
                   "AssetID": "00000000-0000-0000-0000-000000000000"
                 },
@@ -211,14 +221,6 @@
                   "B": 1F,
                   "A": 1F
                 },
-                "_preserveAspect": false,
-                "_type": 1L,
-                "_pixelsPerUnitMultiplier": 1F,
-                "_fillMethod": 4L,
-                "_fillOrigin": 0,
-                "_fillAmount": 1F,
-                "_fillClockwise": false,
-                "_raycastTarget": true,
                 "_identifier": "e8e1b5c3-e628-4a7c-ad8f-e70c7b2b66b2",
                 "_enabled": true,
                 "_enabledInHierarchy": true,
@@ -301,19 +303,20 @@
                 "_font": {
                   "AssetID": "f796868d-77dd-4313-837e-d7fcc4cd2ef6"
                 },
-                "_textColor": {
-                  "R": 0F,
-                  "G": 0F,
-                  "B": 0F,
-                  "A": 1F
-                },
                 "_text": "Quick!",
                 "_alignment": 48L,
                 "_size": 86,
                 "_quality": 64L,
                 "_richText": false,
+                "_raycastTarget": true,
                 "_material": {
                   "AssetID": "00000000-0000-0000-0000-000000000000"
+                },
+                "_color": {
+                  "R": 0F,
+                  "G": 0F,
+                  "B": 0F,
+                  "A": 1F
                 },
                 "_identifier": "c46f126e-7649-44ba-a537-5e400a8cedf2",
                 "_enabled": true,
@@ -394,19 +397,20 @@
                     "_font": {
                       "AssetID": "00000000-0000-0000-0000-000000000000"
                     },
-                    "_textColor": {
-                      "R": 0.21428573F,
-                      "G": 0.21428573F,
-                      "B": 0.21428573F,
-                      "A": 1F
-                    },
                     "_text": "Before the world ends!",
                     "_alignment": 48L,
                     "_size": 32,
                     "_quality": 32L,
                     "_richText": false,
+                    "_raycastTarget": true,
                     "_material": {
                       "AssetID": "00000000-0000-0000-0000-000000000000"
+                    },
+                    "_color": {
+                      "R": 0F,
+                      "G": 0F,
+                      "B": 0F,
+                      "A": 1F
                     },
                     "_identifier": "ed2e52ef-566a-4ad7-b9de-7380cfd3070d",
                     "_enabled": true,
@@ -578,6 +582,14 @@
                     "_sprite": {
                       "AssetID": "bff73be2-cd62-785e-928f-0efd1487829c"
                     },
+                    "_preserveAspect": false,
+                    "_type": 1L,
+                    "_pixelsPerUnitMultiplier": 0.5F,
+                    "_fillMethod": 4L,
+                    "_fillOrigin": 0,
+                    "_fillAmount": 1F,
+                    "_fillClockwise": false,
+                    "_raycastTarget": true,
                     "_material": {
                       "AssetID": "00000000-0000-0000-0000-000000000000"
                     },
@@ -587,14 +599,6 @@
                       "B": 1F,
                       "A": 1F
                     },
-                    "_preserveAspect": false,
-                    "_type": 1L,
-                    "_pixelsPerUnitMultiplier": 0.5F,
-                    "_fillMethod": 4L,
-                    "_fillOrigin": 0,
-                    "_fillAmount": 1F,
-                    "_fillClockwise": false,
-                    "_raycastTarget": true,
                     "_identifier": "f5151fa9-17d3-4c14-8d44-fd248efc54d3",
                     "_enabled": true,
                     "_enabledInHierarchy": true,
@@ -626,15 +630,6 @@
                                   "_sprite": {
                                     "AssetID": "79dbea95-d346-ed7f-22ba-d3b427e5c6bd"
                                   },
-                                  "_material": {
-                                    "AssetID": "00000000-0000-0000-0000-000000000000"
-                                  },
-                                  "_color": {
-                                    "R": 1F,
-                                    "G": 1F,
-                                    "B": 1F,
-                                    "A": 0.5019608F
-                                  },
                                   "_preserveAspect": false,
                                   "_type": 0L,
                                   "_pixelsPerUnitMultiplier": 1F,
@@ -642,7 +637,16 @@
                                   "_fillOrigin": 0,
                                   "_fillAmount": 1F,
                                   "_fillClockwise": false,
-                                  "_raycastTarget": true,
+                                  "_raycastTarget": false,
+                                  "_material": {
+                                    "AssetID": "27b120bf-f774-4a35-9eb9-4707762a1b53"
+                                  },
+                                  "_color": {
+                                    "R": 1F,
+                                    "G": 1F,
+                                    "B": 1F,
+                                    "A": 1F
+                                  },
                                   "_identifier": "b4b1d69d-3d9a-4685-9a80-fb94fe9a40b6",
                                   "_enabled": true,
                                   "_enabledInHierarchy": true,
@@ -680,7 +684,8 @@
                     },
                     "_interactable": true,
                     "_targetGraphic": {
-                      "$id": 29
+                      "$id": 29,
+                      "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
                     },
                     "_normalColor": {
                       "R": 1F,
@@ -713,6 +718,30 @@
                       "A": 0.5F
                     },
                     "_transitionDuration": 0.08F,
+                    "_colorMultiplier": 1F,
+                    "_transition": 1L,
+                    "_spriteState": {
+                      "HighlightedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "PressedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "SelectedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "DisabledSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      }
+                    },
+                    "_navigation": {
+                      "Mode": 3L,
+                      "WrapAround": false,
+                      "SelectOnUp": NULL,
+                      "SelectOnDown": NULL,
+                      "SelectOnLeft": NULL,
+                      "SelectOnRight": NULL
+                    },
                     "_identifier": "1998ce33-8ac5-42f5-9c9f-9389dad941d6",
                     "_enabled": true,
                     "_enabledInHierarchy": true,
@@ -792,19 +821,20 @@
                         "_font": {
                           "AssetID": "f796868d-77dd-4313-837e-d7fcc4cd2ef6"
                         },
-                        "_textColor": {
-                          "R": 0F,
-                          "G": 0F,
-                          "B": 0F,
-                          "A": 1F
-                        },
                         "_text": "New Run",
                         "_alignment": 48L,
                         "_size": 48,
                         "_quality": 32L,
                         "_richText": false,
+                        "_raycastTarget": true,
                         "_material": {
                           "AssetID": "00000000-0000-0000-0000-000000000000"
+                        },
+                        "_color": {
+                          "R": 0F,
+                          "G": 0F,
+                          "B": 0F,
+                          "A": 1F
                         },
                         "_identifier": "00bac9ec-a3e1-4769-9264-c728bc3e5e98",
                         "_enabled": true,
@@ -890,6 +920,14 @@
                     "_sprite": {
                       "AssetID": "bff73be2-cd62-785e-928f-0efd1487829c"
                     },
+                    "_preserveAspect": false,
+                    "_type": 1L,
+                    "_pixelsPerUnitMultiplier": 0.5F,
+                    "_fillMethod": 4L,
+                    "_fillOrigin": 0,
+                    "_fillAmount": 1F,
+                    "_fillClockwise": false,
+                    "_raycastTarget": true,
                     "_material": {
                       "AssetID": "00000000-0000-0000-0000-000000000000"
                     },
@@ -899,14 +937,6 @@
                       "B": 1F,
                       "A": 1F
                     },
-                    "_preserveAspect": false,
-                    "_type": 1L,
-                    "_pixelsPerUnitMultiplier": 0.5F,
-                    "_fillMethod": 4L,
-                    "_fillOrigin": 0,
-                    "_fillAmount": 1F,
-                    "_fillClockwise": false,
-                    "_raycastTarget": true,
                     "_identifier": "165dfdf1-5cde-44d3-9386-f79b862ba942",
                     "_enabled": true,
                     "_enabledInHierarchy": true,
@@ -929,7 +959,8 @@
                     },
                     "_interactable": true,
                     "_targetGraphic": {
-                      "$id": 44
+                      "$id": 44,
+                      "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
                     },
                     "_normalColor": {
                       "R": 1F,
@@ -962,6 +993,30 @@
                       "A": 0.5F
                     },
                     "_transitionDuration": 0.08F,
+                    "_colorMultiplier": 1F,
+                    "_transition": 1L,
+                    "_spriteState": {
+                      "HighlightedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "PressedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "SelectedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "DisabledSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      }
+                    },
+                    "_navigation": {
+                      "Mode": 3L,
+                      "WrapAround": false,
+                      "SelectOnUp": NULL,
+                      "SelectOnDown": NULL,
+                      "SelectOnLeft": NULL,
+                      "SelectOnRight": NULL
+                    },
                     "_identifier": "519a72f5-abf3-44b9-95e0-aa9c364287e3",
                     "_enabled": true,
                     "_enabledInHierarchy": true,
@@ -1041,19 +1096,20 @@
                         "_font": {
                           "AssetID": "f796868d-77dd-4313-837e-d7fcc4cd2ef6"
                         },
-                        "_textColor": {
-                          "R": 0F,
-                          "G": 0F,
-                          "B": 0F,
-                          "A": 1F
-                        },
                         "_text": "Options",
                         "_alignment": 48L,
                         "_size": 48,
                         "_quality": 32L,
                         "_richText": false,
+                        "_raycastTarget": true,
                         "_material": {
                           "AssetID": "00000000-0000-0000-0000-000000000000"
+                        },
+                        "_color": {
+                          "R": 0F,
+                          "G": 0F,
+                          "B": 0F,
+                          "A": 1F
                         },
                         "_identifier": "da4a6398-d9ba-4f72-87df-dd6982a3127b",
                         "_enabled": true,
@@ -1139,6 +1195,14 @@
                     "_sprite": {
                       "AssetID": "bff73be2-cd62-785e-928f-0efd1487829c"
                     },
+                    "_preserveAspect": false,
+                    "_type": 1L,
+                    "_pixelsPerUnitMultiplier": 0.5F,
+                    "_fillMethod": 4L,
+                    "_fillOrigin": 0,
+                    "_fillAmount": 1F,
+                    "_fillClockwise": false,
+                    "_raycastTarget": true,
                     "_material": {
                       "AssetID": "00000000-0000-0000-0000-000000000000"
                     },
@@ -1148,14 +1212,6 @@
                       "B": 1F,
                       "A": 1F
                     },
-                    "_preserveAspect": false,
-                    "_type": 1L,
-                    "_pixelsPerUnitMultiplier": 0.5F,
-                    "_fillMethod": 4L,
-                    "_fillOrigin": 0,
-                    "_fillAmount": 1F,
-                    "_fillClockwise": false,
-                    "_raycastTarget": true,
                     "_identifier": "2b9bd12e-e58b-4544-b6f0-12055bd1068a",
                     "_enabled": true,
                     "_enabledInHierarchy": true,
@@ -1178,7 +1234,8 @@
                     },
                     "_interactable": true,
                     "_targetGraphic": {
-                      "$id": 55
+                      "$id": 55,
+                      "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
                     },
                     "_normalColor": {
                       "R": 1F,
@@ -1211,6 +1268,30 @@
                       "A": 0.5F
                     },
                     "_transitionDuration": 0.08F,
+                    "_colorMultiplier": 1F,
+                    "_transition": 1L,
+                    "_spriteState": {
+                      "HighlightedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "PressedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "SelectedSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "DisabledSprite": {
+                        "AssetID": "00000000-0000-0000-0000-000000000000"
+                      }
+                    },
+                    "_navigation": {
+                      "Mode": 3L,
+                      "WrapAround": false,
+                      "SelectOnUp": NULL,
+                      "SelectOnDown": NULL,
+                      "SelectOnLeft": NULL,
+                      "SelectOnRight": NULL
+                    },
                     "_identifier": "de593afa-3ced-468b-bc73-c8a2c43ca54a",
                     "_enabled": true,
                     "_enabledInHierarchy": true,
@@ -1290,19 +1371,20 @@
                         "_font": {
                           "AssetID": "f796868d-77dd-4313-837e-d7fcc4cd2ef6"
                         },
-                        "_textColor": {
-                          "R": 0F,
-                          "G": 0F,
-                          "B": 0F,
-                          "A": 1F
-                        },
                         "_text": "Quit",
                         "_alignment": 48L,
                         "_size": 48,
                         "_quality": 32L,
                         "_richText": false,
+                        "_raycastTarget": true,
                         "_material": {
                           "AssetID": "00000000-0000-0000-0000-000000000000"
+                        },
+                        "_color": {
+                          "R": 0F,
+                          "G": 0F,
+                          "B": 0F,
+                          "A": 1F
                         },
                         "_identifier": "ec003307-408a-4eae-a81d-6497babb4536",
                         "_enabled": true,
@@ -1510,7 +1592,7 @@
                 "$id": 71,
                 "$type": "Prowl.Runtime.GameCanvas, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "_renderMode": 0L,
-                "_scaleFactor": 0.81192887F,
+                "_scaleFactor": 1.9372088F,
                 "_sortOrder": 0,
                 "_uiScaleMode": 1L,
                 "_referenceResolution": {
@@ -1577,8 +1659,8 @@
                       "Y": 0.5F
                     },
                     "_sizeDelta": {
-                      "X": -24F,
-                      "Y": -24F
+                      "X": 2F,
+                      "Y": 2F
                     },
                     "_anchoredPosition": {
                       "X": 0F,

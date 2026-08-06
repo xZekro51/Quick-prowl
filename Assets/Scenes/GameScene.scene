@@ -258,7 +258,9 @@
             "FarClipPlane": 100F,
             "Depth": -1,
             "Pipeline": NULL,
-            "Target": NULL,
+            "Target": {
+              "AssetID": "00000000-0000-0000-0000-000000000000"
+            },
             "HDR": false,
             "RenderScale": 1F,
             "_identifier": "26fa0beb-22eb-47ae-865f-5d33d9c24799",
