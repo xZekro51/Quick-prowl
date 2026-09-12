@@ -1,7 +1,10 @@
 // This file is part of the Prowl Game Engine
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 
+#nullable enable
+
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Prowl.Tweening;
@@ -30,95 +33,77 @@ public readonly partial struct Tween : IEquatable<Tween>
         Version = version;
     }
 
+    /// <summary>
+    /// Resolves the handle to a storage <i>and</i> a dense index in one go, so a fluent chain pays
+    /// for one slot-table lookup per call instead of two.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ITweenStorage? Storage()
+    private bool TryGet([NotNullWhen(true)] out ITweenStorage? storage, out int dense)
     {
-        if (Version == 0)
-            return null;
+        if (Version != 0)
+        {
+            ITweenStorage? s = TweenManager.Resolve(StorageId);
+            if (s != null && s.TryResolve(Slot, Version, out dense))
+            {
+                storage = s;
+                return true;
+            }
+        }
 
-        ITweenStorage? storage = TweenManager.Resolve(StorageId);
-        return storage != null && storage.IsAlive(Slot, Version) ? storage : null;
+        storage = null;
+        dense = -1;
+        return false;
     }
+
+    /// <summary>
+    /// True while a dense index still refers to a living tween. Valid to call after user code has
+    /// run: the index itself stays put until the next sweep, only the flags can have changed.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool StillAlive(ITweenStorage storage, int dense)
+        => (storage.CoreAt(dense).Flags & TweenFlags.Dead) == 0;
 
     #region State
 
     /// <summary>True while the tween exists (it may still be paused).</summary>
-    public bool IsActive => Storage() != null;
+    public bool IsActive => TryGet(out _, out _);
 
     /// <summary>True when the tween exists and is not paused.</summary>
     public bool IsPlaying
-    {
-        get
-        {
-            ITweenStorage? s = Storage();
-            return s != null && (s.CoreRef(Slot, Version).Flags & TweenFlags.Paused) == 0;
-        }
-    }
+        => TryGet(out ITweenStorage? s, out int d) && (s.CoreAt(d).Flags & TweenFlags.Paused) == 0;
 
     /// <summary>True once the tween has reached the end of its last loop.</summary>
     public bool IsComplete
-    {
-        get
-        {
-            ITweenStorage? s = Storage();
-            return s != null && (s.CoreRef(Slot, Version).Flags & TweenFlags.Completed) != 0;
-        }
-    }
+        => TryGet(out ITweenStorage? s, out int d) && (s.CoreAt(d).Flags & TweenFlags.Completed) != 0;
 
     /// <summary>Elapsed time including delay and completed loops.</summary>
     public float Elapsed
     {
         get
         {
-            ITweenStorage? s = Storage();
-            if (s == null) return 0f;
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
+            if (!TryGet(out ITweenStorage? s, out int d)) return 0f;
+            ref TweenCore c = ref s.CoreAt(d);
             return c.DelayElapsed + c.Duration * c.CompletedLoops + c.Position;
         }
     }
 
     /// <summary>Length of a single loop cycle, excluding delay.</summary>
-    public float Duration
-    {
-        get
-        {
-            ITweenStorage? s = Storage();
-            return s == null ? 0f : s.CoreRef(Slot, Version).Duration;
-        }
-    }
+    public float Duration => TryGet(out ITweenStorage? s, out int d) ? s.CoreAt(d).Duration : 0f;
 
     /// <summary>Total length including delay and all loops. Infinite loops count as one.</summary>
-    public float FullDuration
-    {
-        get
-        {
-            ITweenStorage? s = Storage();
-            return s == null ? 0f : s.CoreRef(Slot, Version).FullDuration;
-        }
-    }
+    public float FullDuration => TryGet(out ITweenStorage? s, out int d) ? s.CoreAt(d).FullDuration : 0f;
 
     /// <summary>Number of loop cycles finished so far.</summary>
-    public int CompletedLoops
-    {
-        get
-        {
-            ITweenStorage? s = Storage();
-            return s == null ? 0 : s.CoreRef(Slot, Version).CompletedLoops;
-        }
-    }
+    public int CompletedLoops => TryGet(out ITweenStorage? s, out int d) ? s.CoreAt(d).CompletedLoops : 0;
 
     /// <summary>Per-tween speed multiplier. 2 plays twice as fast, 0 freezes it.</summary>
     public float TimeScale
     {
-        get
-        {
-            ITweenStorage? s = Storage();
-            return s == null ? 1f : s.CoreRef(Slot, Version).TimeScale;
-        }
+        get => TryGet(out ITweenStorage? s, out int d) ? s.CoreAt(d).TimeScale : 1f;
         set
         {
-            ITweenStorage? s = Storage();
-            if (s != null) s.CoreRef(Slot, Version).TimeScale = value;
+            if (TryGet(out ITweenStorage? s, out int d))
+                s.CoreAt(d).TimeScale = value;
         }
     }
 
@@ -126,14 +111,13 @@ public readonly partial struct Tween : IEquatable<Tween>
 
     #region Settings
 
-    /// <summary>Sets the easing equation.</summary>
+    /// <summary>Sets the easing equation. <see cref="Ease.Unset"/> resolves to <see cref="DefaultEase"/>.</summary>
     public Tween SetEase(Ease ease)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
-            c.Ease = ease;
+            ref TweenCore c = ref s.CoreAt(d);
+            c.Ease = Resolve(ease);
             c.Flags &= ~TweenFlags.CustomEase;
         }
         return this;
@@ -142,11 +126,10 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Sets the easing equation with a Back overshoot / Elastic amplitude.</summary>
     public Tween SetEase(Ease ease, float overshootOrAmplitude)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
-            c.Ease = ease;
+            ref TweenCore c = ref s.CoreAt(d);
+            c.Ease = Resolve(ease);
             c.EaseOvershoot = overshootOrAmplitude;
             c.Flags &= ~TweenFlags.CustomEase;
         }
@@ -156,11 +139,10 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Sets the easing equation with an Elastic amplitude and period.</summary>
     public Tween SetEase(Ease ease, float amplitude, float period)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
-            c.Ease = ease;
+            ref TweenCore c = ref s.CoreAt(d);
+            c.Ease = Resolve(ease);
             c.EaseOvershoot = amplitude;
             c.EasePeriod = period;
             c.Flags &= ~TweenFlags.CustomEase;
@@ -171,38 +153,39 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Sets a custom easing function. Cache the delegate to keep this allocation-free.</summary>
     public Tween SetEase(EaseFunction customEase)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            s.EventsRef(Slot, Version).CustomEase = customEase;
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
+            s.EventsAt(d).CustomEase = customEase;
+            ref TweenCore c = ref s.CoreAt(d);
             c.Ease = Ease.Custom;
             c.Flags |= TweenFlags.CustomEase;
         }
         return this;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Ease Resolve(Ease ease)
+        => ease != Ease.Unset ? ease : (DefaultEase == Ease.Unset ? Ease.Linear : DefaultEase);
+
     /// <summary>Sets the loop count (-1 for infinite) and how each cycle restarts.</summary>
     public Tween SetLoops(int loops, LoopType loopType = LoopType.Restart)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
+            ref TweenCore c = ref s.CoreAt(d);
             c.Loops = loops == 0 ? 1 : loops;
             c.LoopType = loopType;
         }
         return this;
     }
 
-    /// <summary>Delays the start of the tween.</summary>
+    /// <summary>Delays the start of the tween. Negative, NaN and infinite values mean "no delay".</summary>
     public Tween SetDelay(float delay)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
-            c.Delay = delay;
+            ref TweenCore c = ref s.CoreAt(d);
+            c.Delay = float.IsFinite(delay) && delay > 0f ? delay : 0f;
             c.DelayElapsed = 0f;
         }
         return this;
@@ -211,10 +194,9 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>When true (the default) the tween is destroyed as soon as it completes.</summary>
     public Tween SetAutoKill(bool autoKill = true)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
+            ref TweenCore c = ref s.CoreAt(d);
             if (autoKill) c.Flags |= TweenFlags.AutoKill;
             else c.Flags &= ~TweenFlags.AutoKill;
         }
@@ -224,11 +206,10 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Chooses which manager tick drives the tween, and whether it ignores time scale.</summary>
     public Tween SetUpdate(UpdateType updateType, bool isIndependentUpdate = false)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
-            c.UpdateType = updateType;
+            s.SetUpdateTypeAt(d, updateType);
+            ref TweenCore c = ref s.CoreAt(d);
             if (isIndependentUpdate) c.Flags |= TweenFlags.Independent;
             else c.Flags &= ~TweenFlags.Independent;
             TweenManager.NotifyUpdateType(updateType);
@@ -239,10 +220,9 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Makes the tween ignore <see cref="TweenManager.TimeScale"/>.</summary>
     public Tween SetUpdate(bool isIndependentUpdate)
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
+            ref TweenCore c = ref s.CoreAt(d);
             if (isIndependentUpdate) c.Flags |= TweenFlags.Independent;
             else c.Flags &= ~TweenFlags.Independent;
         }
@@ -252,16 +232,49 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Tags the tween so <see cref="KillAll(object, bool)"/> and friends can find it later.</summary>
     public Tween SetId(object id)
     {
-        ITweenStorage? s = Storage();
-        if (s != null) s.EventsRef(Slot, Version).Id = id;
+        if (TryGet(out ITweenStorage? s, out int d))
+        {
+            s.TagsAt(d).Id = id;
+            s.CoreAt(d).Flags |= TweenFlags.HasTags;
+        }
         return this;
     }
 
     /// <summary>Associates the tween with an object, for target-based kills.</summary>
     public Tween SetTarget(object target)
     {
-        ITweenStorage? s = Storage();
-        if (s != null) s.EventsRef(Slot, Version).Target = target;
+        if (TryGet(out ITweenStorage? s, out int d))
+        {
+            s.TagsAt(d).Target = target;
+            s.CoreAt(d).Flags |= TweenFlags.HasTags;
+        }
+        return this;
+    }
+
+    /// <summary>
+    /// Ties the tween's life to <paramref name="owner"/>. Before every tick the library asks
+    /// <paramref name="isAlive"/> whether the owner is still there, and kills the tween the first
+    /// time the answer is no - so a tween can never write to an object that has been destroyed.
+    /// </summary>
+    /// <remarks>
+    /// The check runs at the start of the tick, before any value is applied. Use a <c>static</c>
+    /// lambda and pass the owner as <paramref name="owner"/> to keep this allocation-free:
+    /// <c>SetLink(go, static g =&gt; g.IsValid())</c>.
+    /// </remarks>
+    public Tween SetLink<TOwner>(TOwner owner, Func<TOwner, bool> isAlive) where TOwner : class
+    {
+        ArgumentNullException.ThrowIfNull(isAlive);
+
+        if (TryGet(out ITweenStorage? s, out int d))
+        {
+            // Same reinterpret as the callback overloads: a delegate over a reference type shares
+            // its calling convention with one over object.
+            Func<object?, bool> erased = Unsafe.As<Func<TOwner, bool>, Func<object?, bool>>(ref isAlive);
+            ref TweenTags tags = ref s.TagsAt(d);
+            tags.LinkOwner = owner;
+            tags.LinkAlive = erased;
+            s.MarkLinkedAt(d);
+        }
         return this;
     }
 
@@ -278,8 +291,8 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// </summary>
     public Tween SetRelative(bool isRelative = true)
     {
-        if (isRelative)
-            Storage()?.MakeRelative(Slot, Version);
+        if (isRelative && TryGet(out ITweenStorage? s, out int d))
+            s.MakeRelativeAt(d);
         return this;
     }
 
@@ -289,16 +302,21 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// </summary>
     public Tween From()
     {
-        Storage()?.MakeFrom(Slot, Version);
+        if (TryGet(out ITweenStorage? s, out int d))
+            s.MakeFromAt(d);
         return this;
     }
 
     /// <summary>Applies <see cref="SetRelative"/> and then <see cref="From()"/> in one call.</summary>
     public Tween From(bool isRelative)
     {
-        if (isRelative)
-            Storage()?.MakeRelative(Slot, Version);
-        return From();
+        if (TryGet(out ITweenStorage? s, out int d))
+        {
+            if (isRelative)
+                s.MakeRelativeAt(d);
+            s.MakeFromAt(d);
+        }
+        return this;
     }
 
     #endregion
@@ -317,7 +335,10 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Fired every time the tween's value is applied.</summary>
     public Tween OnUpdate(Action callback) => SetCallback(callback, CallbackKind.Update);
 
-    /// <summary>Fired at the end of each loop cycle.</summary>
+    /// <summary>
+    /// Fired at the end of each loop cycle. Fires once per tick even if the tick was long enough
+    /// to cross several cycles.
+    /// </summary>
     public Tween OnStepComplete(Action callback) => SetCallback(callback, CallbackKind.StepComplete);
 
     /// <summary>Fired when the tween reaches the end of its final loop.</summary>
@@ -360,11 +381,43 @@ public readonly partial struct Tween : IEquatable<Tween>
 
     private Tween SetCallback(Delegate? callback, CallbackKind kind)
     {
-        ITweenStorage? s = Storage();
-        if (s == null)
+        if (!TryGet(out ITweenStorage? s, out int d))
             return this;
 
-        ref TweenEvents ev = ref s.EventsRef(Slot, Version);
+        Assign(ref s.EventsAt(d), callback, kind);
+        s.CoreAt(d).Flags |= TweenFlags.HasCallbacks;
+        return this;
+    }
+
+    private Tween SetCallback<TState>(TState state, Action<TState> callback, CallbackKind kind) where TState : class
+    {
+        if (!TryGet(out ITweenStorage? s, out int d))
+            return this;
+
+        // A delegate over a reference type has the same calling convention as one over object,
+        // so the reinterpret is free and avoids wrapping the user's callback in a closure.
+        Action<object?> erased = Unsafe.As<Action<TState>, Action<object?>>(ref callback);
+
+        ref TweenEvents ev = ref s.EventsAt(d);
+
+        // One state object per tween, shared by every On*(state, callback) overload - that is what
+        // keeps the callback record small. Handing a second callback a *different* state silently
+        // re-points the first one at it, so say something rather than let it pass.
+        if (ev.State != null && !ReferenceEquals(ev.State, state))
+        {
+            TweenManager.Warn($"[Tween] On{kind}(state, ...) replaced the callback state of this tween. "
+                            + "All On*(state, callback) overloads on one tween share a single state "
+                            + "object - pass the same state to each, or use the capturing overloads.");
+        }
+
+        ev.State = state;
+        Assign(ref ev, erased, kind);
+        s.CoreAt(d).Flags |= TweenFlags.HasCallbacks;
+        return this;
+    }
+
+    private static void Assign(ref TweenEvents ev, Delegate? callback, CallbackKind kind)
+    {
         switch (kind)
         {
             case CallbackKind.Start: ev.OnStart = callback; break;
@@ -376,20 +429,6 @@ public readonly partial struct Tween : IEquatable<Tween>
             case CallbackKind.Kill: ev.OnKill = callback; break;
             case CallbackKind.Rewind: ev.OnRewind = callback; break;
         }
-        return this;
-    }
-
-    private Tween SetCallback<TState>(TState state, Action<TState> callback, CallbackKind kind) where TState : class
-    {
-        ITweenStorage? s = Storage();
-        if (s == null)
-            return this;
-
-        // A delegate over a reference type has the same calling convention as one over object,
-        // so the reinterpret is free and avoids wrapping the user's callback in a closure.
-        Action<object?> erased = Unsafe.As<Action<TState>, Action<object?>>(ref callback);
-        s.EventsRef(Slot, Version).State = state;
-        return SetCallback(erased, kind);
     }
 
     #endregion
@@ -399,15 +438,14 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Resumes a paused tween.</summary>
     public Tween Play()
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
+            ref TweenCore c = ref s.CoreAt(d);
             if ((c.Flags & TweenFlags.Paused) != 0)
             {
                 c.Flags &= ~TweenFlags.Paused;
-                if ((c.Flags & TweenFlags.HasEvents) != 0)
-                    Invoke(ref s.EventsRef(Slot, Version), CallbackKind.Play);
+                if ((c.Flags & TweenFlags.HasCallbacks) != 0)
+                    Invoke(ref s.EventsAt(d), CallbackKind.Play);
             }
         }
         return this;
@@ -416,15 +454,14 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Pauses the tween where it is.</summary>
     public Tween Pause()
     {
-        ITweenStorage? s = Storage();
-        if (s != null)
+        if (TryGet(out ITweenStorage? s, out int d))
         {
-            ref TweenCore c = ref s.CoreRef(Slot, Version);
+            ref TweenCore c = ref s.CoreAt(d);
             if ((c.Flags & TweenFlags.Paused) == 0)
             {
                 c.Flags |= TweenFlags.Paused;
-                if ((c.Flags & TweenFlags.HasEvents) != 0)
-                    Invoke(ref s.EventsRef(Slot, Version), CallbackKind.Pause);
+                if ((c.Flags & TweenFlags.HasCallbacks) != 0)
+                    Invoke(ref s.EventsAt(d), CallbackKind.Pause);
             }
         }
         return this;
@@ -436,55 +473,55 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Rewinds to the start and plays from there.</summary>
     public Tween Restart(bool includeDelay = true)
     {
-        ITweenStorage? s = Storage();
-        if (s == null)
+        if (!TryGet(out ITweenStorage? s, out int d))
             return this;
 
-        ref TweenCore c = ref s.CoreRef(Slot, Version);
+        ref TweenCore c = ref s.CoreAt(d);
         c.Position = 0f;
         c.CompletedLoops = 0;
         c.DelayElapsed = includeDelay ? 0f : c.Delay;
         c.Flags &= ~(TweenFlags.Paused | TweenFlags.Completed | TweenFlags.Started);
-        s.ApplyCurrent(Slot, Version);
+        s.ApplyCurrentAt(d);
         return this;
     }
 
     /// <summary>Rewinds to the start and pauses.</summary>
     public Tween Rewind(bool includeDelay = true)
     {
-        ITweenStorage? s = Storage();
-        if (s == null)
+        if (!TryGet(out ITweenStorage? s, out int d))
             return this;
 
-        ref TweenCore c = ref s.CoreRef(Slot, Version);
+        ref TweenCore c = ref s.CoreAt(d);
         c.Position = 0f;
         c.CompletedLoops = 0;
         c.DelayElapsed = includeDelay ? 0f : c.Delay;
         c.Flags &= ~(TweenFlags.Completed | TweenFlags.Started);
         c.Flags |= TweenFlags.Paused;
 
-        bool hasEvents = (c.Flags & TweenFlags.HasEvents) != 0;
-        s.ApplyCurrent(Slot, Version);
+        bool hasCallbacks = (c.Flags & TweenFlags.HasCallbacks) != 0;
+        s.ApplyCurrentAt(d);
 
-        if (hasEvents && s.IsAlive(Slot, Version))
-            Invoke(ref s.EventsRef(Slot, Version), CallbackKind.Rewind);
+        if (hasCallbacks && StillAlive(s, d))
+            Invoke(ref s.EventsAt(d), CallbackKind.Rewind);
         return this;
     }
 
     /// <summary>Jumps to the end. Also kills the tween when auto-kill is on.</summary>
     public Tween Complete(bool withCallbacks = false)
     {
-        ITweenStorage? s = Storage();
-        if (s == null)
+        if (!TryGet(out ITweenStorage? s, out int d))
             return this;
 
-        bool autoKill = (s.CoreRef(Slot, Version).Flags & TweenFlags.AutoKill) != 0;
-        s.Goto(Slot, Version, s.CoreRef(Slot, Version).FullDuration, withCallbacks);
+        bool autoKill = (s.CoreAt(d).Flags & TweenFlags.AutoKill) != 0;
+        s.GotoAt(d, s.CoreAt(d).FullDuration, withCallbacks);
+
+        if (!StillAlive(s, d))
+            return this;
 
         if (autoKill)
-            s.Kill(Slot, Version, false);
-        else if (s.IsAlive(Slot, Version))
-            s.CoreRef(Slot, Version).Flags |= TweenFlags.Paused;
+            s.KillAt(d, false);
+        else
+            s.CoreAt(d).Flags |= TweenFlags.Paused;
 
         return this;
     }
@@ -492,15 +529,14 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// <summary>Jumps to an absolute time (delay included), optionally resuming playback.</summary>
     public Tween Goto(float to, bool andPlay = false)
     {
-        ITweenStorage? s = Storage();
-        if (s == null)
+        if (!TryGet(out ITweenStorage? s, out int d))
             return this;
 
-        s.Goto(Slot, Version, to < 0f ? 0f : to, false);
-        if (!s.IsAlive(Slot, Version))
+        s.GotoAt(d, float.IsFinite(to) && to > 0f ? to : 0f, false);
+        if (!StillAlive(s, d))
             return this;
 
-        ref TweenCore c = ref s.CoreRef(Slot, Version);
+        ref TweenCore c = ref s.CoreAt(d);
         if (andPlay) c.Flags &= ~TweenFlags.Paused;
         else c.Flags |= TweenFlags.Paused;
         return this;
@@ -512,12 +548,17 @@ public readonly partial struct Tween : IEquatable<Tween>
     /// </summary>
     public Tween Flip()
     {
-        Storage()?.Flip(Slot, Version);
+        if (TryGet(out ITweenStorage? s, out int d))
+            s.FlipAt(d);
         return this;
     }
 
     /// <summary>Destroys the tween. Optionally jumps to the end value first.</summary>
-    public void Kill(bool complete = false) => Storage()?.Kill(Slot, Version, complete);
+    public void Kill(bool complete = false)
+    {
+        if (TryGet(out ITweenStorage? s, out int d))
+            s.KillAt(d, complete);
+    }
 
     internal Tween Apply(TweenAction action) => action switch
     {

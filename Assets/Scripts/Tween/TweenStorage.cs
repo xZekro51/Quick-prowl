@@ -1,6 +1,8 @@
 // This file is part of the Prowl Game Engine
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 
+#nullable enable
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -14,8 +16,13 @@ namespace Prowl.Tweening;
 /// which lets entries be swapped around during compaction without invalidating them.
 /// </para>
 /// <para>
+/// The two cold arrays - <c>_tags</c> (id / target / lifetime link) and <c>_events</c> (callbacks
+/// and custom easing) - are allocated only when something actually uses them, and are gated by
+/// separate flags so tagging a tween never drags its callback record into the hot loop.
+/// </para>
+/// <para>
 /// Nothing here allocates after the arrays have grown to their high-water mark: killing a tween
-/// only flips a flag, and structural removal is batched into <see cref="Sweep"/>.
+/// only flips a flag, and structural removal is batched into <see cref="PruneAndSweep"/>.
 /// </para>
 /// </summary>
 internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
@@ -24,6 +31,12 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 {
     private const float MinDuration = 1e-6f;
     private const int InitialCapacity = 32;
+
+    /// <summary>
+    /// Ceiling on loop cycles credited in a single tick. A cycle clamped to <see cref="MinDuration"/>
+    /// would otherwise let one long frame overflow <see cref="TweenCore.CompletedLoops"/>.
+    /// </summary>
+    private const int MaxStepsPerTick = 4096;
 
     private struct Entry
     {
@@ -49,20 +62,31 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
     private Entry[] _entries = new Entry[InitialCapacity];
     private Binding[] _bindings = new Binding[InitialCapacity];
+    private TweenTags[]? _tags;
     private TweenEvents[]? _events;
     private int _count;
     private int _deadCount;
+    private int _linkCount;
+
+    /// <summary>Live tweens per <see cref="UpdateType"/>, so an unused tick costs nothing.</summary>
+    private readonly int[] _typeCounts = new int[4];
 
     private Slot[] _slots = new Slot[InitialCapacity];
     private int _slotCount;
     private int _freeSlot = -1;
 
-    // Scratch sinks so ref-returning lookups never have to fail loudly on a stale handle.
-    private static TweenCore s_noCore;
-    private static TweenEvents s_noEvents;
+    private int _compactionStamp;
 
     public int Id { get; set; }
-    public int ActiveCount => _count;
+    public int ActiveCount => _count - _deadCount;
+    public int CompactionStamp => _compactionStamp;
+
+    // Diagnostics: what the arrays currently cost, for Trim/Reserve callers and for the tests that
+    // guard the cold-array split. Not part of ITweenStorage - nothing in the library reads them.
+    internal int Capacity => _entries.Length;
+    internal bool HasEventsArray => _events != null;
+    internal bool HasTagsArray => _tags != null;
+    internal int LinkedCount => _linkCount;
 
     #region Creation
 
@@ -73,7 +97,7 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         TweenManager.EnsureRuntime();
 
         if (_count == _entries.Length)
-            Grow();
+            Grow(_entries.Length * 2);
 
         int dense = _count++;
         int slot = AllocateSlot(dense);
@@ -85,13 +109,13 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
         ref TweenCore c = ref e.Core;
         c.Position = 0f;
-        c.Duration = duration < 0f ? 0f : duration;
+        c.Duration = SanitizeTime(duration);
         c.Delay = 0f;
         c.DelayElapsed = 0f;
         c.TimeScale = 1f;
         c.Loops = 1;
         c.CompletedLoops = 0;
-        c.Ease = Tween.DefaultEase;
+        c.Ease = Tween.DefaultEase == Ease.Unset ? Ease.Linear : Tween.DefaultEase;
         c.EaseOvershoot = Tween.DefaultEaseOvershootOrAmplitude;
         c.EasePeriod = Tween.DefaultEasePeriod;
         c.LoopType = LoopType.Restart;
@@ -100,19 +124,50 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
         _bindings[dense].Setter = setter;
         _bindings[dense].State = state;
+        if (_tags != null)
+            _tags[dense] = default;
         if (_events != null)
             _events[dense] = default;
+
+        _typeCounts[(int)UpdateType.Normal]++;
 
         return new Tween(Id, slot, _slots[slot].Version);
     }
 
-    private void Grow()
+    /// <summary>
+    /// Rejects the values that would otherwise park a tween forever: a NaN position never compares
+    /// greater than its duration, so the tween could never complete, auto-kill or be swept.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static float SanitizeTime(float seconds)
+        => float.IsFinite(seconds) && seconds > 0f ? seconds : 0f;
+
+    private void Grow(int capacity)
     {
-        int capacity = _entries.Length * 2;
+        if (capacity <= _entries.Length)
+            return;
+
         Array.Resize(ref _entries, capacity);
         Array.Resize(ref _bindings, capacity);
+        if (_tags != null)
+            Array.Resize(ref _tags, capacity);
         if (_events != null)
             Array.Resize(ref _events, capacity);
+    }
+
+    public void Reserve(int capacity)
+    {
+        if (capacity <= 0)
+            return;
+
+        int target = _entries.Length;
+        while (target < capacity)
+            target *= 2;
+
+        Grow(target);
+
+        if (_slots.Length < capacity)
+            Array.Resize(ref _slots, target);
     }
 
     private int AllocateSlot(int dense)
@@ -140,7 +195,7 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
     #region Handle resolution
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool TryDense(int slot, int version, out int dense)
+    public bool TryResolve(int slot, int version, out int dense)
     {
         if ((uint)slot < (uint)_slotCount)
         {
@@ -156,69 +211,79 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         return false;
     }
 
-    public bool IsAlive(int slot, int version) => TryDense(slot, version, out _);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref TweenCore CoreAt(int dense) => ref _entries[dense].Core;
 
-    public ref TweenCore CoreRef(int slot, int version)
+    public ref TweenEvents EventsAt(int dense)
     {
-        if (TryDense(slot, version, out int dense))
-            return ref _entries[dense].Core;
-
-        s_noCore = default;
-        return ref s_noCore;
-    }
-
-    public ref TweenEvents EventsRef(int slot, int version)
-    {
-        if (!TryDense(slot, version, out int dense))
-        {
-            s_noEvents = default;
-            return ref s_noEvents;
-        }
-
         _events ??= new TweenEvents[_entries.Length];
-        _entries[dense].Core.Flags |= TweenFlags.HasEvents;
         return ref _events[dense];
     }
 
-    public object? GetState(int slot, int version)
-        => TryDense(slot, version, out int dense) ? _bindings[dense].State : null;
+    public ref TweenTags TagsAt(int dense)
+    {
+        _tags ??= new TweenTags[_entries.Length];
+        return ref _tags[dense];
+    }
+
+    public object? StateAt(int dense) => _bindings[dense].State;
+    public int SlotAt(int dense) => _entries[dense].Slot;
+    public int VersionOfSlot(int slot) => (uint)slot < (uint)_slotCount ? _slots[slot].Version : 0;
+
+    public void SetUpdateTypeAt(int dense, UpdateType type)
+    {
+        ref TweenCore c = ref _entries[dense].Core;
+        if (c.UpdateType == type)
+            return;
+
+        if ((c.Flags & TweenFlags.Dead) == 0)
+        {
+            _typeCounts[(int)c.UpdateType]--;
+            _typeCounts[(int)type]++;
+        }
+
+        c.UpdateType = type;
+    }
+
+    public void MarkLinkedAt(int dense)
+    {
+        ref TweenCore c = ref _entries[dense].Core;
+        if ((c.Flags & TweenFlags.HasLink) != 0)
+            return;
+
+        c.Flags |= TweenFlags.HasLink;
+        _linkCount++;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsDead(int dense) => (_entries[dense].Core.Flags & TweenFlags.Dead) != 0;
 
     #endregion
 
     #region Value edits
 
-    public void MakeFrom(int slot, int version)
+    public void MakeFromAt(int dense)
     {
-        if (!TryDense(slot, version, out int dense)) return;
-
         ref Entry e = ref _entries[dense];
         (e.Start, e.End) = (e.End, e.Start);
         ApplyAt(dense, EasedProgress(dense, false));
     }
 
-    public void MakeRelative(int slot, int version)
+    public void MakeRelativeAt(int dense)
     {
-        if (!TryDense(slot, version, out int dense)) return;
-
         ref Entry e = ref _entries[dense];
         e.End = default(TAdapter).Add(in e.Start, in e.End);
     }
 
-    public void Flip(int slot, int version)
+    public void FlipAt(int dense)
     {
-        if (!TryDense(slot, version, out int dense)) return;
-
         ref Entry e = ref _entries[dense];
         (e.Start, e.End) = (e.End, e.Start);
         e.Core.Position = Math.Max(0f, e.Core.Duration - e.Core.Position);
         e.Core.Flags &= ~TweenFlags.Completed;
     }
 
-    public void ApplyCurrent(int slot, int version)
-    {
-        if (!TryDense(slot, version, out int dense)) return;
-        ApplyAt(dense, EasedProgress(dense, false));
-    }
+    public void ApplyCurrentAt(int dense) => ApplyAt(dense, EasedProgress(dense, false));
 
     #endregion
 
@@ -226,6 +291,11 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
     public void Update(UpdateType type, float deltaTime, float unscaledDeltaTime)
     {
+        // No live tween wants this tick: skip the traversal entirely. This is what keeps a single
+        // SetUpdate(Fixed) call from making every storage walk its whole array on every fixed step.
+        if (_typeCounts[(int)type] == 0)
+            return;
+
         // Snapshot the count: tweens created from a callback start on the next tick, which is
         // also what keeps index-based iteration valid while user code runs.
         int n = _count;
@@ -233,13 +303,13 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         {
             // Re-read the array every iteration - a callback may have grown (reallocated) it.
             ref TweenCore c = ref _entries[i].Core;
-            if ((c.Flags & (TweenFlags.Dead | TweenFlags.Paused | TweenFlags.Sequenced)) != 0)
+            if ((c.Flags & TweenFlags.NotSteppable) != 0)
                 continue;
             if (c.UpdateType != type)
                 continue;
 
             float delta = ((c.Flags & TweenFlags.Independent) != 0 ? unscaledDeltaTime : deltaTime) * c.TimeScale;
-            if (delta == 0f)
+            if (!float.IsFinite(delta))
                 continue;
 
             Step(i, delta);
@@ -265,6 +335,11 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         bool started = (c.Flags & TweenFlags.Started) == 0;
         c.Flags |= TweenFlags.Started;
 
+        // A frozen tween - TimeScale 0, or a paused game feeding a zero delta - still reports that
+        // it started and shows its start value once. After that there is nothing left to do.
+        if (delta == 0f && !started)
+            return;
+
         float duration = c.Duration > MinDuration ? c.Duration : MinDuration;
         c.Position += delta;
 
@@ -272,9 +347,17 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         bool complete = false;
         if (c.Position >= duration)
         {
-            steps = (int)(c.Position / duration);
-            c.CompletedLoops += steps;
+            // Computed in double and clamped: a cycle pinned to MinDuration would otherwise let a
+            // single long frame credit billions of loops and overflow the counter.
+            double raw = c.Position / (double)duration;
+            steps = raw >= MaxStepsPerTick ? MaxStepsPerTick : (int)raw;
+
+            int done = c.CompletedLoops;
+            c.CompletedLoops = done > int.MaxValue - steps ? int.MaxValue - 1 : done + steps;
+
             c.Position -= steps * duration;
+            if (c.Position < 0f || c.Position >= duration)
+                c.Position = 0f;
 
             if (c.Loops >= 0 && c.CompletedLoops >= c.Loops)
             {
@@ -287,7 +370,7 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         float eased = EasedProgress(dense, complete);
         T value = default(TAdapter).Evaluate(in e.Start, in e.End, eased);
 
-        bool hasEvents = (c.Flags & TweenFlags.HasEvents) != 0;
+        bool hasCallbacks = (c.Flags & TweenFlags.HasCallbacks) != 0;
         bool autoKill = false;
         if (complete)
         {
@@ -298,26 +381,41 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
                 c.Flags |= TweenFlags.Paused;
         }
 
-        // ---- user code below: all refs into the arrays are considered invalid from here ----
+        // ---- user code below: all refs into the arrays are considered invalid from here, and any
+        // callback may have killed this tween, so every step re-checks before firing the next ----
 
-        if (hasEvents && started)
+        if (hasCallbacks && started)
+        {
             Fire(_events![dense].OnStart, _events[dense].State);
+            if (IsDead(dense)) return;
+        }
 
         Action<T, object?>? setter = _bindings[dense].Setter;
         setter?.Invoke(value, _bindings[dense].State);
+        if (IsDead(dense)) return;
 
-        if (hasEvents)
+        if (hasCallbacks)
         {
             object? state = _events![dense].State;
             Fire(_events[dense].OnUpdate, state);
+            if (IsDead(dense)) return;
+
+            // Fires once per tick even when several cycles elapsed inside it.
             if (steps > 0)
+            {
                 Fire(_events[dense].OnStepComplete, state);
+                if (IsDead(dense)) return;
+            }
+
             if (complete)
+            {
                 Fire(_events[dense].OnComplete, state);
+                if (IsDead(dense)) return;
+            }
         }
 
         if (autoKill)
-            KillAt(dense);
+            MarkDead(dense);
     }
 
     /// <summary>Cycle progress with loop mode and easing applied. Can exceed 0..1 for <see cref="LoopType.Incremental"/>.</summary>
@@ -360,10 +458,8 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
     }
 
     /// <summary>Jumps to an absolute time (delay included) and applies the value there.</summary>
-    public void Goto(int slot, int version, float position, bool withCallbacks)
+    public void GotoAt(int dense, float position, bool withCallbacks)
     {
-        if (!TryDense(slot, version, out int dense)) return;
-
         ref TweenCore c = ref _entries[dense].Core;
 
         if (position < c.Delay)
@@ -389,7 +485,8 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         }
         else
         {
-            int done = (int)(local / duration);
+            double raw = local / (double)duration;
+            int done = raw >= int.MaxValue ? int.MaxValue - 1 : (int)raw;
             c.CompletedLoops = done;
             c.Position = local - done * duration;
             complete = false;
@@ -404,23 +501,30 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         else
             c.Flags &= ~TweenFlags.Completed;
 
-        bool hasEvents = withCallbacks && (c.Flags & TweenFlags.HasEvents) != 0;
+        bool hasCallbacks = withCallbacks && (c.Flags & TweenFlags.HasCallbacks) != 0;
         float eased = EasedProgress(dense, complete);
 
         // ---- user code below ----
 
-        if (hasEvents && started)
+        if (hasCallbacks && started)
+        {
             Fire(_events![dense].OnStart, _events[dense].State);
+            if (IsDead(dense)) return;
+        }
 
         ApplyAt(dense, eased);
+        if (IsDead(dense)) return;
 
-        if (hasEvents)
+        if (hasCallbacks)
         {
             object? state = _events![dense].State;
             Fire(_events[dense].OnUpdate, state);
+            if (IsDead(dense)) return;
+
             if (complete && !wasComplete)
             {
                 Fire(_events[dense].OnStepComplete, state);
+                if (IsDead(dense)) return;
                 Fire(_events[dense].OnComplete, state);
             }
         }
@@ -428,27 +532,26 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
     #endregion
 
-    #region Kill / sweep
+    #region Kill / prune / sweep
 
-    public void Kill(int slot, int version, bool complete)
+    public void KillAt(int dense, bool complete)
     {
-        if (!TryDense(slot, version, out int dense)) return;
-
         if (complete)
         {
-            Goto(slot, version, _entries[dense].Core.FullDuration, true);
-            // The completion pass may have auto-killed it already.
-            if (!TryDense(slot, version, out dense)) return;
+            GotoAt(dense, _entries[dense].Core.FullDuration, true);
+            // A callback fired by the completion pass may have killed it already.
+            if (IsDead(dense))
+                return;
         }
 
-        KillAt(dense);
+        MarkDead(dense);
     }
 
     /// <summary>
     /// Marks a tween dead: no array is restructured here, so this is safe to call from inside
-    /// callbacks and from the update loop. <see cref="Sweep"/> reclaims the entry later.
+    /// callbacks and from the update loop. <see cref="PruneAndSweep"/> reclaims the entry later.
     /// </summary>
-    private void KillAt(int dense)
+    private void MarkDead(int dense)
     {
         ref TweenCore c = ref _entries[dense].Core;
         if ((c.Flags & TweenFlags.Dead) != 0)
@@ -456,6 +559,9 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
         c.Flags |= TweenFlags.Dead;
         _deadCount++;
+        _typeCounts[(int)c.UpdateType]--;
+        if ((c.Flags & TweenFlags.HasLink) != 0)
+            _linkCount--;
 
         int slot = _entries[dense].Slot;
         ref Slot s = ref _slots[slot];
@@ -464,22 +570,31 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
             s.Version = 1;
 
         bool isSequence = (c.Flags & TweenFlags.IsSequence) != 0;
-        bool hasEvents = (c.Flags & TweenFlags.HasEvents) != 0;
+        bool hasCallbacks = (c.Flags & TweenFlags.HasCallbacks) != 0;
 
         // ---- user code below ----
 
         if (isSequence && _bindings[dense].State is SequenceData data)
             data.OnOwnerKilled();
 
-        if (hasEvents)
+        if (hasCallbacks)
             Fire(_events![dense].OnKill, _events[dense].State);
     }
 
-    /// <summary>Compacts dead entries out of the dense array. Called once per frame by the manager.</summary>
-    public void Sweep()
+    /// <summary>
+    /// Kills tweens whose lifetime link has gone, then compacts dead entries out of the dense
+    /// array. Called at the start of every tick, so a tween never gets a chance to write to an
+    /// owner that has already been destroyed.
+    /// </summary>
+    public void PruneAndSweep()
     {
+        if (_linkCount > 0)
+            PruneLinks();
+
         if (_deadCount == 0)
             return;
+
+        bool moved = false;
 
         for (int i = _count - 1; i >= 0; i--)
         {
@@ -496,18 +611,81 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
             {
                 _entries[i] = _entries[last];
                 _bindings[i] = _bindings[last];
+                if (_tags != null)
+                    _tags[i] = _tags[last];
                 if (_events != null)
                     _events[i] = _events[last];
                 _slots[_entries[i].Slot].Dense = i;
+                moved = true;
             }
 
             _entries[last] = default;
             _bindings[last] = default;
+            if (_tags != null)
+                _tags[last] = default;
             if (_events != null)
                 _events[last] = default;
         }
 
         _deadCount = 0;
+        if (moved)
+            _compactionStamp++;
+    }
+
+    private void PruneLinks()
+    {
+        int n = _count;
+        for (int i = 0; i < n; i++)
+        {
+            ref TweenCore c = ref _entries[i].Core;
+            if ((c.Flags & (TweenFlags.Dead | TweenFlags.HasLink)) != TweenFlags.HasLink)
+                continue;
+
+            TweenTags tags = _tags![i];
+            if (tags.LinkAlive == null)
+                continue;
+
+            // ---- user code below ----
+            if (!tags.LinkAlive(tags.LinkOwner))
+                MarkDead(i);
+        }
+    }
+
+    public void Trim()
+    {
+        if (_deadCount != 0)
+            PruneAndSweep();
+
+        int target = InitialCapacity;
+        while (target < _count)
+            target *= 2;
+
+        if (target < _entries.Length)
+        {
+            Array.Resize(ref _entries, target);
+            Array.Resize(ref _bindings, target);
+            if (_tags != null)
+                Array.Resize(ref _tags, target);
+            if (_events != null)
+                Array.Resize(ref _events, target);
+        }
+
+        // Drop the cold arrays entirely once no live tween needs them.
+        if (_events != null && !AnyFlag(TweenFlags.HasCallbacks | TweenFlags.CustomEase))
+            _events = null;
+        if (_tags != null && !AnyFlag(TweenFlags.HasTags | TweenFlags.HasLink))
+            _tags = null;
+
+        // _slots is deliberately left alone: the free list addresses it by index, so shrinking it
+        // would mean remapping every live handle. At 12 bytes a slot that is not worth it.
+    }
+
+    private bool AnyFlag(TweenFlags mask)
+    {
+        for (int i = 0; i < _count; i++)
+            if ((_entries[i].Core.Flags & mask) != 0)
+                return true;
+        return false;
     }
 
     #endregion
@@ -525,8 +703,7 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
             if (!Matches(i, idOrTarget))
                 continue;
 
-            int slot = _entries[i].Slot;
-            Kill(slot, _slots[slot].Version, complete);
+            KillAt(i, complete);
             killed++;
         }
 
@@ -557,11 +734,11 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
     {
         if (idOrTarget == null)
             return true;
-        if (_events == null || (_entries[dense].Core.Flags & TweenFlags.HasEvents) == 0)
+        if (_tags == null || (_entries[dense].Core.Flags & TweenFlags.HasTags) == 0)
             return false;
 
-        ref TweenEvents ev = ref _events[dense];
-        return Equals(ev.Id, idOrTarget) || ReferenceEquals(ev.Target, idOrTarget);
+        ref TweenTags tags = ref _tags[dense];
+        return Equals(tags.Id, idOrTarget) || ReferenceEquals(tags.Target, idOrTarget);
     }
 
     #endregion

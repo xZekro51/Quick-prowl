@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Tests for the tweening library.
+
+    The library is compiled *into* this assembly from Assets/Scripts/Tween rather than referenced,
+    for two reasons: the game assembly needs the Prowl engine to load, and the tests want at the
+    internals (TweenFlags, the storage's capacity counters) that the library keeps to itself.
+
+    Only the portable half is linked. The four engine-coupled files are excluded below, which is
+    also a standing check that the rest of the library really has no engine dependency - if someone
+    reaches for Prowl.Runtime from the core, this project stops compiling.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>Prowl.Tweening.Tests</AssemblyName>
+    <RootNamespace>Prowl.Tweening.Tests</RootNamespace>
+
+    <!--
+      The allocation tests measure GC.GetAllocatedBytesForCurrentThread deltas. Tiered JIT would
+      re-compile methods part-way through a measured loop and allocate while doing it, so pin the
+      codegen: what we want to measure is the library, not the JIT.
+    -->
+    <TieredCompilation>false</TieredCompilation>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+  </PropertyGroup>
+
+  <ItemGroup Label="Library under test (portable half only)">
+    <Compile Include="..\..\Assets\Scripts\Tween\*.cs"
+             Exclude="..\..\Assets\Scripts\Tween\ProwlTween.cs;
+                      ..\..\Assets\Scripts\Tween\ProwlTweenAdapters.cs;
+                      ..\..\Assets\Scripts\Tween\TransformTweenExtensions.cs;
+                      ..\..\Assets\Scripts\Tween\TweenMaster.cs"
+             Link="Library\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+</Project>

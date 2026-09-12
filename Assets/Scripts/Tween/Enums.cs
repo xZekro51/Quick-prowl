@@ -1,6 +1,8 @@
 // This file is part of the Prowl Game Engine
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 
+#nullable enable
+
 using System;
 
 namespace Prowl.Tweening;
@@ -25,7 +27,11 @@ public enum Ease : byte
 
     /// <summary>Set automatically when a custom <see cref="EaseFunction"/> is assigned.</summary>
     Custom = 254,
-    /// <summary>"No ease chosen"; resolves to <see cref="Tween.DefaultEase"/> at creation time.</summary>
+
+    /// <summary>
+    /// "No ease chosen". Resolved to <see cref="Tween.DefaultEase"/> when a tween is created and
+    /// by <see cref="Tween.SetEase(Ease)"/>, so it never reaches the easing equations themselves.
+    /// </summary>
     Unset = 255
 }
 
@@ -77,8 +83,23 @@ internal enum TweenFlags : uint
     /// <summary>Owned by a <see cref="Sequence"/>; skipped by the normal update loop.</summary>
     Sequenced = 1u << 6,
     IsSequence = 1u << 7,
-    HasEvents = 1u << 8,
-    CustomEase = 1u << 9
+
+    /// <summary>At least one <c>On*</c> callback is assigned. Gates the cold events array in the hot loop.</summary>
+    HasCallbacks = 1u << 8,
+    /// <summary>An id or target is assigned. Deliberately separate from <see cref="HasCallbacks"/>.</summary>
+    HasTags = 1u << 9,
+    /// <summary>A lifetime link is assigned; the tween is auto-killed once its owner stops being alive.</summary>
+    HasLink = 1u << 10,
+    CustomEase = 1u << 11,
+
+    /// <summary>
+    /// An empty <see cref="Sequence"/>. Skipped by the update loop so a sequence cannot complete and
+    /// recycle itself before it has been populated.
+    /// </summary>
+    Building = 1u << 12,
+
+    /// <summary>Flags that keep a tween out of the update loop entirely.</summary>
+    NotSteppable = Dead | Paused | Sequenced | Building
 }
 
 internal enum TweenAction : byte

@@ -1,6 +1,8 @@
 // This file is part of the Prowl Game Engine
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 
+#nullable enable
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -26,7 +28,11 @@ public readonly struct TweenBuilder<T, TAdapter>
     private readonly float _duration;
 
     // Cached once per closed generic type: unwraps a plain Action<T> stored as the tween's state.
+    // A pure, stateless cache - the hot-reload warning does not apply, since recreating an
+    // identical lambda after a reload is harmless.
+#pragma warning disable EMBA001
     private static readonly Action<T, object?> s_invokePlain = static (value, state) => Unsafe.As<Action<T>>(state!)(value);
+#pragma warning restore EMBA001
 
     internal TweenBuilder(in T from, in T to, float duration)
     {

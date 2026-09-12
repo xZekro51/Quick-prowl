@@ -1,6 +1,8 @@
 // This file is part of the Prowl Game Engine
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 
+#nullable enable
+
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -39,6 +41,11 @@ internal enum TweenWaitKind : byte
 /// <see cref="TweenManager.Update(float, float)"/> (or whichever tick advanced the tween). The
 /// captured synchronization context is deliberately ignored: game code awaiting a tween wants to
 /// come back on the game thread, which is where the tick already is.
+/// </para>
+/// <para>
+/// You may start the wait from any thread, but the tween state itself is only ever read on the
+/// ticking thread - so an <c>await</c> begun elsewhere simply suspends until the next tick rather
+/// than racing the update loop.
 /// </para>
 /// </remarks>
 public readonly struct TweenAwaitable
@@ -101,16 +108,46 @@ public readonly struct TweenAwaiter : ICriticalNotifyCompletion
     /// True when there is nothing to wait for, which lets the compiler skip suspending entirely -
     /// awaiting an already finished, already dead or <see cref="Tween.None"/> handle costs nothing.
     /// </summary>
-    public bool IsCompleted => _token.IsCancellationRequested || TweenAwaiterRegistry.IsSatisfied(_tween, _kind, _threshold);
+    public bool IsCompleted
+    {
+        get
+        {
+            if (_token.IsCancellationRequested)
+                return true;
+
+            // Off the ticking thread the storage arrays are being mutated without a lock, so we do
+            // not read them at all: report "not finished" and let the pump, which runs on the
+            // ticking thread, resolve the wait on the next tick.
+            int tickThread = TweenManager.TickThreadId;
+            if (tickThread != 0 && tickThread != Environment.CurrentManagedThreadId)
+                return false;
+
+            return TweenAwaiterRegistry.IsSatisfied(_tween, _kind, _threshold);
+        }
+    }
 
     /// <summary>Throws <see cref="OperationCanceledException"/> if the wait was cancelled, otherwise returns.</summary>
     public void GetResult() => _token.ThrowIfCancellationRequested();
 
     /// <inheritdoc/>
-    public void OnCompleted(Action continuation) => TweenAwaiterRegistry.Register(_tween, _kind, _threshold, _token, continuation);
+    public void OnCompleted(Action continuation)
+    {
+        // The safe variant flows ExecutionContext, so AsyncLocal and culture survive the await.
+        // Async methods go through UnsafeOnCompleted instead, where the state machine flows it.
+        ExecutionContext? context = ExecutionContext.Capture();
+        if (context is null)
+        {
+            TweenAwaiterRegistry.Register(_tween, _kind, _threshold, _token, continuation);
+            return;
+        }
+
+        TweenAwaiterRegistry.Register(_tween, _kind, _threshold, _token,
+            () => ExecutionContext.Run(context, static state => ((Action)state!)(), continuation));
+    }
 
     /// <inheritdoc/>
-    public void UnsafeOnCompleted(Action continuation) => TweenAwaiterRegistry.Register(_tween, _kind, _threshold, _token, continuation);
+    public void UnsafeOnCompleted(Action continuation)
+        => TweenAwaiterRegistry.Register(_tween, _kind, _threshold, _token, continuation);
 }
 
 /// <summary>
@@ -163,6 +200,16 @@ internal static class TweenAwaiterRegistry
             w.Threshold = threshold;
             w.Token = token;
             w.Continuation = continuation;
+        }
+    }
+
+    /// <summary>Drops every pending wait without resuming it. Part of <see cref="TweenManager.Reset"/>.</summary>
+    internal static void Clear()
+    {
+        lock (s_gate)
+        {
+            Array.Clear(s_waiters, 0, s_count);
+            s_count = 0;
         }
     }
 
@@ -221,14 +268,15 @@ internal static class TweenAwaiterRegistry
     /// True when the wait is over. A handle that no longer resolves counts as satisfied for every
     /// kind: the tween is gone, so nothing about it can change again.
     /// </summary>
+    /// <remarks>Only safe on the ticking thread - see <see cref="TweenAwaiter.IsCompleted"/>.</remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsSatisfied(Tween tween, TweenWaitKind kind, float threshold)
     {
         ITweenStorage? storage = tween.Version == 0 ? null : TweenManager.Resolve(tween.StorageId);
-        if (storage == null || !storage.IsAlive(tween.Slot, tween.Version))
+        if (storage == null || !storage.TryResolve(tween.Slot, tween.Version, out int dense))
             return true;
 
-        ref TweenCore c = ref storage.CoreRef(tween.Slot, tween.Version);
+        ref TweenCore c = ref storage.CoreAt(dense);
         return kind switch
         {
             TweenWaitKind.Completion => (c.Flags & TweenFlags.Completed) != 0,

@@ -1,6 +1,8 @@
 // This file is part of the Prowl Game Engine
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 
+#nullable enable
+
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -15,17 +17,42 @@ public readonly partial struct Tween
 {
     #region Global defaults
 
-    /// <summary>Easing applied to tweens that don't choose one themselves.</summary>
-    public static Ease DefaultEase = Ease.OutQuad;
+    private static Ease s_defaultEase = Ease.OutQuad;
+    private static float s_defaultEaseOvershoot = 1.70158f;
+    private static float s_defaultEasePeriod;
+    private static bool s_defaultAutoKill = true;
 
-    /// <summary>Back overshoot / Elastic amplitude used when none is given.</summary>
-    public static float DefaultEaseOvershootOrAmplitude = 1.70158f;
+    /// <summary>
+    /// Easing applied to tweens that don't choose one themselves. Assigning
+    /// <see cref="Ease.Unset"/> or <see cref="Ease.Custom"/> falls back to <see cref="Ease.Linear"/>,
+    /// since neither can be resolved without a tween to read it from.
+    /// </summary>
+    public static Ease DefaultEase
+    {
+        get => s_defaultEase;
+        set => s_defaultEase = value is Ease.Unset or Ease.Custom ? Ease.Linear : value;
+    }
+
+    /// <summary>Back overshoot / Elastic amplitude used when none is given. Non-finite values are ignored.</summary>
+    public static float DefaultEaseOvershootOrAmplitude
+    {
+        get => s_defaultEaseOvershoot;
+        set { if (float.IsFinite(value)) s_defaultEaseOvershoot = value; }
+    }
 
     /// <summary>Elastic period used when none is given. 0 means "derive it from the duration".</summary>
-    public static float DefaultEasePeriod = 0f;
+    public static float DefaultEasePeriod
+    {
+        get => s_defaultEasePeriod;
+        set { if (float.IsFinite(value) && value >= 0f) s_defaultEasePeriod = value; }
+    }
 
     /// <summary>Whether new tweens destroy themselves once complete.</summary>
-    public static bool DefaultAutoKill = true;
+    public static bool DefaultAutoKill
+    {
+        get => s_defaultAutoKill;
+        set => s_defaultAutoKill = value;
+    }
 
     /// <summary>
     /// Speed multiplier applied to every tween that isn't marked independent.
@@ -34,11 +61,20 @@ public readonly partial struct Tween
     public static float GlobalTimeScale
     {
         get => TweenManager.TimeScale;
-        set => TweenManager.TimeScale = value;
+        set => TweenManager.TimeScale = float.IsFinite(value) ? value : 1f;
     }
 
     /// <summary>How many tweens are currently alive, across every value type.</summary>
     public static int TotalActive => TweenManager.ActiveTweenCount;
+
+    /// <summary>Puts the global defaults back to their out-of-the-box values. Part of <see cref="TweenManager.Reset"/>.</summary>
+    internal static void ResetDefaults()
+    {
+        s_defaultEase = Ease.OutQuad;
+        s_defaultEaseOvershoot = 1.70158f;
+        s_defaultEasePeriod = 0f;
+        s_defaultAutoKill = true;
+    }
 
     #endregion
 
@@ -79,6 +115,38 @@ public readonly partial struct Tween
         where TAdapter : unmanaged, ITweenAdapter<T>
         => new(in from, in to, duration);
 
+    /// <summary>
+    /// Reads the start value from <paramref name="state"/> and tweens it towards
+    /// <paramref name="endValue"/>. This is the allocation-free counterpart of the
+    /// <c>To(getter, setter, ...)</c> overloads: pass the object you are animating as
+    /// <paramref name="state"/> and keep both lambdas <c>static</c>, and nothing is allocated.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// Tween.To&lt;float, FloatAdapter, Material&gt;(
+    ///     material,
+    ///     static m =&gt; m.GetFloat("_Step"),
+    ///     static (v, m) =&gt; m.SetFloat("_Step", v),
+    ///     0f, 0.5f);
+    /// </code>
+    /// </example>
+    public static Tween To<T, TAdapter, TState>(TState state, Func<TState, T> getter, Action<T, TState> setter, in T endValue, float duration)
+        where T : unmanaged
+        where TAdapter : unmanaged, ITweenAdapter<T>
+        where TState : class
+    {
+        ArgumentNullException.ThrowIfNull(getter);
+        ArgumentNullException.ThrowIfNull(setter);
+
+        // The start value is read now, when the tween is created, not when it first plays.
+        T start = getter(state);
+
+        // Delegates over reference types share their calling convention with Action<T, object>,
+        // so this reinterpret avoids allocating a wrapper closure per tween.
+        Action<T, object?> erased = Unsafe.As<Action<T, TState>, Action<T, object?>>(ref setter);
+        return TweenManager.Of<T, TAdapter>.Storage.Create(in start, in endValue, duration, erased, state);
+    }
+
     #endregion
 
     #region Creation - getter/setter
@@ -86,7 +154,8 @@ public readonly partial struct Tween
     /// <summary>
     /// Tweens whatever <paramref name="getter"/> reads towards <paramref name="endValue"/>.
     /// Convenient, but the two delegates you pass in are heap allocations - prefer
-    /// <see cref="To(float, float, float)"/> plus <c>Bind</c> on hot paths.
+    /// <see cref="To{T, TAdapter, TState}"/>, or <see cref="To(float, float, float)"/> plus
+    /// <c>Bind</c>, on hot paths.
     /// </summary>
     public static Tween To(TweenGetter<float> getter, TweenSetter<float> setter, float endValue, float duration)
         => Capture<float, FloatAdapter>(getter, setter, endValue, duration);
@@ -131,10 +200,14 @@ public readonly partial struct Tween
         return TweenManager.Of<T, TAdapter>.Storage.Create(in start, in endValue, duration, Invoker<T>.Instance, setter);
     }
 
+    // A pure per-type delegate cache. The hot-reload warning does not apply: recreating an
+    // identical stateless lambda after a reload is harmless.
+#pragma warning disable EMBA001
     private static class Invoker<T> where T : unmanaged
     {
         internal static readonly Action<T, object?> Instance = static (value, state) => Unsafe.As<TweenSetter<T>>(state!)(value);
     }
+#pragma warning restore EMBA001
 
     #endregion
 
@@ -163,9 +236,29 @@ public readonly partial struct Tween
             .SetUpdate(ignoreTimeScale)
             .OnComplete(state, callback);
 
-    /// <summary>Samples an eased value directly, without creating a tween.</summary>
+    /// <summary>
+    /// Samples an eased value directly, without creating a tween. Uses the same
+    /// <see cref="DefaultEaseOvershootOrAmplitude"/> and <see cref="DefaultEasePeriod"/> a tween would.
+    /// </summary>
     public static float EasedValue(float from, float to, float progress, Ease ease)
-        => from + (to - from) * EaseUtility.Evaluate(ease, progress);
+        => from + (to - from) * EaseUtility.Evaluate(
+            ease == Ease.Unset ? DefaultEase : ease, progress, s_defaultEaseOvershoot, s_defaultEasePeriod);
+
+    #endregion
+
+    #region Capacity
+
+    /// <summary>
+    /// Grows the storage for one (value type, adapter) pair up front, so a burst of creations
+    /// doesn't reallocate part-way through a frame.
+    /// </summary>
+    public static void Reserve<T, TAdapter>(int capacity)
+        where T : unmanaged
+        where TAdapter : unmanaged, ITweenAdapter<T>
+        => TweenManager.Of<T, TAdapter>.Storage.Reserve(capacity);
+
+    /// <inheritdoc cref="TweenManager.Trim"/>
+    public static void Trim() => TweenManager.Trim();
 
     #endregion
 

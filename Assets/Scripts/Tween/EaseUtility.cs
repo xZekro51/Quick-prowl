@@ -1,6 +1,8 @@
 // This file is part of the Prowl Game Engine
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 
+#nullable enable
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -24,7 +26,10 @@ public static class EaseUtility
     /// <param name="t">Normalized time, 0 at the start of the cycle and 1 at its end.</param>
     /// <param name="overshoot">Overshoot for Back eases, amplitude for Elastic eases.</param>
     /// <param name="period">Period for Elastic eases; 0 uses the default (0.3).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <remarks>
+    /// Deliberately not marked for aggressive inlining: the switch is far past the JIT's inlining
+    /// budget, so the hint would either be ignored or bloat the tween update loop's code size.
+    /// </remarks>
     public static float Evaluate(Ease ease, float t, float overshoot = DefaultOvershoot, float period = 0f)
     {
         switch (ease)
