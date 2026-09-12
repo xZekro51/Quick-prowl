@@ -348,4 +348,21 @@ public sealed class LifecycleTests : TweenTestBase
         LinearTween(box);
         Assert.Equal(2, asked);
     }
+
+    [Fact]
+    public void ResetReArmsTheBootstrap()
+    {
+        int asked = 0;
+        TweenManager.RuntimeBootstrap = () => asked++;
+
+        var box = new Box();
+        LinearTween(box);
+        Assert.Equal(1, asked);
+
+        // What the Prowl driver does when its play session ends: the next tween has to ask the host
+        // for a driver again, or nothing will ever tick it.
+        TweenManager.Reset();
+        LinearTween(box);
+        Assert.Equal(2, asked);
+    }
 }

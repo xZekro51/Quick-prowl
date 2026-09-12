@@ -1,0 +1,988 @@
+<title>Prowl.Tween Handbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:      #F4F6F7;
+    --surface:     #FFFFFF;
+    --sunk:        #E9EEF0;
+    --code-bg:     #EAF0F2;
+    --ink:         #131C22;
+    --ink-soft:    #4C5D68;
+    --ink-faint:   #7B8C96;
+    --rule:        #D2DBE0;
+    --rule-strong: #B4C1C8;
+    --accent:      #1C6E84;
+    --accent-wash: #E0EEF1;
+    --warn:        #806013;
+    --warn-wash:   #F5EEDC;
+    --bad:         #A5381A;
+    --good:        #3B6749;
+
+    --tok-keyword: #1C6E84;
+    --tok-type:    #8A4B12;
+    --tok-string:  #3B6749;
+    --tok-number:  #A5381A;
+    --tok-comment: #7B8C96;
+    --tok-title:   #131C22;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0E1418;
+      --surface:     #161F25;
+      --sunk:        #1B262D;
+      --code-bg:     #121B20;
+      --ink:         #DBE5EA;
+      --ink-soft:    #97A9B3;
+      --ink-faint:   #6C7E88;
+      --rule:        #29363E;
+      --rule-strong: #3C4C55;
+      --accent:      #63BACF;
+      --accent-wash: #15313A;
+      --warn:        #D3B05F;
+      --warn-wash:   #2F2716;
+      --bad:         #E3886A;
+      --good:        #83BB97;
+
+      --tok-keyword: #63BACF;
+      --tok-type:    #E0A86A;
+      --tok-string:  #83BB97;
+      --tok-number:  #E3886A;
+      --tok-comment: #6C7E88;
+      --tok-title:   #DBE5EA;
+
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #0E1418;
+    --surface:     #161F25;
+    --sunk:        #1B262D;
+    --code-bg:     #121B20;
+    --ink:         #DBE5EA;
+    --ink-soft:    #97A9B3;
+    --ink-faint:   #6C7E88;
+    --rule:        #29363E;
+    --rule-strong: #3C4C55;
+    --accent:      #63BACF;
+    --accent-wash: #15313A;
+    --warn:        #D3B05F;
+    --warn-wash:   #2F2716;
+    --bad:         #E3886A;
+    --good:        #83BB97;
+
+    --tok-keyword: #63BACF;
+    --tok-type:    #E0A86A;
+    --tok-string:  #83BB97;
+    --tok-number:  #E3886A;
+    --tok-comment: #6C7E88;
+    --tok-title:   #DBE5EA;
+
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, th, .eyebrow, .nav a, .nav .nav-title, .fact .k, .pill, .gallery .head, .gallery .fam, .loops .panel-title {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  code, pre, .mono, td.sig, .fact .v, .thumb figcaption {
+    font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+
+  p { margin: 0; max-width: 70ch; }
+
+  a { color: var(--accent); text-underline-offset: 2px; text-decoration-thickness: 1px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---------- page frame ---------- */
+
+  .frame {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 0 32px 96px;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 0 56px;
+  }
+
+  header.masthead {
+    grid-column: 1 / -1;
+    padding: 64px 0 22px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .eyebrow {
+    font-size: 0.685rem;
+    font-weight: 600;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(2.3rem, 5vw, 3.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.026em;
+    font-weight: 700;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .standfirst { font-size: 1.14rem; color: var(--ink-soft); max-width: 64ch; }
+
+  .facts { display: flex; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 14px; }
+  .fact { display: flex; flex-direction: column; gap: 2px; padding-right: 28px; margin-right: 28px; border-right: 1px solid var(--rule); }
+  .fact:last-child { border-right: 0; margin-right: 0; padding-right: 0; }
+  .fact .k { font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
+  .fact .v { font-size: 0.9rem; }
+
+  /* ---------- nav ---------- */
+
+  nav.nav {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: 34px 0 24px;
+  }
+  .nav .nav-title { font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 10px; font-weight: 600; }
+  .nav ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .nav a {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 5px 0 5px 12px;
+    border-left: 2px solid var(--rule);
+  }
+  .nav a:hover { color: var(--ink); border-left-color: var(--rule-strong); }
+  .nav a[aria-current="true"] { color: var(--accent); border-left-color: var(--accent); }
+  .nav .group { margin-top: 14px; }
+
+  main { min-width: 0; }
+
+  /* ---------- sections ---------- */
+
+  section { padding-top: 56px; display: flex; flex-direction: column; gap: 18px; scroll-margin-top: 12px; }
+
+  h2 {
+    font-size: 1.5rem;
+    letter-spacing: -0.016em;
+    font-weight: 650;
+    margin: 0;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--rule-strong);
+    text-wrap: balance;
+  }
+
+  h3 { font-size: 1.04rem; font-weight: 600; letter-spacing: -0.008em; margin: 10px 0 0; }
+
+  :not(pre) > code {
+    font-size: 0.85em;
+    background: var(--sunk);
+    padding: 0.08em 0.34em;
+    border-radius: 2px;
+  }
+
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    tab-size: 4;
+  }
+  pre code { background: none; padding: 0; color: var(--ink); }
+
+  .hljs-keyword, .hljs-literal, .hljs-built_in { color: var(--tok-keyword); }
+  .hljs-type, .hljs-title.class_, .hljs-title { color: var(--tok-type); }
+  .hljs-string, .hljs-subst { color: var(--tok-string); }
+  .hljs-number { color: var(--tok-number); }
+  .hljs-comment { color: var(--tok-comment); font-style: italic; }
+  .hljs-meta, .hljs-params, .hljs-variable, .hljs-attr { color: var(--tok-title); }
+
+  ul.plain { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  ul.plain > li { position: relative; padding-left: 20px; max-width: 76ch; }
+  ul.plain > li::before { content: ""; position: absolute; left: 0; top: 0.72em; width: 9px; height: 1px; background: var(--accent); }
+
+  .note {
+    border-left: 3px solid var(--warn);
+    background: var(--warn-wash);
+    padding: 12px 16px;
+    font-size: 0.94rem;
+    max-width: 78ch;
+  }
+  .note strong { font-family: Archivo, sans-serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--warn); margin-right: 8px; }
+
+  /* ---------- tables ---------- */
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 560px; }
+  th {
+    text-align: left;
+    font-size: 0.66rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.sig { font-size: 0.8rem; white-space: nowrap; color: var(--ink); }
+  td.muted { color: var(--ink-soft); }
+
+  .pill {
+    display: inline-block;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .pill.zero { color: var(--good); }
+  .pill.some { color: var(--warn); }
+
+  /* ---------- ease gallery ---------- */
+
+  .gallery {
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 16px 18px 12px;
+    display: grid;
+    grid-template-columns: 5.2rem repeat(3, minmax(0, 1fr));
+    gap: 6px 14px;
+    align-items: center;
+  }
+  .gallery .head { font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; padding-bottom: 2px; }
+  .gallery .fam { font-size: 0.86rem; font-weight: 600; color: var(--ink-soft); }
+  .thumb { margin: 0; display: flex; flex-direction: column; gap: 1px; }
+  .thumb svg { display: block; width: 100%; height: auto; color: var(--accent); }
+  .thumb figcaption { font-size: 0.66rem; color: var(--ink-faint); }
+  .gallery-caption { font-size: 0.86rem; color: var(--ink-soft); max-width: 78ch; }
+
+  /* ---------- loop plots ---------- */
+
+  .loops { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; border: 1px solid var(--rule); background: var(--surface); padding: 16px 18px; }
+  .loops .panel { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .loops .panel-title { font-size: 0.82rem; font-weight: 600; }
+  .loops svg { display: block; width: 100%; height: auto; color: var(--accent); }
+
+  footer.foot {
+    grid-column: 1 / -1;
+    margin-top: 56px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+  }
+
+  @media (max-width: 1000px) {
+    .frame { grid-template-columns: minmax(0, 1fr); padding: 0 20px 72px; }
+    nav.nav { position: static; max-height: none; padding: 24px 0 0; }
+    .nav ol { flex-direction: row; flex-wrap: wrap; gap: 4px 0; }
+    .nav a { border-left: 0; border-bottom: 2px solid var(--rule); padding: 4px 10px; }
+    .nav a[aria-current="true"] { border-bottom-color: var(--accent); }
+    .nav .group { margin-top: 0; }
+  }
+
+  @media (max-width: 620px) {
+    .gallery { grid-template-columns: 3.6rem repeat(3, minmax(0, 1fr)); gap: 4px 8px; padding: 12px; }
+    .loops { grid-template-columns: minmax(0, 1fr); }
+    .fact { border-right: 0; margin-right: 22px; padding-right: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="frame">
+
+  <header class="masthead">
+    <p class="eyebrow">Usage guide &middot; Prowl.Tweening</p>
+    <h1>Prowl.Tween Handbook</h1>
+    <p class="standfirst">How to animate values, transforms and timelines with the tweening library in <code>Assets/Scripts/Tween</code> — the everyday API first, then the parts you only need once something is slow, leaking or behaving strangely.</p>
+    <div class="facts">
+      <div class="fact"><span class="k">Namespaces</span><span class="v">Prowl.Tweening &middot; Prowl.Runtime</span></div>
+      <div class="fact"><span class="k">Examples</span><span class="v">compiled against the engine</span></div>
+      <div class="fact"><span class="k">Library at</span><span class="v">7d979bd</span></div>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="Contents">
+    <p class="nav-title">Contents</p>
+    <ol>
+      <li><a href="#start">Quick start</a></li>
+      <li><a href="#create">Creating tweens</a></li>
+      <li><a href="#transform">Transform shortcuts</a></li>
+      <li><a href="#configure">Configuring</a></li>
+      <li><a href="#easing">Easing</a></li>
+      <li><a href="#loops">Loops</a></li>
+      <li><a href="#callbacks">Callbacks</a></li>
+      <li><a href="#playback">Playback &amp; handles</a></li>
+      <li class="group"><a href="#sequences">Sequences</a></li>
+      <li><a href="#async">Awaiting</a></li>
+      <li><a href="#bulk">Ids, targets &amp; globals</a></li>
+      <li class="group"><a href="#memory">Memory &amp; cost</a></li>
+      <li><a href="#custom">Custom value types</a></li>
+      <li><a href="#host">Running outside Prowl</a></li>
+      <li><a href="#gotchas">Behaviour worth knowing</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section id="start">
+      <h2>Quick start</h2>
+      <p>There is nothing to set up. The first tween you create spawns a hidden <code>Tween Master</code> object that ticks every tween from the engine loop and survives scene loads for the rest of the play session. Animate a transform in one line:</p>
+      <pre><code class="language-csharp">using Prowl.Runtime;
+using Prowl.Tweening;
+using Prowl.Vector;
+
+public class Door : MonoBehaviour
+{
+    public override void Start()
+    {
+        Transform.Move(new Float3(0, 3, 0), 1.5f)
+                 .SetEase(Ease.OutBack)
+                 .SetLoops(-1, LoopType.Yoyo);
+    }
+}</code></pre>
+      <p>Anything that isn't a transform goes through <code>Tween.To</code>. Describe the tween, then <code>Bind</code> it to the thing it writes to — passing that thing as state keeps the setter a <code>static</code> lambda, which is what makes the call allocation-free:</p>
+      <pre><code class="language-csharp">Tween.To(Shown, health, 0.4f)
+     .Bind(this, static (v, self) =&gt; self.Shown = v)
+     .SetEase(Ease.OutCubic);</code></pre>
+      <p>Every call returns a <code>Tween</code> handle for chaining. A handle is a 12-byte struct, not an object: store it, copy it, ignore it. Operations on a tween that has already finished simply do nothing.</p>
+    </section>
+
+    <section id="create">
+      <h2>Creating tweens</h2>
+      <p>There are four ways in. They differ in where the start value comes from and in what they cost; pick the first one that fits.</p>
+
+      <h3>From explicit values, with <code>Bind</code></h3>
+      <p><code>Tween.To(from, to, duration)</code> returns a builder. Nothing runs until you call <code>Bind(state, setter)</code>, <code>Bind(setter)</code>, or <code>BindNothing()</code> for a tween that only exists for its callbacks. Built-in overloads cover <code>float</code>, <code>double</code>, <code>int</code>, <code>long</code> and the <code>System.Numerics</code> vectors and quaternion; <code>Tween.To&lt;T, TAdapter&gt;</code> covers anything else.</p>
+
+      <h3>From the current value</h3>
+      <p>When the start is &ldquo;wherever it is now&rdquo;, pass a getter too. The state overload reads it once, at creation, and still allocates nothing:</p>
+      <pre><code class="language-csharp">Tween.To&lt;float, FloatAdapter, Material&gt;(
+    material,
+    static m =&gt; m._properties.GetFloat("_Dissolve"),
+    static (v, m) =&gt; m.SetFloat("_Dissolve", v),
+    1f, 0.8f);</code></pre>
+
+      <h3>Engine math types</h3>
+      <p><code>ProwlTween</code> gives <code>Float2</code>, <code>Float3</code>, <code>Float4</code>, <code>Quaternion</code> and <code>Color</code> the same short spelling. It lives in <code>Prowl.Runtime</code> so the core library stays free of engine types.</p>
+      <pre><code class="language-csharp">// Builder form: you supply the start value.
+ProwlTween.To(Tint, new Color(1f, 0.25f, 0.25f, 1f), 0.15f)
+          .Bind(this, static (v, self) =&gt; self.Tint = v);
+
+// State form: the start value is read from the object.
+ProwlTween.To(this, static s =&gt; s.Tint, static (v, s) =&gt; s.Tint = v,
+              new Color(1f, 1f, 1f, 1f), 0.3f);</code></pre>
+
+      <h3>The convenient form</h3>
+      <p>Capturing lambdas read naturally and are fine in code that runs occasionally. On a hot path, use one of the forms above.</p>
+      <pre><code class="language-csharp">// Reads well, but allocates two delegates and a closure on every call.
+Tween.To(() =&gt; Shown, v =&gt; Shown = v, health, 0.4f);</code></pre>
+    </section>
+
+    <section id="transform">
+      <h2>Transform shortcuts</h2>
+      <p>Extension methods on <code>Transform</code>. Each reads the current value as its start, tags the tween with the transform (so <code>Tween.KillAll(transform)</code> finds it), and links it to the transform's GameObject so it dies with the object instead of writing to a destroyed one.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Animates</th></tr></thead>
+          <tbody>
+            <tr><td class="sig">Move(Float3 to, float duration)</td><td>World position</td></tr>
+            <tr><td class="sig">MoveX / MoveY / MoveZ(float to, float d)</td><td>One world axis, leaving the others alone</td></tr>
+            <tr><td class="sig">LocalMove(Float3 to, float d)</td><td>Position relative to the parent</td></tr>
+            <tr><td class="sig">LocalMoveX / Y / Z(float to, float d)</td><td>One local axis</td></tr>
+            <tr><td class="sig">RotateTo(Quaternion to, float d)</td><td>World rotation, shortest arc</td></tr>
+            <tr><td class="sig">RotateTo(Float3 euler, float d)</td><td>World euler angles in degrees, interpolated as raw numbers</td></tr>
+            <tr><td class="sig">LocalRotateTo(Quaternion | Float3, float d)</td><td>Rotation relative to the parent</td></tr>
+            <tr><td class="sig">LookAt(Float3 target[, Float3 up], float d)</td><td>Turn to face a point (target is read once)</td></tr>
+            <tr><td class="sig">Scale(Float3 | float to, float d)</td><td>Local scale; a <code>float</code> scales uniformly</td></tr>
+            <tr><td class="sig">ScaleX / ScaleY / ScaleZ(float to, float d)</td><td>One scale axis</td></tr>
+            <tr><td class="sig">KillTweens(bool complete = false)</td><td>Kills every tween targeting this transform, returns the count</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The rotation method is called <code>RotateTo</code> rather than <code>Rotate</code> on purpose: <code>Transform</code> already has an instance <code>Rotate(Float3, float)</code>, and it would win over an extension method and snap instead of tweening.</p>
+    </section>
+
+    <section id="configure">
+      <h2>Configuring a tween</h2>
+      <p>Chain settings straight after creation. Order doesn't matter, and every call is a no-op on a dead handle.</p>
+      <pre><code class="language-csharp">Tween.To(0f, 1f, 0.6f)
+     .Bind(this, static (v, self) =&gt; self.Shown = v)
+     .SetEase(Ease.OutElastic, 1.2f, 0.4f)
+     .SetDelay(0.25f)
+     .SetLoops(3, LoopType.Yoyo)
+     .SetAutoKill(false)
+     .SetUpdate(UpdateType.Late, isIndependentUpdate: true)
+     .SetTimeScale(1.5f)
+     .SetId("hud")
+     .SetTarget(this)
+     .SetLink(GameObject, static go =&gt; go.IsValid());</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Setting</th><th>Default</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="sig">SetEase(Ease)</td><td class="sig">OutQuad</td><td>Or <code>Tween.DefaultEase</code> if you changed it. <code>Ease.Unset</code> means &ldquo;the default&rdquo;.</td></tr>
+            <tr><td class="sig">SetEase(Ease, overshoot[, period])</td><td class="sig">1.70158, 0</td><td>Overshoot for Back, amplitude and period for Elastic. Period 0 picks the standard 0.3.</td></tr>
+            <tr><td class="sig">SetEase(EaseFunction)</td><td class="sig">&mdash;</td><td>A custom curve; cache the delegate.</td></tr>
+            <tr><td class="sig">SetLoops(int, LoopType)</td><td class="sig">1, Restart</td><td><code>-1</code> loops forever; <code>0</code> is treated as 1.</td></tr>
+            <tr><td class="sig">SetDelay(float)</td><td class="sig">0</td><td>Seconds before the first cycle. Negative or non-finite means none.</td></tr>
+            <tr><td class="sig">SetAutoKill(bool)</td><td class="sig">true</td><td>When off, a finished tween pauses at its end and stays alive for <code>Restart</code> or <code>Rewind</code>.</td></tr>
+            <tr><td class="sig">SetUpdate(UpdateType[, bool])</td><td class="sig">Normal, false</td><td>Which engine tick drives it: Normal, Late, Fixed or Manual.</td></tr>
+            <tr><td class="sig">SetUpdate(bool independent)</td><td class="sig">false</td><td>Ignore <code>GlobalTimeScale</code> and keep running while gameplay is paused &mdash; for menus and UI.</td></tr>
+            <tr><td class="sig">SetTimeScale(float)</td><td class="sig">1</td><td>Per-tween speed; multiplies with the global scale.</td></tr>
+            <tr><td class="sig">SetRelative()</td><td class="sig">off</td><td>Treat the end value as an offset from the start. Call before it has run.</td></tr>
+            <tr><td class="sig">From() / From(bool relative)</td><td class="sig">&mdash;</td><td>Swap the endpoints and apply the new start immediately.</td></tr>
+            <tr><td class="sig">SetId(object) / SetTarget(object)</td><td class="sig">none</td><td>Tags for the bulk operations. See <a href="#bulk">Ids, targets &amp; globals</a>.</td></tr>
+            <tr><td class="sig">SetLink(owner, isAlive)</td><td class="sig">none</td><td>Kill the tween as soon as <code>isAlive(owner)</code> returns false. Checked before each tick writes anything.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>SetRelative</code> and <code>From</code> are the two shortcuts for animating <em>by</em> an amount or <em>into</em> the current state:</p>
+      <pre><code class="language-csharp">Transform.MoveY(2f, 0.3f).SetRelative();   // up by 2 from wherever it is
+Transform.Scale(0f, 0.4f).From();          // pop in: from 0 up to the current scale</code></pre>
+    </section>
+
+    <section id="easing">
+      <h2>Easing</h2>
+      <p>Thirty named curves in three flavours: <code>In</code> starts slow, <code>Out</code> ends slow, <code>InOut</code> does both. These are drawn from the library's own equations with its default parameters; the faint diagonal in each is <code>Linear</code>, and the two faint rules mark the start and end values, so you can see where Back and Elastic overshoot.</p>
+      <div class="gallery" id="ease-gallery" role="img" aria-label="Plots of every easing curve, grouped by family, with In, Out and InOut columns">
+        <span></span><span class="head">In</span><span class="head">Out</span><span class="head">InOut</span>
+      </div>
+      <p class="gallery-caption">Vertical range &minus;0.5 to 1.5 on every plot, so the overshoot is comparable across families. Bounce and Elastic are the only ones that cross the end value more than once.</p>
+      <p>For anything else, supply your own curve. It receives time normalised to 0&ndash;1 and should return 0 at the start and 1 at the end; values outside that range overshoot. You can also sample curves without creating a tween:</p>
+      <pre><code class="language-csharp">static readonly EaseFunction Stepped =
+    static (t, duration, overshoot, period) =&gt; MathF.Floor(t * 4f) / 4f;
+
+Transform.MoveX(5f, 1f).SetEase(Stepped);
+
+float y   = Tween.EasedValue(0f, 10f, 0.5f, Ease.InOutSine);
+float raw = EaseUtility.Evaluate(Ease.OutBack, 0.5f, overshoot: 3f);</code></pre>
+    </section>
+
+    <section id="loops">
+      <h2>Loops</h2>
+      <p><code>SetLoops(count, type)</code> repeats the tween. The loop type decides what each new cycle does:</p>
+      <div class="loops" id="loop-plots" role="img" aria-label="Value over three cycles for Restart, Yoyo and Incremental loops"></div>
+      <ul class="plain">
+        <li><strong>Restart</strong> jumps back to the start value each cycle.</li>
+        <li><strong>Yoyo</strong> plays forwards, then backwards. An even loop count lands back on the start value; an odd one on the end.</li>
+        <li><strong>Incremental</strong> keeps adding the whole distance each cycle, so three cycles of 0&rarr;1 end at 3. A custom adapter must be unclamped for this to work.</li>
+      </ul>
+      <p>With <code>SetLoops(-1)</code> a tween never completes. <code>OnStepComplete</code> fires at the end of each cycle; <code>OnComplete</code> never does.</p>
+    </section>
+
+    <section id="callbacks">
+      <h2>Callbacks</h2>
+      <p>Every callback has two overloads: a plain <code>Action</code>, and an allocation-free one that takes a state object and a <code>static</code> lambda.</p>
+      <pre><code class="language-csharp">// State form: pass what the callback needs; the lambda stays static.
+Transform.Scale(1.1f, 0.2f)
+         .OnStart(this, static s =&gt; s.PlaySound("pop"))
+         .OnComplete(this, static s =&gt; s.ShowLabel());
+
+// Capturing form: simpler, allocates the closure.
+Transform.Scale(1f, 0.2f).OnComplete(() =&gt; Debug.Log("done"));</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Callback</th><th>Fires</th></tr></thead>
+          <tbody>
+            <tr><td class="sig">OnStart</td><td>The first time the tween runs, after any delay</td></tr>
+            <tr><td class="sig">OnUpdate</td><td>Every time a value is applied</td></tr>
+            <tr><td class="sig">OnStepComplete</td><td>At the end of each loop cycle &mdash; at most once per tick</td></tr>
+            <tr><td class="sig">OnComplete</td><td>At the end of the final loop</td></tr>
+            <tr><td class="sig">OnKill</td><td>When the tween is destroyed for any reason, including auto-kill and links</td></tr>
+            <tr><td class="sig">OnPlay / OnPause</td><td>When <code>Play</code> or <code>Pause</code> actually changes its state</td></tr>
+            <tr><td class="sig">OnRewind</td><td>When <code>Rewind</code> is called</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Within a tick the order is <code>OnStart</code>, the value, <code>OnUpdate</code>, <code>OnStepComplete</code>, <code>OnComplete</code>, then <code>OnKill</code> if it auto-kills. If any of them kills the tween, the rest are skipped. Callbacks may create, kill and control other tweens freely; a tween created inside a callback starts on the next tick.</p>
+      <div class="note"><strong>One state per tween</strong>All the <code>On*(state, &hellip;)</code> overloads on a tween share a single state slot. Giving a second callback a different object re-points the first one at it, and the first callback then runs against an object of the wrong type. The library warns through <code>TweenManager.Diagnostics</code> when this happens &mdash; treat that warning as a bug. Pass the same state everywhere, usually <code>this</code>, and reach anything else through its fields.</div>
+      <pre><code class="language-csharp">// Wrong: `door` replaces `this` as the one state, so OnStart would run
+// PlaySound against a Door. Logged as a warning when it happens.
+Transform.Scale(1f, 0.2f)
+         .OnStart(this, static s =&gt; s.PlaySound("pop"))
+         .OnComplete(door, static d =&gt; d.Transform.MoveY(1f, 0.1f));</code></pre>
+    </section>
+
+    <section id="playback">
+      <h2>Playback &amp; handles</h2>
+      <p>Hold on to a handle when you need to control a tween later. Because dead handles are inert, a field that might hold a finished tween needs no null checks or bookkeeping:</p>
+      <pre><code class="language-csharp">private Tween _pulse;
+
+public void StartPulse()
+{
+    _pulse.Kill();   // safe before the first assignment, and after it has died
+    _pulse = Transform.Scale(1.05f, 0.5f).SetLoops(-1, LoopType.Yoyo);
+}</code></pre>
+      <pre><code class="language-csharp">_pulse.Pause();
+_pulse.Play();
+_pulse.TogglePause();
+_pulse.Restart();                     // back to the start, playing
+_pulse.Rewind();                      // back to the start, paused
+_pulse.Goto(0.25f, andPlay: true);    // seconds, delay included
+_pulse.Flip();                        // turn around from where it is
+_pulse.Complete(withCallbacks: true); // jump to the end
+_pulse.Kill(complete: false);
+
+if (_pulse.IsActive &amp;&amp; _pulse.IsPlaying &amp;&amp; !_pulse.IsComplete)
+    Debug.Log($"{_pulse.Elapsed} / {_pulse.FullDuration}, loop {_pulse.CompletedLoops}");</code></pre>
+      <ul class="plain">
+        <li><code>IsActive</code> is true until the tween is killed or auto-kills; <code>IsPlaying</code> additionally requires it not to be paused.</li>
+        <li><code>Elapsed</code> and <code>Goto</code> measure in seconds, delay and completed loops included. <code>FullDuration</code> counts an infinite tween as a single cycle.</li>
+        <li><code>Tween.None</code> is the default handle, and every call on it is a no-op.</li>
+      </ul>
+    </section>
+
+    <section id="sequences">
+      <h2>Sequences</h2>
+      <p>A <code>Sequence</code> is a timeline of tweens and callbacks, and is itself a tween: you can ease it, loop it, await it, and nest it inside another sequence.</p>
+      <pre><code class="language-csharp">Sequence intro = Tween.Sequence()
+    .Append(Transform.Move(new Float3(0, 2, 0), 0.4f))
+    .Join(Transform.Scale(1.2f, 0.4f))
+    .AppendInterval(0.2f)
+    .AppendCallback(this, static s =&gt; s.PlayChime())
+    .Append(Transform.Scale(1f, 0.25f))
+    .SetLoops(2, LoopType.Yoyo);</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Places</th></tr></thead>
+          <tbody>
+            <tr><td class="sig">Append(tween)</td><td>At the end of the timeline so far</td></tr>
+            <tr><td class="sig">Join(tween)</td><td>Alongside the most recent <code>Append</code>, starting at the same moment</td></tr>
+            <tr><td class="sig">Insert(seconds, tween)</td><td>At an exact position</td></tr>
+            <tr><td class="sig">Prepend(tween)</td><td>At the start, pushing everything else back</td></tr>
+            <tr><td class="sig">AppendInterval / PrependInterval(seconds)</td><td>Empty time at the end or the start</td></tr>
+            <tr><td class="sig">AppendCallback([state,] callback)</td><td>A callback at the current end</td></tr>
+            <tr><td class="sig">InsertCallback(seconds, [state,] callback)</td><td>A callback at an exact position</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre><code class="language-csharp">intro.Insert(0.1f, Transform.RotateTo(new Float3(0, 90, 0), 0.3f))
+     .Prepend(Transform.ScaleY(0.8f, 0.1f))
+     .PrependInterval(0.1f)
+     .InsertCallback(0.5f, this, static s =&gt; s.PlaySound("whoosh"));
+
+// Not every overload is forwarded; the underlying handle has them all.
+intro.Tween.OnStart(this, static s =&gt; s.PlaySound("start"));
+
+Debug.Log($"{intro.Count} elements, {intro.Duration}s");</code></pre>
+      <ul class="plain">
+        <li>Adding a tween hands it over: the sequence drives it, turns its auto-kill off, and kills it when the sequence dies.</li>
+        <li>An empty sequence waits instead of completing, so you can create one and fill it over several frames. Composing a sequence that has already been killed does nothing and logs a warning.</li>
+        <li>The sequence's ease applies to its playhead as a whole, on top of each child's own ease.</li>
+        <li>Callbacks fire whenever the playhead crosses them, in either direction &mdash; so a Yoyo sequence fires them on the way back too.</li>
+        <li>If you lengthen a child after adding it, the timeline grows to fit from the next tick. Positions you set explicitly never move.</li>
+        <li><code>Sequence</code> forwards the common setters and callbacks. For the rest &mdash; such as the state overload of <code>OnStart</code> &mdash; use <code>sequence.Tween</code>.</li>
+      </ul>
+    </section>
+
+    <section id="async">
+      <h2>Awaiting</h2>
+      <p>Tweens can be awaited instead of wired up with callbacks. You always name what you are waiting for, which keeps a fire-and-forget <code>transform.Move(&hellip;)</code> inside an <code>async</code> method from looking like a forgotten <code>await</code>.</p>
+      <pre><code class="language-csharp">public async Task ShowBanner(CancellationToken token)
+{
+    await Transform.Scale(1f, 0.3f).AsyncWaitForCompletion(token);
+    await Tween.AsyncWaitForSeconds(2f, cancellationToken: token);
+    await Transform.Scale(0f, 0.2f).AsyncWaitForCompletion(token);
+}</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Wait</th><th>Resumes when</th></tr></thead>
+          <tbody>
+            <tr><td class="sig">AsyncWaitForCompletion()</td><td>The final loop ends. An infinite tween only resumes when killed.</td></tr>
+            <tr><td class="sig">AsyncWaitForKill()</td><td>The tween is destroyed</td></tr>
+            <tr><td class="sig">AsyncWaitForStart()</td><td>It runs for the first time, after the delay</td></tr>
+            <tr><td class="sig">AsyncWaitForElapsedLoops(n)</td><td><code>n</code> cycles have finished</td></tr>
+            <tr><td class="sig">AsyncWaitForPosition(seconds)</td><td>The playhead passes that time, delay included</td></tr>
+            <tr><td class="sig">Tween.AsyncWaitForSeconds(s)</td><td><code>s</code> seconds pass &mdash; unscaled by default</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre><code class="language-csharp">await Task.WhenAll(
+    Transform.Move(new Float3(0, 1, 0), 0.5f).AsyncWaitForCompletion().AsTask(),
+    Transform.Scale(2f, 0.8f).AsyncWaitForCompletion().AsTask());
+
+Tween spin = Transform.RotateTo(new Float3(0, 360, 0), 2f);
+await spin.AsyncWaitForPosition(1f);   // one second in
+await spin.AsyncWaitForKill();</code></pre>
+      <ul class="plain">
+        <li>Every wait also ends when the tween dies, so an await never hangs on a tween that was killed early. Use callbacks if you need to tell the two apart.</li>
+        <li>Continuations run inline on the game thread, from inside the tick that satisfied them.</li>
+        <li>A cancellation token throws <code>OperationCanceledException</code> on the next tick. It cancels the wait, never the tween &mdash; kill it yourself if that's what you want.</li>
+        <li><code>.AsTask()</code> is for <code>Task.WhenAll</code> and similar; awaiting directly is cheaper.</li>
+      </ul>
+      <p>For a plain timer, <code>DelayedCall</code> is the callback equivalent. It also runs on unscaled time by default:</p>
+      <pre><code class="language-csharp">Tween.DelayedCall(1.5f, this, static s =&gt; s.Respawn());
+Tween.DelayedCall(0.5f, () =&gt; Debug.Log("half a second, even while paused"));</code></pre>
+    </section>
+
+    <section id="bulk">
+      <h2>Ids, targets &amp; globals</h2>
+      <p>Tag tweens with <code>SetId</code> (compared with <code>Equals</code>, so strings and enums work) or <code>SetTarget</code> (compared by reference), then control them together. Every bulk call has an overload with no filter that affects every live tween, and returns how many it touched.</p>
+      <pre><code class="language-csharp">Tween.DefaultEase = Ease.OutCubic;
+Tween.DefaultAutoKill = true;
+Tween.GlobalTimeScale = 0.5f;
+
+Tween.PauseAll("hud");
+Tween.PlayAll("hud");
+Tween.CompleteAll(this);
+Transform.KillTweens();
+int killed = Tween.KillAll(this, complete: true);
+Debug.Log($"{killed} killed, {Tween.TotalActive} still running");</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Global</th><th>Default</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td class="sig">Tween.DefaultEase</td><td class="sig">OutQuad</td><td>Ease for tweens that don't choose one</td></tr>
+            <tr><td class="sig">Tween.DefaultEaseOvershootOrAmplitude</td><td class="sig">1.70158</td><td>Back overshoot and Elastic amplitude</td></tr>
+            <tr><td class="sig">Tween.DefaultEasePeriod</td><td class="sig">0</td><td>Elastic period; 0 means the standard value</td></tr>
+            <tr><td class="sig">Tween.DefaultAutoKill</td><td class="sig">true</td><td>Whether new tweens destroy themselves once complete</td></tr>
+            <tr><td class="sig">Tween.GlobalTimeScale</td><td class="sig">1</td><td>Speed of every tween not marked independent</td></tr>
+            <tr><td class="sig">Tween.TotalActive</td><td class="sig">&mdash;</td><td>Live tween count, across all value types</td></tr>
+            <tr><td class="sig">TweenManager.Diagnostics</td><td class="sig">Debug.LogWarning</td><td>Where misuse warnings go. Prowl wires this up; elsewhere it starts null and warnings are dropped.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="memory">
+      <h2>Memory &amp; cost</h2>
+      <p>Once its arrays have grown, the library allocates nothing per frame &mdash; with or without callbacks and links. That is asserted by the test suite, not just claimed. What costs something is how you create tweens:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Path</th><th>Per call</th></tr></thead>
+          <tbody>
+            <tr><td class="sig">Tween.To(a, b, d).Bind(state, static &hellip;)</td><td><span class="pill zero">Nothing</span></td></tr>
+            <tr><td class="sig">Tween.To&lt;T, TAdapter, TState&gt;(state, getter, setter, &hellip;)</td><td><span class="pill zero">Nothing</span></td></tr>
+            <tr><td class="sig">transform.Move(&hellip;) and the other shortcuts</td><td><span class="pill zero">Nothing</span></td></tr>
+            <tr><td class="sig">On*(state, static &hellip;), SetLink(owner, static &hellip;)</td><td><span class="pill zero">Nothing</span></td></tr>
+            <tr><td class="sig">Building and killing a Sequence</td><td><span class="pill zero">Nothing</span> once its pool has warmed up</td></tr>
+            <tr><td class="sig">Bind(v =&gt; &hellip;), On*(() =&gt; &hellip;) capturing a variable</td><td><span class="pill some">A closure</span></td></tr>
+            <tr><td class="sig">Tween.To(() =&gt; &hellip;, v =&gt; &hellip;, to, d)</td><td><span class="pill some">Two delegates</span> plus any closure</td></tr>
+            <tr><td class="sig">await &hellip;AsyncWaitFor*()</td><td><span class="pill some">The async state machine</span></td></tr>
+            <tr><td class="sig">&hellip;AsTask()</td><td><span class="pill some">A Task</span> on top of that</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Memory per live tween, measured: <code>float</code> 84 bytes and <code>Float3</code> 100 bytes; an id, target or link adds 32; any callback or custom ease adds 80. The two optional records live in separate arrays that are only allocated the first time a tween of that type uses them.</p>
+      <p>Storage grows by doubling and does not shrink on its own. Before a known burst, reserve; after it, trim:</p>
+      <pre><code class="language-csharp">ProwlTween.Reserve(512);                   // the float, Float3 and rotation storages
+Tween.Reserve&lt;Float3, Float3Adapter&gt;(256); // one specific storage
+Tween.Trim();                              // after the burst: hand the memory back</code></pre>
+    </section>
+
+    <section id="custom">
+      <h2>Custom value types</h2>
+      <p>Any unmanaged struct can be tweened by writing an adapter: a <code>readonly struct</code> implementing <code>ITweenAdapter&lt;T&gt;</code>. Because it's a generic argument rather than an interface reference, the interpolation compiles straight into the update loop. Each (type, adapter) pair gets its own storage automatically.</p>
+      <pre><code class="language-csharp">public struct Bounds2
+{
+    public Float2 Min;
+    public Float2 Max;
+}
+
+public readonly struct Bounds2Adapter : ITweenAdapter&lt;Bounds2&gt;
+{
+    // Must not clamp: LoopType.Incremental passes progress above 1.
+    public Bounds2 Evaluate(in Bounds2 start, in Bounds2 end, float progress) =&gt; new()
+    {
+        Min = start.Min + (end.Min - start.Min) * progress,
+        Max = start.Max + (end.Max - start.Max) * progress,
+    };
+
+    // Used by SetRelative().
+    public Bounds2 Add(in Bounds2 a, in Bounds2 b) =&gt; new() { Min = a.Min + b.Min, Max = a.Max + b.Max };
+}
+
+// Then, anywhere:
+Tween.To&lt;Bounds2, Bounds2Adapter&gt;(Crop, to, 0.4f)
+     .Bind(this, static (v, self) =&gt; self.Crop = v);</code></pre>
+    </section>
+
+    <section id="host">
+      <h2>Running outside Prowl</h2>
+      <p>The core library &mdash; everything except <code>ProwlTween</code>, <code>ProwlTweenAdapters</code>, <code>TransformTweenExtensions</code> and <code>TweenMaster</code> &mdash; has no engine dependency; the test project compiles exactly that subset, so the boundary is checked on every build. In another host, drive the ticks yourself:</p>
+      <pre><code class="language-csharp">// Once, at startup. Leave RuntimeBootstrap null so nothing tries to spawn a driver.
+TweenManager.Diagnostics = Console.WriteLine;
+
+// Every frame.
+Tween.FixedUpdate(fixedDt);            // as many fixed steps as the frame needs
+Tween.Update(dt, unscaledDt);
+Tween.LateUpdate(dt, unscaledDt);
+
+// On shutdown, or around a hot reload.
+TweenManager.Reset();</code></pre>
+      <ul class="plain">
+        <li>Each tick only advances tweens of its own <code>UpdateType</code>, but every tick reclaims killed tweens and resumes finished awaits, so a host that only calls <code>FixedUpdate</code> still works.</li>
+        <li>Pass the unscaled delta as the second argument if you want independent tweens to ignore pauses and slow motion; it defaults to the scaled one.</li>
+        <li>Everything is single-threaded: create, configure and tick tweens on one thread.</li>
+        <li><code>TweenManager.Reset()</code> drops every tween without callbacks. Handles taken before a reset shouldn't be used after it.</li>
+      </ul>
+    </section>
+
+    <section id="gotchas">
+      <h2>Behaviour worth knowing</h2>
+      <ul class="plain">
+        <li><strong>Every play session starts clean.</strong> Leaving play mode destroys the Tween Master, and every tween, pending <code>await</code> and changed global (<code>DefaultEase</code>, <code>GlobalTimeScale</code>&hellip;) goes with it. The next session's first tween spawns a new driver. The same happens if you destroy the master yourself mid-game.</li>
+        <li><strong>Start values are read at creation.</strong> A shortcut created now and delayed by two seconds starts from where the object was <em>now</em>, not where it will be.</li>
+        <li><strong>Two tweens on the same property fight.</strong> Both write every tick and the later one wins. Call <code>transform.KillTweens()</code> first, or keep the handle and kill it.</li>
+        <li><strong>Euler rotations don't wrap.</strong> <code>RotateTo(new Float3(0, 10, 0))</code> from 350&deg; sweeps back through 180&deg;. Target 370 (or &minus;10) for the short way, or pass a <code>Quaternion</code>.</li>
+        <li><strong><code>LookAt</code> doesn't track.</strong> The target rotation is worked out once, when the tween is created.</li>
+        <li><strong>Frozen isn't asleep.</strong> A tween with a time scale of 0 still fires <code>OnStart</code> and applies its start value once, then waits.</li>
+        <li><strong>Long frames report cycles once.</strong> If a single tick crosses several loop cycles, <code>OnStepComplete</code> fires once for that tick, not once per cycle.</li>
+        <li><strong>Integer tweens round half to even.</strong> An <code>int</code> tween passing 2.5 shows 2, and 7.5 shows 8.</li>
+        <li><strong>Bad numbers are neutralised.</strong> A negative, NaN or infinite duration becomes an instant tween, and the same values for a delay or a frame delta are ignored, so a tween can't get stuck.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <span>Prowl.Tween Handbook</span>
+    <span>Library source: Assets/Scripts/Tween</span>
+    <span>Tests: Tests/Prowl.Tweening.Tests</span>
+    <span>Companion: Prowl.Tween Teardown</span>
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---- syntax highlighting (the code reads fine without it) ----
+  try {
+    if (window.hljs) {
+      document.querySelectorAll("pre code.language-csharp").forEach(function (el) { window.hljs.highlightElement(el); });
+    }
+  } catch (e) { /* plain text is an acceptable fallback */ }
+
+  var SVG = "http://www.w3.org/2000/svg";
+  function el(name, attrs, parent) {
+    var node = document.createElementNS(SVG, name);
+    for (var k in attrs) node.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(node);
+    return node;
+  }
+
+  // ---- the library's easing equations, ported line for line from EaseUtility.cs ----
+  var PI = Math.PI, HALF_PI = PI * 0.5, TWO_PI = PI * 2, OVERSHOOT = 1.70158;
+
+  function outBounce(t) {
+    var N = 7.5625, D = 2.75;
+    if (t < 1 / D) return N * t * t;
+    if (t < 2 / D) { t -= 1.5 / D; return N * t * t + 0.75; }
+    if (t < 2.5 / D) { t -= 2.25 / D; return N * t * t + 0.9375; }
+    t -= 2.625 / D; return N * t * t + 0.984375;
+  }
+  function elasticShift(a, p) { return a < 1 ? p * 0.25 : p / TWO_PI * Math.asin(1 / a); }
+  function inElastic(t, a, p) {
+    if (t <= 0) return 0; if (t >= 1) return 1; if (p === 0) p = 0.3;
+    var s = elasticShift(a, p); if (a < 1) a = 1; t -= 1;
+    return -(a * Math.pow(2, 10 * t) * Math.sin((t - s) * TWO_PI / p));
+  }
+  function outElastic(t, a, p) {
+    if (t <= 0) return 0; if (t >= 1) return 1; if (p === 0) p = 0.3;
+    var s = elasticShift(a, p); if (a < 1) a = 1;
+    return a * Math.pow(2, -10 * t) * Math.sin((t - s) * TWO_PI / p) + 1;
+  }
+  function inOutElastic(t, a, p) {
+    if (t <= 0) return 0; if ((t *= 2) >= 2) return 1; if (p === 0) p = 0.3 * 1.5;
+    var s = elasticShift(a, p); if (a < 1) a = 1;
+    if (t < 1) { t -= 1; return -0.5 * (a * Math.pow(2, 10 * t) * Math.sin((t - s) * TWO_PI / p)); }
+    t -= 1; return a * Math.pow(2, -10 * t) * Math.sin((t - s) * TWO_PI / p) * 0.5 + 1;
+  }
+
+  var EASE = {
+    Linear: function (t) { return t; },
+    InSine: function (t) { return 1 - Math.cos(t * HALF_PI); },
+    OutSine: function (t) { return Math.sin(t * HALF_PI); },
+    InOutSine: function (t) { return -0.5 * (Math.cos(PI * t) - 1); },
+    InQuad: function (t) { return t * t; },
+    OutQuad: function (t) { return -t * (t - 2); },
+    InOutQuad: function (t) { if ((t *= 2) < 1) return 0.5 * t * t; t -= 1; return -0.5 * (t * (t - 2) - 1); },
+    InCubic: function (t) { return t * t * t; },
+    OutCubic: function (t) { t -= 1; return t * t * t + 1; },
+    InOutCubic: function (t) { if ((t *= 2) < 1) return 0.5 * t * t * t; t -= 2; return 0.5 * (t * t * t + 2); },
+    InQuart: function (t) { return t * t * t * t; },
+    OutQuart: function (t) { t -= 1; return -(t * t * t * t - 1); },
+    InOutQuart: function (t) { if ((t *= 2) < 1) return 0.5 * t * t * t * t; t -= 2; return -0.5 * (t * t * t * t - 2); },
+    InQuint: function (t) { return t * t * t * t * t; },
+    OutQuint: function (t) { t -= 1; return t * t * t * t * t + 1; },
+    InOutQuint: function (t) { if ((t *= 2) < 1) return 0.5 * t * t * t * t * t; t -= 2; return 0.5 * (t * t * t * t * t + 2); },
+    InExpo: function (t) { return t <= 0 ? 0 : Math.pow(2, 10 * (t - 1)); },
+    OutExpo: function (t) { return t >= 1 ? 1 : -Math.pow(2, -10 * t) + 1; },
+    InOutExpo: function (t) {
+      if (t <= 0) return 0; if (t >= 1) return 1;
+      if ((t *= 2) < 1) return 0.5 * Math.pow(2, 10 * (t - 1));
+      t -= 1; return 0.5 * (-Math.pow(2, -10 * t) + 2);
+    },
+    InCirc: function (t) { return -(Math.sqrt(1 - t * t) - 1); },
+    OutCirc: function (t) { t -= 1; return Math.sqrt(1 - t * t); },
+    InOutCirc: function (t) { if ((t *= 2) < 1) return -0.5 * (Math.sqrt(1 - t * t) - 1); t -= 2; return 0.5 * (Math.sqrt(1 - t * t) + 1); },
+    InElastic: function (t) { return inElastic(t, OVERSHOOT, 0); },
+    OutElastic: function (t) { return outElastic(t, OVERSHOOT, 0); },
+    InOutElastic: function (t) { return inOutElastic(t, OVERSHOOT, 0); },
+    InBack: function (t) { var o = OVERSHOOT; return t * t * ((o + 1) * t - o); },
+    OutBack: function (t) { var o = OVERSHOOT; t -= 1; return t * t * ((o + 1) * t + o) + 1; },
+    InOutBack: function (t) {
+      var o = OVERSHOOT * 1.525;
+      if ((t *= 2) < 1) return 0.5 * (t * t * ((o + 1) * t - o));
+      t -= 2; return 0.5 * (t * t * ((o + 1) * t + o) + 2);
+    },
+    InBounce: function (t) { return 1 - outBounce(1 - t); },
+    OutBounce: function (t) { return outBounce(t); },
+    InOutBounce: function (t) { return t < 0.5 ? (1 - outBounce(1 - t * 2)) * 0.5 : outBounce(t * 2 - 1) * 0.5 + 0.5; }
+  };
+
+  // ---- ease gallery: one shared scale, value -0.5..1.5 ----
+  try {
+    var gallery = document.getElementById("ease-gallery");
+    var families = ["Sine", "Quad", "Cubic", "Quart", "Quint", "Expo", "Circ", "Back", "Elastic", "Bounce"];
+    var W = 100, H = 64, PAD_X = 4, TOP = 4, BOTTOM = 60;
+    function y(v) { return BOTTOM - (v + 0.5) / 2 * (BOTTOM - TOP); }
+    function x(t) { return PAD_X + t * (W - PAD_X * 2); }
+
+    families.forEach(function (family) {
+      var label = document.createElement("span");
+      label.className = "fam";
+      label.textContent = family;
+      gallery.appendChild(label);
+
+      ["In", "Out", "InOut"].forEach(function (kind) {
+        var name = kind + family;
+        var fig = document.createElement("figure");
+        fig.className = "thumb";
+
+        var svg = el("svg", { viewBox: "0 0 " + W + " " + H, "aria-hidden": "true" });
+        el("line", { x1: x(0), x2: x(1), y1: y(0), y2: y(0), stroke: "var(--rule)", "stroke-width": 1, fill: "none" }, svg);
+        el("line", { x1: x(0), x2: x(1), y1: y(1), y2: y(1), stroke: "var(--rule)", "stroke-width": 1, fill: "none" }, svg);
+        el("line", { x1: x(0), y1: y(0), x2: x(1), y2: y(1), stroke: "var(--rule-strong)", "stroke-width": 0.8, "stroke-dasharray": "2 2", fill: "none" }, svg);
+
+        var fn = EASE[name], pts = [];
+        for (var i = 0; i <= 160; i++) {
+          var t = i / 160, v = Math.max(-0.5, Math.min(1.5, fn(t)));
+          pts.push(x(t).toFixed(2) + "," + y(v).toFixed(2));
+        }
+        el("polyline", { points: pts.join(" "), fill: "none", stroke: "currentColor", "stroke-width": 1.8, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+        el("circle", { cx: x(1), cy: y(fn(1)), r: 1.9, fill: "currentColor" }, svg);
+
+        var cap = document.createElement("figcaption");
+        cap.textContent = name;
+        fig.appendChild(svg);
+        fig.appendChild(cap);
+        gallery.appendChild(fig);
+      });
+    });
+  } catch (e) { /* gallery is illustrative; the text stands without it */ }
+
+  // ---- loop plots: three cycles of a linear 0 -> 1 tween, one shared value scale 0..3 ----
+  try {
+    var host = document.getElementById("loop-plots");
+    var PW = 220, PH = 150, L = 26, R = 8, T = 8, B = 128;
+    function px(c) { return L + c / 3 * (PW - L - R); }
+    function py(v) { return B - v / 3 * (B - T); }
+
+    var modes = [
+      { title: "Restart", note: "ends on 1", value: function (c) { var f = c - Math.floor(c); return c >= 3 ? 1 : f; }, breaks: true },
+      { title: "Yoyo", note: "odd count: ends on 1", value: function (c) { if (c >= 3) return 1; var i = Math.floor(c), f = c - i; return i % 2 ? 1 - f : f; } },
+      { title: "Incremental", note: "ends on 3", value: function (c) { return c; } }
+    ];
+
+    modes.forEach(function (mode) {
+      var panel = document.createElement("div");
+      panel.className = "panel";
+      var title = document.createElement("span");
+      title.className = "panel-title";
+      title.textContent = mode.title;
+      panel.appendChild(title);
+
+      var svg = el("svg", { viewBox: "0 0 " + PW + " " + PH, "aria-hidden": "true" });
+      for (var g = 0; g <= 3; g++) {
+        el("line", { x1: L, x2: PW - R, y1: py(g), y2: py(g), stroke: "var(--rule)", "stroke-width": 1, fill: "none" }, svg);
+        var yl = el("text", { x: L - 7, y: py(g) + 3.5, "text-anchor": "end", "font-size": 10, fill: "var(--ink-faint)", "font-family": "IBM Plex Mono, monospace" }, svg);
+        yl.textContent = g;
+        var xl = el("text", { x: px(g), y: PH - 6, "text-anchor": "middle", "font-size": 10, fill: "var(--ink-faint)", "font-family": "IBM Plex Mono, monospace" }, svg);
+        xl.textContent = g === 3 ? "3 cycles" : g;
+      }
+
+      // Restart jumps at each boundary, so draw each cycle as its own segment.
+      var segments = mode.breaks ? [[0, 1], [1, 2], [2, 3]] : [[0, 3]];
+      segments.forEach(function (seg) {
+        var pts = [];
+        for (var i = 0; i <= 90; i++) {
+          var c = seg[0] + (seg[1] - seg[0]) * i / 90;
+          var v = mode.breaks && i === 90 ? 1 : mode.value(c);
+          pts.push(px(c).toFixed(2) + "," + py(v).toFixed(2));
+        }
+        el("polyline", { points: pts.join(" "), fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+      });
+
+      var endV = mode.value(3);
+      el("circle", { cx: px(3), cy: py(endV), r: 3.2, fill: "currentColor" }, svg);
+      panel.appendChild(svg);
+
+      var note = document.createElement("span");
+      note.className = "eyebrow";
+      note.textContent = mode.note;
+      panel.appendChild(note);
+      host.appendChild(panel);
+    });
+  } catch (e) { /* the bullet list below describes the same thing */ }
+
+  // ---- mark the section in view ----
+  try {
+    var links = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
+    var byId = {};
+    links.forEach(function (a) { byId[a.getAttribute("href").slice(1)] = a; });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        links.forEach(function (a) { a.removeAttribute("aria-current"); });
+        var link = byId[entry.target.id];
+        if (link) link.setAttribute("aria-current", "true");
+      });
+    }, { rootMargin: "-10% 0px -75% 0px" });
+    document.querySelectorAll("main section[id]").forEach(function (s) { observer.observe(s); });
+  } catch (e) { /* navigation still works without the highlight */ }
+})();
+</script>

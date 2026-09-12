@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Integration tests: the tweening library running inside the Prowl runtime.
+
+    Prowl.Tweening.Tests covers the portable half of the library on its own. These tests cover what
+    that project deliberately cannot see - the engine glue (TweenMaster, ProwlTween, the transform
+    shortcuts) and how it behaves against the real engine lifecycle: scenes loading and swapping,
+    DontDestroyOnLoad, and callbacks the engine gates on Application.IsPlaying.
+
+    The whole library is compiled in from Assets/Scripts/Tween, and the engine is referenced from
+    its build output - the same assemblies Prowl's generated game project references. Override
+    ProwlEngineBuildDir if the engine is built somewhere else.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>Prowl.Tweening.Integration.Tests</AssemblyName>
+    <RootNamespace>Prowl.Tweening.Integration.Tests</RootNamespace>
+
+    <ProwlEngineBuildDir Condition="'$(ProwlEngineBuildDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\Prowl\Build\Editor\Debug\net10.0\</ProwlEngineBuildDir>
+  </PropertyGroup>
+
+  <ItemGroup Label="Library under test, engine glue included">
+    <Compile Include="..\..\Assets\Scripts\Tween\*.cs" Link="Library\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup Label="Prowl runtime, from the engine build output">
+    <Reference Include="Prowl.Runtime"><HintPath>$(ProwlEngineBuildDir)Prowl.Runtime.dll</HintPath></Reference>
+    <Reference Include="Vector"><HintPath>$(ProwlEngineBuildDir)Vector.dll</HintPath></Reference>
+    <Reference Include="Echo"><HintPath>$(ProwlEngineBuildDir)Echo.dll</HintPath></Reference>
+    <Reference Include="Paper"><HintPath>$(ProwlEngineBuildDir)Paper.dll</HintPath></Reference>
+    <Reference Include="Jitter2"><HintPath>$(ProwlEngineBuildDir)Jitter2.dll</HintPath></Reference>
+    <Reference Include="Aperture"><HintPath>$(ProwlEngineBuildDir)Aperture.dll</HintPath></Reference>
+    <Reference Include="Clay"><HintPath>$(ProwlEngineBuildDir)Clay.dll</HintPath></Reference>
+    <Reference Include="Quill"><HintPath>$(ProwlEngineBuildDir)Quill.dll</HintPath></Reference>
+    <Reference Include="Rosetta"><HintPath>$(ProwlEngineBuildDir)Rosetta.dll</HintPath></Reference>
+    <Reference Include="Scaffold"><HintPath>$(ProwlEngineBuildDir)Scaffold.dll</HintPath></Reference>
+    <Reference Include="Scribe"><HintPath>$(ProwlEngineBuildDir)Scribe.dll</HintPath></Reference>
+    <Reference Include="Origami"><HintPath>$(ProwlEngineBuildDir)Origami.dll</HintPath></Reference>
+    <Reference Include="Photonic"><HintPath>$(ProwlEngineBuildDir)Photonic.dll</HintPath></Reference>
+    <Reference Include="Silk.NET.Core"><HintPath>$(ProwlEngineBuildDir)Silk.NET.Core.dll</HintPath></Reference>
+    <Reference Include="Silk.NET.Maths"><HintPath>$(ProwlEngineBuildDir)Silk.NET.Maths.dll</HintPath></Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+</Project>

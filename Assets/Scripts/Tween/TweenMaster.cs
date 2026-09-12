@@ -29,6 +29,12 @@ public class TweenMaster : MonoBehaviour
     /// <summary>Guards against a tween created from the driver's own OnEnable spawning a second one.</summary>
     private static bool s_creating;
 
+    /// <summary>
+    /// Set once this instance has driven the tweens, so its teardown knows whether the library's state
+    /// is its to clear. An idle second master never sets it.
+    /// </summary>
+    private bool _hasDriven;
+
     /// <summary>The instance currently driving every tween, or null before the first one exists.</summary>
     public static TweenMaster? Driver => IsUsable(s_driver) ? s_driver : null;
 
@@ -73,8 +79,7 @@ public class TweenMaster : MonoBehaviour
             if (!IsUsable(existing))
                 continue;
 
-            s_driver = existing;
-            return existing;
+            return Claim(existing);
         }
 
         s_creating = true;
@@ -86,7 +91,7 @@ public class TweenMaster : MonoBehaviour
             TweenMaster master = go.AddComponent<TweenMaster>();
 
             // Claimed before the scene add, so anything that tweens from OnEnable finds this one.
-            s_driver = master;
+            Claim(master);
 
             Scene.Current.Add(go);
             Scene.DontDestroyOnLoad(go);
@@ -96,6 +101,13 @@ public class TweenMaster : MonoBehaviour
         {
             s_creating = false;
         }
+    }
+
+    private static TweenMaster Claim(TweenMaster master)
+    {
+        s_driver = master;
+        master._hasDriven = true;
+        return master;
     }
 
     private static bool IsUsable([NotNullWhen(true)] TweenMaster? master)
@@ -112,7 +124,7 @@ public class TweenMaster : MonoBehaviour
             return;
         }
 
-        s_driver = this;
+        Claim(this);
     }
 
     public override void OnDisable() => Release();
@@ -120,8 +132,34 @@ public class TweenMaster : MonoBehaviour
     public override void OnRemovedFromScene() => Release();
 
     /// <summary>
-    /// Gives up the driver role and tells the library to ask for a new one next time a tween is
-    /// created - otherwise nothing would tick after this object goes away.
+    /// The one teardown hook the engine always delivers.
+    /// <para>
+    /// OnDisable and OnRemovedFromScene cannot be relied on for this: the engine skips gated
+    /// callbacks whenever <see cref="Application.IsPlaying"/> is false, and leaving play mode clears
+    /// that flag before it destroys the objects kept by <see cref="Scene.DontDestroyOnLoad"/>. Dispose
+    /// runs regardless, so this is the only place the driver reliably learns its session is over.
+    /// </para>
+    /// </summary>
+    protected override void OnDispose()
+    {
+        // Only the instance that drove the tweens owns their state, and only if no other master has
+        // taken over since - an idle or superseded master going away must not touch anything.
+        if (_hasDriven && (s_driver is null || ReferenceEquals(s_driver, this)))
+        {
+            s_driver = null;
+
+            // The master is preserved across scene loads, so it only dies with the play session.
+            // Nothing that session created may carry into the next one, and Reset also re-arms the
+            // bootstrap, so the next tween spawns a fresh driver instead of waiting on this one.
+            TweenManager.Reset();
+        }
+
+        base.OnDispose();
+    }
+
+    /// <summary>
+    /// Gives up the driver role while the object still exists - disabled, or taken out of its scene -
+    /// and tells the library to ask for a new one the next time a tween is created.
     /// </summary>
     private void Release()
     {
