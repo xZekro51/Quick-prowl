@@ -60,6 +60,11 @@ public class KinoBrain : MonoBehaviour
 
     private Camera? _camera;
 
+    public override void OnAddedToScene()
+    {
+        Debug.LogSuccess("Kinobrain added to scene!");
+    }
+
     private KinoCamera? _activeCamera;
     private KinoCamera? _fromCamera;
     private KinoState _fromState = KinoState.Default;

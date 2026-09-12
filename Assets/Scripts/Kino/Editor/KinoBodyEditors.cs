@@ -71,7 +71,7 @@ public class KinoTransposerEditor : CustomEditor
     {
         var m = Origami.Current.Metrics;
         using (paper.Row(id).Height(UnitValue.Auto)
-            .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing).RowBetween(m.Spacing).Enter())
+            .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing).Gap(m.Spacing).Enter())
         {
             float distance = Maths.Max(Float3.Length(body.FollowOffset), 1f);
 

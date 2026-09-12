@@ -129,7 +129,7 @@ public class KinoCameraEditor : CustomEditor
 
         using (paper.Row(id).Height(28)
             .Margin(m.PaddingLarge, m.PaddingLarge, m.Spacing, m.Spacing)
-            .RowBetween(m.SpacingMedium).Enter())
+            .Gap(m.SpacingMedium).Enter())
         {
             if (solo)
                 KinoEditorGUI.Badge(paper, $"{id}_b", "SOLO", EditorTheme.Amber400);
@@ -184,7 +184,7 @@ public class KinoCameraEditor : CustomEditor
         var m = Origami.Current.Metrics;
 
         using (paper.Row($"{id}_bar").Height(20)
-            .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing).RowBetween(m.SpacingMedium).Enter())
+            .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing).Gap(m.SpacingMedium).Enter())
         {
             KinoEditorGUI.ToggleButton(paper, $"{id}_toggle", _showPreview ? "Hide Shot" : "Show Shot",
                 _showPreview, () => _showPreview = !_showPreview, EditorTheme.Blue400);

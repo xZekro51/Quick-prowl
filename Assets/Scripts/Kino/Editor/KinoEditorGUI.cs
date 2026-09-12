@@ -64,7 +64,7 @@ public static class KinoEditorGUI
         using (paper.Row($"{id}_note").Height(UnitValue.Auto).MinHeight(RowHeight)
             .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing)
             .Padding(m.SpacingLarge, m.SpacingLarge, m.SpacingSmall, m.SpacingSmall)
-            .RowBetween(m.SpacingMedium)
+            .Gap(m.SpacingMedium)
             .Rounded(m.SmallRounding)
             .BackgroundColor(SColor.FromArgb(28, accent))
             .BorderColor(SColor.FromArgb(90, accent)).BorderWidth(1)
@@ -165,7 +165,7 @@ public static class KinoEditorGUI
     {
         EditorGUI.Row(paper, id, label, () =>
         {
-            using (paper.Row($"{id}_w").Height(RowHeight).RowBetween(6).Enter())
+            using (paper.Row($"{id}_w").Height(RowHeight).Gap(6).Enter())
             {
                 Origami.NumericField(paper, $"{id}_v", value,
                         v => setter(Maths.Clamp(v, min, max)))
@@ -208,7 +208,7 @@ public static class KinoEditorGUI
     {
         EditorGUI.Row(paper, id, label, () =>
         {
-            using (paper.Row($"{id}_w").Height(RowHeight).RowBetween(6).Enter())
+            using (paper.Row($"{id}_w").Height(RowHeight).Gap(6).Enter())
             {
                 Origami.NumericField(paper, $"{id}_v", value, v => setter(Maths.Max(v, 0f))).Show();
                 Unit(paper, $"{id}_u", value <= 0f ? "rigid" : "s");
@@ -222,7 +222,7 @@ public static class KinoEditorGUI
     {
         EditorGUI.Row(paper, id, label, () =>
         {
-            using (paper.Row($"{id}_w").Height(RowHeight).RowBetween(4).Enter())
+            using (paper.Row($"{id}_w").Height(RowHeight).Gap(4).Enter())
             {
                 Axis(paper, $"{id}_x", xName, value.X, v => setter(new Float3(Maths.Max(v, 0f), value.Y, value.Z)));
                 Axis(paper, $"{id}_y", yName, value.Y, v => setter(new Float3(value.X, Maths.Max(v, 0f), value.Z)));
@@ -233,7 +233,7 @@ public static class KinoEditorGUI
         static void Axis(Paper paper, string id, string name, float value, Action<float> setter)
         {
             var font = EditorTheme.DefaultFont;
-            using (paper.Row(id).Width(UnitValue.Stretch()).Height(RowHeight).RowBetween(3).Enter())
+            using (paper.Row(id).Width(UnitValue.Stretch()).Height(RowHeight).Gap(3).Enter())
             {
                 if (font != null)
                     paper.Box($"{id}_l").Width(UnitValue.Auto).Height(RowHeight).IsNotInteractable()

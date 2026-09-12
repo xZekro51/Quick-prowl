@@ -243,7 +243,7 @@ public class KinoPathEditor : CustomEditor
 
                 var m = Origami.Current.Metrics;
                 using (paper.Row($"{id}_w{index}_ops").Height(UnitValue.Auto)
-                    .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing).RowBetween(m.Spacing).Enter())
+                    .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing).Gap(m.Spacing).Enter())
                 {
                     KinoEditorGUI.Button(paper, $"{id}_w{index}_ins", "Insert After", () =>
                     {

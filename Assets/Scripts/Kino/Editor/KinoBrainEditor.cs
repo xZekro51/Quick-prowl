@@ -106,7 +106,7 @@ public class KinoBrainEditor : CustomEditor
         }
 
         using (paper.Row($"{id}_live").Height(24)
-            .Margin(m.PaddingLarge, m.PaddingLarge, m.Spacing, m.Spacing).RowBetween(m.SpacingMedium).Enter())
+            .Margin(m.PaddingLarge, m.PaddingLarge, m.Spacing, m.Spacing).Gap(m.SpacingMedium).Enter())
         {
             KinoEditorGUI.Badge(paper, $"{id}_b", ReferenceEquals(KinoCore.Solo, active) ? "SOLO" : "LIVE",
                 ReferenceEquals(KinoCore.Solo, active) ? EditorTheme.Amber400 : EditorTheme.Green400);
@@ -160,7 +160,7 @@ public class KinoBrainEditor : CustomEditor
                 using (paper.Row($"{id}_b{i}").Height(UnitValue.Auto).MinHeight(22)
                     .Margin(m.PaddingLarge, m.PaddingLarge, 0, m.Spacing)
                     .Padding(m.SpacingLarge, m.SpacingLarge, m.SpacingSmall, m.SpacingSmall)
-                    .RowBetween(m.SpacingMedium)
+                    .Gap(m.SpacingMedium)
                     .Rounded(m.SmallRounding)
                     .BackgroundColor(isSelf ? SColor.FromArgb(36, EditorTheme.Purple400) : EditorTheme.Glass)
                     .BorderColor(isSelf ? SColor.FromArgb(110, EditorTheme.Purple400) : EditorTheme.BorderSoft)
