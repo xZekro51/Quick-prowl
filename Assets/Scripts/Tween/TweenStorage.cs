@@ -60,10 +60,21 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
         public object? State;
     }
 
+    /// <summary>
+    /// Where a lazily-started tween reads its start value from. Cold: read once, when the tween
+    /// starts, then cleared so the getter and its state aren't kept alive for nothing.
+    /// </summary>
+    private struct LazyStart
+    {
+        public Func<object?, T>? Getter;
+        public object? State;
+    }
+
     private Entry[] _entries = new Entry[InitialCapacity];
     private Binding[] _bindings = new Binding[InitialCapacity];
     private TweenTags[]? _tags;
     private TweenEvents[]? _events;
+    private LazyStart[]? _lazy;
     private int _count;
     private int _deadCount;
     private int _linkCount;
@@ -87,10 +98,37 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
     internal bool HasEventsArray => _events != null;
     internal bool HasTagsArray => _tags != null;
     internal int LinkedCount => _linkCount;
+    internal bool HasLazyArray => _lazy != null;
 
     #region Creation
 
     public Tween Create(in T from, in T to, float duration, Action<T, object?>? setter, object? state, TweenFlags extraFlags = TweenFlags.None)
+        => HandleAt(Allocate(in from, in to, duration, setter, state, extraFlags));
+
+    /// <summary>
+    /// Creates a tween whose start value is read from <paramref name="getter"/> the first time it
+    /// actually starts - after its delay, or when a sequence reaches it - rather than now. That is
+    /// what lets consecutive steps of a sequence each continue from where the previous one ended.
+    /// </summary>
+    public Tween CreateLazy(in T to, float duration, Action<T, object?> setter, object? state, Func<object?, T> getter, object? getterState)
+    {
+        T unknownYet = default;
+        int dense = Allocate(in unknownYet, in to, duration, setter, state, TweenFlags.PendingStart);
+
+        _lazy ??= new LazyStart[_entries.Length];
+        _lazy[dense].Getter = getter;
+        _lazy[dense].State = getterState;
+
+        return HandleAt(dense);
+    }
+
+    private Tween HandleAt(int dense)
+    {
+        int slot = _entries[dense].Slot;
+        return new Tween(Id, slot, _slots[slot].Version);
+    }
+
+    private int Allocate(in T from, in T to, float duration, Action<T, object?>? setter, object? state, TweenFlags extraFlags)
     {
         // Every creation path funnels through here, so this is the one place the host engine has to
         // be asked for a ticker - a tween that nothing drives would just sit at its start value.
@@ -128,10 +166,12 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
             _tags[dense] = default;
         if (_events != null)
             _events[dense] = default;
+        if (_lazy != null)
+            _lazy[dense] = default;
 
         _typeCounts[(int)UpdateType.Normal]++;
 
-        return new Tween(Id, slot, _slots[slot].Version);
+        return dense;
     }
 
     /// <summary>
@@ -153,6 +193,8 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
             Array.Resize(ref _tags, capacity);
         if (_events != null)
             Array.Resize(ref _events, capacity);
+        if (_lazy != null)
+            Array.Resize(ref _lazy, capacity);
     }
 
     public void Reserve(int capacity)
@@ -264,6 +306,11 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
     public void MakeFromAt(int dense)
     {
+        // From() runs *into* the current value, so that value has to be read now: the swap below
+        // writes the new start straight away, and a later read would only see that.
+        if (!EnsureStart(dense))
+            return;
+
         ref Entry e = ref _entries[dense];
         (e.Start, e.End) = (e.End, e.Start);
         ApplyAt(dense, EasedProgress(dense, false));
@@ -272,18 +319,74 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
     public void MakeRelativeAt(int dense)
     {
         ref Entry e = ref _entries[dense];
+
+        // The start isn't known yet - add it to the end once it is read.
+        if ((e.Core.Flags & TweenFlags.PendingStart) != 0)
+        {
+            e.Core.Flags |= TweenFlags.PendingRelative;
+            return;
+        }
+
         e.End = default(TAdapter).Add(in e.Start, in e.End);
     }
 
     public void FlipAt(int dense)
     {
+        if (!EnsureStart(dense))
+            return;
+
         ref Entry e = ref _entries[dense];
         (e.Start, e.End) = (e.End, e.Start);
         e.Core.Position = Math.Max(0f, e.Core.Duration - e.Core.Position);
         e.Core.Flags &= ~TweenFlags.Completed;
     }
 
-    public void ApplyCurrentAt(int dense) => ApplyAt(dense, EasedProgress(dense, false));
+    public void ApplyCurrentAt(int dense)
+    {
+        // A tween that hasn't read its start value hasn't begun, so there is nothing to show yet.
+        if ((_entries[dense].Core.Flags & TweenFlags.PendingStart) != 0)
+            return;
+
+        ApplyAt(dense, EasedProgress(dense, false));
+    }
+
+    /// <summary>
+    /// Reads a pending start value now, if there is one. False if the getter killed the tween.
+    /// </summary>
+    private bool EnsureStart(int dense)
+    {
+        if ((_entries[dense].Core.Flags & TweenFlags.PendingStart) == 0)
+            return true;
+
+        CaptureStart(dense);
+        return !IsDead(dense);
+    }
+
+    /// <summary>The cold half of <see cref="EnsureStart"/>, kept out of line so the check stays cheap.</summary>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void CaptureStart(int dense)
+    {
+        LazyStart lazy = _lazy![dense];
+        _lazy[dense] = default;
+
+        // Cleared before the getter runs, so a getter that reaches back into this tween can't
+        // re-enter the read, and one that throws isn't retried every frame.
+        _entries[dense].Core.Flags &= ~TweenFlags.PendingStart;
+
+        // ---- user code: the getter may create tweens (growing the arrays) or kill this one ----
+        T start = lazy.Getter!(lazy.State);
+
+        ref Entry e = ref _entries[dense];
+        if ((e.Core.Flags & TweenFlags.Dead) != 0)
+            return;
+
+        e.Start = start;
+        if ((e.Core.Flags & TweenFlags.PendingRelative) != 0)
+        {
+            e.Core.Flags &= ~TweenFlags.PendingRelative;
+            e.End = default(TAdapter).Add(in start, in e.End);
+        }
+    }
 
     #endregion
 
@@ -330,6 +433,17 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
 
             delta = c.DelayElapsed - c.Delay;
             c.DelayElapsed = c.Delay;
+        }
+
+        // A tween with a getter reads its start value now, the moment it actually begins. The getter
+        // is user code, so the refs into the arrays are taken again afterwards.
+        if ((c.Flags & TweenFlags.PendingStart) != 0)
+        {
+            if (!EnsureStart(dense))
+                return;
+
+            e = ref _entries[dense];
+            c = ref e.Core;
         }
 
         bool started = (c.Flags & TweenFlags.Started) == 0;
@@ -469,6 +583,15 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
             c.CompletedLoops = 0;
             c.Flags &= ~TweenFlags.Completed;
             return;
+        }
+
+        // Past the delay means a value is about to be applied, so the start value has to be known.
+        if ((c.Flags & TweenFlags.PendingStart) != 0)
+        {
+            if (!EnsureStart(dense))
+                return;
+
+            c = ref _entries[dense].Core;
         }
 
         c.DelayElapsed = c.Delay;
@@ -615,6 +738,8 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
                     _tags[i] = _tags[last];
                 if (_events != null)
                     _events[i] = _events[last];
+                if (_lazy != null)
+                    _lazy[i] = _lazy[last];
                 _slots[_entries[i].Slot].Dense = i;
                 moved = true;
             }
@@ -625,6 +750,8 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
                 _tags[last] = default;
             if (_events != null)
                 _events[last] = default;
+            if (_lazy != null)
+                _lazy[last] = default;
         }
 
         _deadCount = 0;
@@ -668,6 +795,8 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
                 Array.Resize(ref _tags, target);
             if (_events != null)
                 Array.Resize(ref _events, target);
+            if (_lazy != null)
+                Array.Resize(ref _lazy, target);
         }
 
         // Drop the cold arrays entirely once no live tween needs them.
@@ -675,6 +804,8 @@ internal sealed class TweenStorage<T, TAdapter> : ITweenStorage
             _events = null;
         if (_tags != null && !AnyFlag(TweenFlags.HasTags | TweenFlags.HasLink))
             _tags = null;
+        if (_lazy != null && !AnyFlag(TweenFlags.PendingStart))
+            _lazy = null;
 
         // _slots is deliberately left alone: the free list addresses it by index, so shrinking it
         // would mean remapping every live handle. At 12 bytes a slot that is not worth it.

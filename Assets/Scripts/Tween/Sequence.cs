@@ -16,8 +16,15 @@ namespace Prowl.Tweening;
 /// looped, killed, nested inside another sequence and given callbacks like any other.
 /// </summary>
 /// <remarks>
+/// <para>
 /// A sequence with nothing in it yet cannot complete, so it is safe to create one and populate it
 /// later - even on a later frame. Once it holds something it plays like any other tween.
+/// </para>
+/// <para>
+/// A tween in a sequence starts when the playhead reaches it, not before: that is when it reads its
+/// start value (for tweens that have a getter, such as the transform shortcuts) and fires its
+/// <c>OnStart</c>. So consecutive moves each continue from where the previous one ended.
+/// </para>
 /// </remarks>
 public readonly struct Sequence : IEquatable<Sequence>
 {
@@ -533,7 +540,16 @@ internal sealed class SequenceData
             if (_elements[i].Start + childFull > grownTo)
                 grownTo = _elements[i].Start + childFull;
 
-            float local = position - _elements[i].Start;
+            float raw = position - _elements[i].Start;
+
+            // A child starts when the playhead reaches it, not before. Driving one that hasn't
+            // started to its local time 0 would start it early: it would read its start value from
+            // wherever the children before it left things this frame, and fire OnStart ahead of
+            // its turn.
+            if (raw < 0f && (storage.CoreAt(dense).Flags & TweenFlags.Started) == 0)
+                continue;
+
+            float local = raw;
             if (local < 0f) local = 0f;
             else if (local > childFull) local = childFull;
 

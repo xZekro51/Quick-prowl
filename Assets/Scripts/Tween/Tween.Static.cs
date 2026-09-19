@@ -116,10 +116,11 @@ public readonly partial struct Tween
         => new(in from, in to, duration);
 
     /// <summary>
-    /// Reads the start value from <paramref name="state"/> and tweens it towards
-    /// <paramref name="endValue"/>. This is the allocation-free counterpart of the
-    /// <c>To(getter, setter, ...)</c> overloads: pass the object you are animating as
-    /// <paramref name="state"/> and keep both lambdas <c>static</c>, and nothing is allocated.
+    /// Tweens whatever <paramref name="getter"/> reads from <paramref name="state"/> towards
+    /// <paramref name="endValue"/>. The start value is read when the tween starts - after any delay,
+    /// or when a sequence reaches it - not when it is created. This is the allocation-free
+    /// counterpart of the <c>To(getter, setter, ...)</c> overloads: pass the object you are animating
+    /// as <paramref name="state"/> and keep both lambdas <c>static</c>, and nothing is allocated.
     /// </summary>
     /// <example>
     /// <code>
@@ -138,13 +139,11 @@ public readonly partial struct Tween
         ArgumentNullException.ThrowIfNull(getter);
         ArgumentNullException.ThrowIfNull(setter);
 
-        // The start value is read now, when the tween is created, not when it first plays.
-        T start = getter(state);
-
-        // Delegates over reference types share their calling convention with Action<T, object>,
-        // so this reinterpret avoids allocating a wrapper closure per tween.
-        Action<T, object?> erased = Unsafe.As<Action<T, TState>, Action<T, object?>>(ref setter);
-        return TweenManager.Of<T, TAdapter>.Storage.Create(in start, in endValue, duration, erased, state);
+        // Delegates over reference types share their calling convention with the object-typed
+        // ones, so these reinterprets avoid allocating wrapper closures per tween.
+        Action<T, object?> erasedSetter = Unsafe.As<Action<T, TState>, Action<T, object?>>(ref setter);
+        Func<object?, T> erasedGetter = Unsafe.As<Func<TState, T>, Func<object?, T>>(ref getter);
+        return TweenManager.Of<T, TAdapter>.Storage.CreateLazy(in endValue, duration, erasedSetter, state, erasedGetter, state);
     }
 
     #endregion
@@ -152,7 +151,7 @@ public readonly partial struct Tween
     #region Creation - getter/setter
 
     /// <summary>
-    /// Tweens whatever <paramref name="getter"/> reads towards <paramref name="endValue"/>.
+    /// Tweens whatever <paramref name="getter"/> reads, when the tween starts, towards <paramref name="endValue"/>.
     /// Convenient, but the two delegates you pass in are heap allocations - prefer
     /// <see cref="To{T, TAdapter, TState}"/>, or <see cref="To(float, float, float)"/> plus
     /// <c>Bind</c>, on hot paths.
@@ -195,9 +194,8 @@ public readonly partial struct Tween
         ArgumentNullException.ThrowIfNull(getter);
         ArgumentNullException.ThrowIfNull(setter);
 
-        // The start value is read now, when the tween is created, not when it first plays.
-        T start = getter();
-        return TweenManager.Of<T, TAdapter>.Storage.Create(in start, in endValue, duration, Invoker<T>.Instance, setter);
+        return TweenManager.Of<T, TAdapter>.Storage.CreateLazy(
+            in endValue, duration, Invoker<T>.Instance, setter, GetterInvoker<T>.Instance, getter);
     }
 
     // A pure per-type delegate cache. The hot-reload warning does not apply: recreating an
@@ -206,6 +204,11 @@ public readonly partial struct Tween
     private static class Invoker<T> where T : unmanaged
     {
         internal static readonly Action<T, object?> Instance = static (value, state) => Unsafe.As<TweenSetter<T>>(state!)(value);
+    }
+
+    private static class GetterInvoker<T> where T : unmanaged
+    {
+        internal static readonly Func<object?, T> Instance = static state => Unsafe.As<TweenGetter<T>>(state!)();
     }
 #pragma warning restore EMBA001
 

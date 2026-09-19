@@ -286,8 +286,9 @@ public readonly partial struct Tween : IEquatable<Tween>
     }
 
     /// <summary>
-    /// Treats the end value as an offset from the start value: <c>end = start + end</c>.
-    /// Call it before the tween has run.
+    /// Treats the end value as an offset from the start value: <c>end = start + end</c>. For a tween
+    /// that reads its start value when it starts, the offset is added then. Call it before the
+    /// tween has run.
     /// </summary>
     public Tween SetRelative(bool isRelative = true)
     {
@@ -298,7 +299,8 @@ public readonly partial struct Tween : IEquatable<Tween>
 
     /// <summary>
     /// Swaps start and end so the tween runs <i>from</i> the given value <i>to</i> the current one,
-    /// and immediately applies the new start value.
+    /// and immediately applies the new start value. The current value is read right away, even for
+    /// a tween that would otherwise read it when it starts.
     /// </summary>
     public Tween From()
     {

@@ -48,9 +48,10 @@ public static class ProwlTween
         => Tween.To<Color, ColorAdapter>(in from, in to, duration);
 
     /// <summary>
-    /// Reads the start value from <paramref name="state"/> and tweens it. Allocation-free as long
-    /// as both lambdas are <c>static</c> - pass the object you are animating as
-    /// <paramref name="state"/> rather than capturing it.
+    /// Reads the start value from <paramref name="state"/> when the tween starts - after any delay,
+    /// or when a sequence reaches it - and tweens it. Allocation-free as long as both lambdas are
+    /// <c>static</c>: pass the object you are animating as <paramref name="state"/> rather than
+    /// capturing it.
     /// </summary>
     public static Tween To<TState>(TState state, Func<TState, Float3> getter, Action<Float3, TState> setter, Float3 to, float duration)
         where TState : class

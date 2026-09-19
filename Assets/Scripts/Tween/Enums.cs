@@ -98,6 +98,15 @@ internal enum TweenFlags : uint
     /// </summary>
     Building = 1u << 12,
 
+    /// <summary>
+    /// The start value hasn't been read yet. It comes from a getter the first time the tween
+    /// actually starts - after its delay, or when a sequence reaches it - not when it is created.
+    /// </summary>
+    PendingStart = 1u << 13,
+
+    /// <summary><c>SetRelative</c> arrived before the start value was known; it is applied once that is read.</summary>
+    PendingRelative = 1u << 14,
+
     /// <summary>Flags that keep a tween out of the update loop entirely.</summary>
     NotSteppable = Dead | Paused | Sequenced | Building
 }
