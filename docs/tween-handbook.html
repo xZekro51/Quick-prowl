@@ -395,7 +395,7 @@ public class Door : MonoBehaviour
       <p><code>Tween.To(from, to, duration)</code> returns a builder. Nothing runs until you call <code>Bind(state, setter)</code>, <code>Bind(setter)</code>, or <code>BindNothing()</code> for a tween that only exists for its callbacks. Built-in overloads cover <code>float</code>, <code>double</code>, <code>int</code>, <code>long</code> and the <code>System.Numerics</code> vectors and quaternion; <code>Tween.To&lt;T, TAdapter&gt;</code> covers anything else.</p>
 
       <h3>From the current value</h3>
-      <p>When the start is &ldquo;wherever it is now&rdquo;, pass a getter too. The state overload reads it once, at creation, and still allocates nothing:</p>
+      <p>When the start is &ldquo;wherever it is now&rdquo;, pass a getter too. The state overload reads it once, when the tween starts &mdash; after any delay, or when a sequence reaches it &mdash; and still allocates nothing:</p>
       <pre><code class="language-csharp">Tween.To&lt;float, FloatAdapter, Material&gt;(
     material,
     static m =&gt; m._properties.GetFloat("_Dissolve"),
@@ -420,7 +420,7 @@ Tween.To(() =&gt; Shown, v =&gt; Shown = v, health, 0.4f);</code></pre>
 
     <section id="transform">
       <h2>Transform shortcuts</h2>
-      <p>Extension methods on <code>Transform</code>. Each reads the current value as its start, tags the tween with the transform (so <code>Tween.KillAll(transform)</code> finds it), and links it to the transform's GameObject so it dies with the object instead of writing to a destroyed one.</p>
+      <p>Extension methods on <code>Transform</code>. Each reads its start value when it starts playing &mdash; after any delay, or when a sequence reaches it &mdash; tags the tween with the transform (so <code>Tween.KillAll(transform)</code> finds it), and links it to the transform's GameObject so it dies with the object instead of writing to a destroyed one.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Method</th><th>Animates</th></tr></thead>
@@ -607,6 +607,7 @@ intro.Tween.OnStart(this, static s =&gt; s.PlaySound("start"));
 Debug.Log($"{intro.Count} elements, {intro.Duration}s");</code></pre>
       <ul class="plain">
         <li>Adding a tween hands it over: the sequence drives it, turns its auto-kill off, and kills it when the sequence dies.</li>
+        <li>Each tween starts when the playhead reaches it, not before. That is when a shortcut reads its start value and fires <code>OnStart</code>, so consecutive moves each continue from where the previous one ended.</li>
         <li>An empty sequence waits instead of completing, so you can create one and fill it over several frames. Composing a sequence that has already been killed does nothing and logs a warning.</li>
         <li>The sequence's ease applies to its playhead as a whole, on top of each child's own ease.</li>
         <li>Callbacks fire whenever the playhead crosses them, in either direction &mdash; so a Yoyo sequence fires them on the way back too.</li>
@@ -703,7 +704,7 @@ Debug.Log($"{killed} killed, {Tween.TotalActive} still running");</code></pre>
           </tbody>
         </table>
       </div>
-      <p>Memory per live tween, measured: <code>float</code> 84 bytes and <code>Float3</code> 100 bytes; an id, target or link adds 32; any callback or custom ease adds 80. The two optional records live in separate arrays that are only allocated the first time a tween of that type uses them.</p>
+      <p>Memory per live tween, measured: <code>float</code> 84 bytes and <code>Float3</code> 100 bytes; an id, target or link adds 32; any callback or custom ease adds 80; a tween still waiting to read its start value holds 16 until it does. These optional records live in separate arrays that are only allocated the first time a tween of that type uses them.</p>
       <p>Storage grows by doubling and does not shrink on its own. Before a known burst, reserve; after it, trim:</p>
       <pre><code class="language-csharp">ProwlTween.Reserve(512);                   // the float, Float3 and rotation storages
 Tween.Reserve&lt;Float3, Float3Adapter&gt;(256); // one specific storage
@@ -762,7 +763,7 @@ TweenManager.Reset();</code></pre>
       <h2>Behaviour worth knowing</h2>
       <ul class="plain">
         <li><strong>Every play session starts clean.</strong> Leaving play mode destroys the Tween Master, and every tween, pending <code>await</code> and changed global (<code>DefaultEase</code>, <code>GlobalTimeScale</code>&hellip;) goes with it. The next session's first tween spawns a new driver. The same happens if you destroy the master yourself mid-game.</li>
-        <li><strong>Start values are read at creation.</strong> A shortcut created now and delayed by two seconds starts from where the object was <em>now</em>, not where it will be.</li>
+        <li><strong>Start values are read when a tween starts.</strong> The shortcuts and every getter-based form read the value when they actually begin &mdash; after their delay, or when a sequence reaches them. <code>From()</code> is the exception: it reads immediately, because it applies the new start straight away. Tweens built from explicit values use exactly what you gave them.</li>
         <li><strong>Two tweens on the same property fight.</strong> Both write every tick and the later one wins. Call <code>transform.KillTweens()</code> first, or keep the handle and kill it.</li>
         <li><strong>Euler rotations don't wrap.</strong> <code>RotateTo(new Float3(0, 10, 0))</code> from 350&deg; sweeps back through 180&deg;. Target 370 (or &minus;10) for the short way, or pass a <code>Quaternion</code>.</li>
         <li><strong><code>LookAt</code> doesn't track.</strong> The target rotation is worked out once, when the tween is created.</li>

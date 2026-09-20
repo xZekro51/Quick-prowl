@@ -1,0 +1,817 @@
+{
+  "$id": 1,
+  "$type": "Prowl.Runtime.Resources.Scene, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "serializeObj": {
+    "$id": 2,
+    "array": [
+      {
+        "$id": 3,
+        "Name": "Main Camera",
+        "AssetPath": "",
+        "Identifier": "b46b3346-8f9f-4a0e-bd73-8914f46d72b2",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 1,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 4,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 5F,
+            "Z": -15F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0.1305262F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 0.9914449F
+          }
+        },
+        "Components": [
+          {
+            "$id": 5,
+            "$type": "Prowl.Runtime.Camera, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Effects": {
+              "$id": 6,
+              "$values": [
+
+              ]
+            },
+            "ClearFlags": 3L,
+            "ClearColor": {
+              "R": 0F,
+              "G": 0F,
+              "B": 0F,
+              "A": 1F
+            },
+            "CullingMask": {
+              "mask": 4294967295U
+            },
+            "ProjectionMode": 0L,
+            "FieldOfView": 60F,
+            "OrthographicSize": 5F,
+            "NearClipPlane": 0.1F,
+            "FarClipPlane": 100F,
+            "Depth": -1,
+            "Pipeline": NULL,
+            "Target": {
+              "AssetID": "00000000-0000-0000-0000-000000000000"
+            },
+            "HDR": true,
+            "RenderScale": 1F,
+            "ShadowFocus": NULL,
+            "_identifier": "43d638c9-82ad-4048-ab69-fc5235fa68c0",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewCamera"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 7,
+        "Name": "Directional Light",
+        "AssetPath": "",
+        "Identifier": "a3be9905-9ce0-4ab0-96bd-0cb1c9a2567c",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 8,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": -0.3535534F,
+            "Y": 0.3535534F,
+            "Z": 0.14644663F,
+            "W": 0.85355335F
+          }
+        },
+        "Components": [
+          {
+            "$id": 9,
+            "$type": "Prowl.Runtime.DirectionalLight, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "ShadowResolution": 2048L,
+            "Cascades": 2L,
+            "ShadowDistance": 70F,
+            "Color": {
+              "R": 1F,
+              "G": 1F,
+              "B": 1F,
+              "A": 1F
+            },
+            "Intensity": 1F,
+            "ShadowStrength": 1F,
+            "ShadowBias": 0.001F,
+            "ShadowNormalBias": 0F,
+            "CastShadows": true,
+            "ShadowQuality": 1L,
+            "BakeMode": 0L,
+            "_identifier": "4eac63bb-db17-4811-afbd-0c909850d514",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewDirectionalLight"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 10,
+        "Name": "Floor",
+        "AssetPath": "",
+        "Identifier": "389450f9-1093-48bb-ab31-680f4d4cb6f0",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 11,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 12,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "38151a92-9ae6-525d-b9cd-13fbcd700c8a"
+            },
+            "Materials": {
+              "$id": 13,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "cf424383-17bb-438d-9573-520fee9fa903",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 14,
+        "Name": "Sphere",
+        "AssetPath": "",
+        "Identifier": "fb7fad40-48af-4bec-82cb-816a4d4a63fd",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 15,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": -3F,
+            "Y": 1F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 16,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "45079293-ba9a-e95a-96e3-7b00055911c2"
+            },
+            "Materials": {
+              "$id": 17,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "9506a67c-07b2-4f72-af3a-77e2a1612912",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          },
+          {
+            "$id": 18,
+            "$type": "BaseTweenTester, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mode": 0L,
+            "_identifier": "13b84c35-02c6-41f9-8f79-f4b4c1884426",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewBaseTweenTester"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 19,
+        "Name": "Sphere (1)",
+        "AssetPath": "",
+        "Identifier": "f101c437-83be-4c55-87aa-8451a12336a3",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 20,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 1F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 21,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "45079293-ba9a-e95a-96e3-7b00055911c2"
+            },
+            "Materials": {
+              "$id": 22,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "afef880d-d627-4af7-9da0-94fed7be68a9",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          },
+          {
+            "$id": 23,
+            "$type": "BaseTweenTester, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mode": 1L,
+            "_identifier": "d3e74eb7-1df5-4167-9f48-32b530c66264",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewBaseTweenTester"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 24,
+        "Name": "Sphere (2)",
+        "AssetPath": "",
+        "Identifier": "bcb9a7e8-5961-4077-bcd9-dc15d3658db0",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 25,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 3F,
+            "Y": 1F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 26,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "45079293-ba9a-e95a-96e3-7b00055911c2"
+            },
+            "Materials": {
+              "$id": 27,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "d831b929-04fd-42c4-8936-64757f2c1328",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          },
+          {
+            "$id": 28,
+            "$type": "BaseTweenTester, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mode": 2L,
+            "_identifier": "38e9b9e4-c6c8-4687-a08b-3aff433380c6",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewBaseTweenTester"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 29,
+        "Name": "Sphere (3)",
+        "AssetPath": "",
+        "Identifier": "d2c48cd5-67a8-41db-90c6-6c186b26d863",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 30,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 3F,
+            "Y": 1F,
+            "Z": 0F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 31,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "45079293-ba9a-e95a-96e3-7b00055911c2"
+            },
+            "Materials": {
+              "$id": 32,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "144c7669-82f3-4fc3-acff-c20b0bf1ece8",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          },
+          {
+            "$id": 33,
+            "$type": "BaseTweenTester, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mode": 2L,
+            "_identifier": "0ccfc489-c429-4aac-9ee1-fc1ae17bcca8",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewBaseTweenTester"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 34,
+        "Name": "Sphere (4)",
+        "AssetPath": "",
+        "Identifier": "7ecb6945-c703-46f5-adfe-ee43c729e770",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 35,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 1F,
+            "Z": -3F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 36,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "45079293-ba9a-e95a-96e3-7b00055911c2"
+            },
+            "Materials": {
+              "$id": 37,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "b1748ffa-b71c-44c5-84c7-4d92d9af0c55",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          },
+          {
+            "$id": 38,
+            "$type": "BaseTweenTester, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mode": 4L,
+            "_identifier": "73389a4f-d47c-4455-af6a-d2a8b813ba1e",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewBaseTweenTester"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 39,
+        "Name": "Sphere (5)",
+        "AssetPath": "",
+        "Identifier": "5a8688fa-e850-4af5-b755-18ee026a2ab4",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 40,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": 0F,
+            "Y": 1F,
+            "Z": 3F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 41,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "45079293-ba9a-e95a-96e3-7b00055911c2"
+            },
+            "Materials": {
+              "$id": 42,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "f49631ec-cd7d-48a8-ab96-d614ad71f5ff",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          },
+          {
+            "$id": 43,
+            "$type": "BaseTweenTester, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mode": 3L,
+            "_identifier": "8b489eaa-7591-4202-bd93-fdd419764b6c",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewBaseTweenTester"
+          }
+        ],
+        "Children": [
+
+        ]
+      },
+      {
+        "$id": 44,
+        "Name": "Sphere (6)",
+        "AssetPath": "",
+        "Identifier": "0ce8359b-a746-4bb3-8043-2b1ef7cec6be",
+        "Static": 0B,
+        "Enabled": 1B,
+        "EnabledInHierarchy": 1B,
+        "TagIndex": 0,
+        "LayerIndex": 0,
+        "HideFlags": 0,
+        "Transform": {
+          "$id": 45,
+          "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_localPosition": {
+            "X": -3F,
+            "Y": 1F,
+            "Z": 3F
+          },
+          "_localScale": {
+            "X": 1F,
+            "Y": 1F,
+            "Z": 1F
+          },
+          "_localRotation": {
+            "X": 0F,
+            "Y": 0F,
+            "Z": 0F,
+            "W": 1F
+          }
+        },
+        "Components": [
+          {
+            "$id": 46,
+            "$type": "Prowl.Runtime.MeshRenderer, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mesh": {
+              "AssetID": "45079293-ba9a-e95a-96e3-7b00055911c2"
+            },
+            "Materials": {
+              "$id": 47,
+              "$values": [
+                {
+                  "AssetID": "d7009b28-9353-6559-8847-62e877cec576"
+                }
+              ]
+            },
+            "_identifier": "75c00187-1a43-4c35-b3df-2b0d22c1b857",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewMeshRenderer"
+          },
+          {
+            "$id": 48,
+            "$type": "BaseTweenTester, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "Mode": 5L,
+            "_identifier": "8801f9be-9eab-47bd-8e80-feffe9e3d026",
+            "_enabled": true,
+            "_enabledInHierarchy": true,
+            "HideFlags": 0L,
+            "AssetPath": "",
+            "AssetID": "00000000-0000-0000-0000-000000000000",
+            "Name": "NewBaseTweenTester"
+          }
+        ],
+        "Children": [
+
+        ]
+      }
+    ]
+  },
+  "Fog": {
+    "Mode": 3L,
+    "Color": {
+      "R": 0.5F,
+      "G": 0.5F,
+      "B": 0.5F,
+      "A": 1F
+    },
+    "Start": 20F,
+    "End": 100F,
+    "Density": 0.01F
+  },
+  "Ambient": {
+    "Mode": 0L,
+    "Strength": 1F,
+    "Color": {
+      "X": 0.43F,
+      "Y": 0.55F,
+      "Z": 0.65F,
+      "W": 1F
+    },
+    "SkyColor": {
+      "X": 0.3F,
+      "Y": 0.3F,
+      "Z": 0.4F,
+      "W": 1F
+    },
+    "GroundColor": {
+      "X": 0.2F,
+      "Y": 0.2F,
+      "Z": 0.2F,
+      "W": 1F
+    }
+  },
+  "Skybox": {
+    "Mode": 0L,
+    "SolidColor": {
+      "R": 0.2F,
+      "G": 0.3F,
+      "B": 0.5F,
+      "A": 1F
+    },
+    "GradientTop": {
+      "R": 0.4F,
+      "G": 0.6F,
+      "B": 0.9F,
+      "A": 1F
+    },
+    "GradientBottom": {
+      "R": 0.8F,
+      "G": 0.8F,
+      "B": 0.7F,
+      "A": 1F
+    },
+    "GradientExponent": 1F,
+    "CustomMaterial": {
+      "AssetID": "00000000-0000-0000-0000-000000000000"
+    }
+  },
+  "BakedLighting": {
+    "$id": 49,
+    "Lightmaps": {
+      "$id": 50,
+      "$values": [
+
+      ]
+    },
+    "Placements": {
+      "$id": 51,
+      "entries": [
+
+      ]
+    },
+    "ProbePositions": {
+      "$id": 52,
+      "array": [
+
+      ]
+    },
+    "ProbeSH": {
+      "$id": 53,
+      "array": [
+
+      ]
+    },
+    "ProbeTetrahedra": {
+      "$id": 54,
+      "array": [
+
+      ]
+    },
+    "ProbeTetNeighbours": {
+      "$id": 54
+    }
+  },
+  "LightmapBake": {
+    "$id": 55,
+    "AtlasSize": 1024,
+    "TexelsPerUnit": 20F,
+    "DilatePixels": 2,
+    "Bounces": 2,
+    "Samples": 64,
+    "ProbeSamples": 256,
+    "DoBackfaceCull": false,
+    "SparseStride": 1,
+    "BakeSkyLighting": false,
+    "IgnoreAlbedo": false
+  },
+  "AssetPath": "",
+  "AssetID": "00000000-0000-0000-0000-000000000000",
+  "Name": "TweenTester"
+}

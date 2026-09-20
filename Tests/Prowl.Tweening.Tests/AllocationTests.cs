@@ -176,4 +176,28 @@ public sealed class AllocationTests : TweenTestBase
 
         Assert.Equal(0L, allocated);
     }
+
+    [Fact]
+    public void ReadingLazyStartValuesAllocatesNothing()
+    {
+        var box = new Box();
+
+        Tween.Reserve<float, FloatAdapter>(1024);
+
+        // Warm up: create, start (which reads every start value), then clear out again.
+        for (int i = 0; i < 100; i++)
+            Tween.To<float, FloatAdapter, Box>(box, ReadBox, WriteBox, 10f, 10_000f);
+        Tween.Update(0.016f);
+        Tween.KillAll();
+        Tween.Update(0.016f);
+
+        for (int i = 0; i < 200; i++)
+            Tween.To<float, FloatAdapter, Box>(box, ReadBox, WriteBox, 10f, 10_000f);
+
+        // The one tick in which all two hundred read their start values.
+        long allocated = Measure(static () => Tween.Update(0.016f));
+
+        Assert.Equal(0L, allocated);
+        Assert.False(FloatStorage.Capacity < 200);
+    }
 }

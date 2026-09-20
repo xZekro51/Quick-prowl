@@ -1,0 +1,291 @@
+{
+  "$id": 1,
+  "$type": "Prowl.Runtime.GameObject, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "Name": "GameMaster",
+  "AssetPath": "",
+  "Identifier": "cfc421bd-aafc-4504-a7b4-ac3a76469266",
+  "Static": 0B,
+  "Enabled": 1B,
+  "EnabledInHierarchy": 1B,
+  "TagIndex": 0,
+  "LayerIndex": 0,
+  "HideFlags": 0,
+  "Transform": {
+    "$id": 2,
+    "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "_localPosition": {
+      "X": 0F,
+      "Y": 0F,
+      "Z": 0F
+    },
+    "_localScale": {
+      "X": 1F,
+      "Y": 1F,
+      "Z": 1F
+    },
+    "_localRotation": {
+      "X": 0F,
+      "Y": 0F,
+      "Z": 0F,
+      "W": 1F
+    }
+  },
+  "Components": [
+    {
+      "$id": 3,
+      "$type": "GameMaster, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "GameSceneRef": {
+        "AssetID": "f133067d-d6b6-435d-a91f-ba4117ebcc9e"
+      },
+      "TransitionManager": {
+        "$id": 4,
+        "Image": {
+          "$id": 5,
+          "_sprite": {
+            "AssetID": "79dbea95-d346-ed7f-22ba-d3b427e5c6bd"
+          },
+          "_preserveAspect": false,
+          "_type": 0L,
+          "_pixelsPerUnitMultiplier": 1F,
+          "_fillMethod": 4L,
+          "_fillOrigin": 0,
+          "_fillAmount": 1F,
+          "_fillClockwise": false,
+          "_raycastTarget": false,
+          "_material": {
+            "AssetID": "27b120bf-f774-4a35-9eb9-4707762a1b53"
+          },
+          "_color": {
+            "R": 1F,
+            "G": 1F,
+            "B": 1F,
+            "A": 1F
+          },
+          "_identifier": "b4b1d69d-3d9a-4685-9a80-fb94fe9a40b6",
+          "_enabled": true,
+          "_enabledInHierarchy": true,
+          "HideFlags": 0L,
+          "AssetPath": "",
+          "AssetID": "00000000-0000-0000-0000-000000000000",
+          "Name": "NewUIImage"
+        },
+        "_identifier": "7230e891-22bc-48d5-bd82-42539ca2650f",
+        "_enabled": true,
+        "_enabledInHierarchy": true,
+        "HideFlags": 0L,
+        "AssetPath": "",
+        "AssetID": "00000000-0000-0000-0000-000000000000",
+        "Name": "NewTransitionManager"
+      },
+      "InputActionMap": {
+        "AssetID": "049696d8-dc0f-4e1d-bb5b-09655fdf4a5c"
+      },
+      "_identifier": "75979232-cabf-448f-ace9-8085c0698528",
+      "_enabled": true,
+      "_enabledInHierarchy": true,
+      "HideFlags": 0L,
+      "AssetPath": "",
+      "AssetID": "00000000-0000-0000-0000-000000000000",
+      "Name": "NewGameMaster"
+    }
+  ],
+  "Children": [
+    {
+      "$id": 6,
+      "Name": "Canvas",
+      "AssetPath": "",
+      "Identifier": "9cb19346-4724-49e9-b414-60ef623e3317",
+      "Static": 0B,
+      "Enabled": 1B,
+      "EnabledInHierarchy": 1B,
+      "TagIndex": 0,
+      "LayerIndex": 0,
+      "HideFlags": 0,
+      "Transform": {
+        "$id": 7,
+        "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+        "_localPosition": {
+          "X": 0F,
+          "Y": 0F,
+          "Z": 0F
+        },
+        "_localScale": {
+          "X": 1F,
+          "Y": 1F,
+          "Z": 1F
+        },
+        "_localRotation": {
+          "X": 0F,
+          "Y": 0F,
+          "Z": 0F,
+          "W": 1F
+        }
+      },
+      "Components": [
+        {
+          "$id": 8,
+          "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_anchorMin": {
+            "X": 0.5F,
+            "Y": 0.5F
+          },
+          "_anchorMax": {
+            "X": 0.5F,
+            "Y": 0.5F
+          },
+          "_pivot": {
+            "X": 0.5F,
+            "Y": 0.5F
+          },
+          "_sizeDelta": {
+            "X": 100F,
+            "Y": 100F
+          },
+          "_anchoredPosition": {
+            "X": 0F,
+            "Y": 0F
+          },
+          "_identifier": "1efb0a8b-21cd-412c-be15-66adfba91fe8",
+          "_enabled": true,
+          "_enabledInHierarchy": true,
+          "HideFlags": 0L,
+          "AssetPath": "",
+          "AssetID": "00000000-0000-0000-0000-000000000000",
+          "Name": "NewRectTransform"
+        },
+        {
+          "$id": 9,
+          "$type": "Prowl.Runtime.GameCanvas, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "_renderMode": 0L,
+          "_scaleFactor": 1.5F,
+          "_sortOrder": 5,
+          "_uiScaleMode": 1L,
+          "_referenceResolution": {
+            "X": 1280F,
+            "Y": 720F
+          },
+          "_matchWidthOrHeight": 0.5F,
+          "_screenMatchMode": 0L,
+          "_identifier": "e5f1e5f0-7e5d-422b-b7f2-710969b23d46",
+          "_enabled": true,
+          "_enabledInHierarchy": true,
+          "HideFlags": 0L,
+          "AssetPath": "",
+          "AssetID": "00000000-0000-0000-0000-000000000000",
+          "Name": "NewGameCanvas"
+        }
+      ],
+      "Children": [
+        {
+          "$id": 10,
+          "Name": "Transition",
+          "AssetPath": "",
+          "Identifier": "2d424365-27f8-4cd7-ac98-7eebe5641462",
+          "Static": 0B,
+          "Enabled": 1B,
+          "EnabledInHierarchy": 1B,
+          "TagIndex": 0,
+          "LayerIndex": 0,
+          "HideFlags": 0,
+          "Transform": {
+            "$id": 11,
+            "$type": "Prowl.Vector.Transform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "_localPosition": {
+              "X": 0F,
+              "Y": 0F,
+              "Z": 0F
+            },
+            "_localScale": {
+              "X": 1F,
+              "Y": 1F,
+              "Z": 1F
+            },
+            "_localRotation": {
+              "X": 0F,
+              "Y": 0F,
+              "Z": 0F,
+              "W": 1F
+            }
+          },
+          "Components": [
+            {
+              "$id": 12,
+              "$type": "Prowl.Vector.RectTransform, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+              "_anchorMin": {
+                "X": 0F,
+                "Y": 0F
+              },
+              "_anchorMax": {
+                "X": 1F,
+                "Y": 1F
+              },
+              "_pivot": {
+                "X": 0.5F,
+                "Y": 0.5F
+              },
+              "_sizeDelta": {
+                "X": 2F,
+                "Y": 2F
+              },
+              "_anchoredPosition": {
+                "X": 0F,
+                "Y": 0F
+              },
+              "_identifier": "138f3452-4b55-4b26-a860-f4f6365aebe2",
+              "_enabled": true,
+              "_enabledInHierarchy": true,
+              "HideFlags": 0L,
+              "AssetPath": "",
+              "AssetID": "00000000-0000-0000-0000-000000000000",
+              "Name": "NewRectTransform"
+            },
+            {
+              "$id": 5,
+              "$type": "Prowl.Runtime.UI.UIImage, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+            },
+            {
+              "$id": 4,
+              "$type": "TransitionManager, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
+            }
+          ],
+          "Children": [
+
+          ],
+          "Prefab": {
+            "$id": 13,
+            "AssetId": "00000000-0000-0000-0000-000000000000",
+            "SourceIdentifier": "2d424365-27f8-4cd7-ac98-7eebe5641462",
+            "Overrides": {
+              "$id": 14,
+              "$values": [
+
+              ]
+            }
+          }
+        }
+      ],
+      "Prefab": {
+        "$id": 15,
+        "AssetId": "00000000-0000-0000-0000-000000000000",
+        "SourceIdentifier": "9cb19346-4724-49e9-b414-60ef623e3317",
+        "Overrides": {
+          "$id": 16,
+          "$values": [
+
+          ]
+        }
+      }
+    }
+  ],
+  "Prefab": {
+    "$id": 17,
+    "AssetId": "00000000-0000-0000-0000-000000000000",
+    "SourceIdentifier": "cfc421bd-aafc-4504-a7b4-ac3a76469266",
+    "Overrides": {
+      "$id": 18,
+      "$values": [
+
+      ]
+    }
+  }
+}

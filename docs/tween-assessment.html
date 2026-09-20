@@ -1,0 +1,1027 @@
+<title>Prowl.Tween Teardown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:        #F4F6F7;
+    --surface:       #FFFFFF;
+    --sunk:          #E9EEF0;
+    --ink:           #131C22;
+    --ink-soft:      #4C5D68;
+    --ink-faint:     #7B8C96;
+    --rule:          #D2DBE0;
+    --rule-strong:   #B4C1C8;
+    --accent:        #1C6E84;
+    --accent-wash:   #E0EEF1;
+    --sev-high:      #A5381A;
+    --sev-high-wash: #F6E5DF;
+    --sev-med:       #806013;
+    --sev-med-wash:  #F5EEDC;
+    --sev-low:       #3B6749;
+    --sev-low-wash:  #E3EEE7;
+
+    --shell: 1140px;
+    --measure: 72ch;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:        #0E1418;
+      --surface:       #161F25;
+      --sunk:          #1B262D;
+      --ink:           #DBE5EA;
+      --ink-soft:      #97A9B3;
+      --ink-faint:     #6C7E88;
+      --rule:          #29363E;
+      --rule-strong:   #3C4C55;
+      --accent:        #63BACF;
+      --accent-wash:   #15313A;
+      --sev-high:      #E3886A;
+      --sev-high-wash: #35201A;
+      --sev-med:       #D3B05F;
+      --sev-med-wash:  #2F2716;
+      --sev-low:       #83BB97;
+      --sev-low-wash:  #1B2E22;
+
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:        #0E1418;
+    --surface:       #161F25;
+    --sunk:          #1B262D;
+    --ink:           #DBE5EA;
+    --ink-soft:      #97A9B3;
+    --ink-faint:     #6C7E88;
+    --rule:          #29363E;
+    --rule-strong:   #3C4C55;
+    --accent:        #63BACF;
+    --accent-wash:   #15313A;
+    --sev-high:      #E3886A;
+    --sev-high-wash: #35201A;
+    --sev-med:       #D3B05F;
+    --sev-med-wash:  #2F2716;
+    --sev-low:       #83BB97;
+    --sev-low-wash:  #1B2E22;
+
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: var(--shell);
+    margin: 0 auto;
+    padding: 0 32px 96px;
+  }
+
+  /* ---------- type roles ---------- */
+
+  h1, h2, h3, .eyebrow, .chip, .grade, th, .num, .bar-label, .toc a {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  code, kbd, .mono, .ref, td.n, .byte {
+    font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.7rem);
+    line-height: 1.02;
+    letter-spacing: -0.026em;
+    font-weight: 700;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-size: 1.42rem;
+    letter-spacing: -0.014em;
+    font-weight: 650;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: 1.02rem;
+    letter-spacing: -0.008em;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  p { margin: 0; max-width: var(--measure); }
+
+  .eyebrow {
+    font-size: 0.685rem;
+    font-weight: 600;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  code {
+    font-size: 0.855em;
+    background: var(--sunk);
+    padding: 0.08em 0.34em;
+    border-radius: 2px;
+  }
+
+  /* ---------- masthead ---------- */
+
+  header.masthead {
+    border-bottom: 2px solid var(--ink);
+    padding: 68px 0 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .masthead .standfirst {
+    font-size: 1.16rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+  }
+
+  .fact {
+    padding-right: 30px;
+    margin-right: 30px;
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .fact:last-child { border-right: 0; margin-right: 0; padding-right: 0; }
+
+  .fact .k {
+    font-family: Archivo, sans-serif;
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .fact .v {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- sections ---------- */
+
+  section {
+    padding-top: 58px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    border-bottom: 1px solid var(--rule-strong);
+    padding-bottom: 9px;
+  }
+  .sec-head .eyebrow { margin-left: auto; }
+
+  /* ---------- scorecard ---------- */
+
+  .scorecard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .axis {
+    background: var(--surface);
+    padding: 20px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .axis .grade {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .axis h3 { font-size: 1.1rem; }
+  .axis p { font-size: 0.925rem; color: var(--ink-soft); max-width: none; }
+  .axis .metric {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+    border-top: 1px solid var(--rule);
+    padding-top: 9px;
+    margin-top: auto;
+  }
+
+  .g-good { color: var(--sev-low); }
+  .g-mixed { color: var(--sev-med); }
+  .g-poor { color: var(--sev-high); }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 24px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  figcaption {
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+    max-width: 78ch;
+  }
+
+  .bars { display: flex; flex-direction: column; gap: 16px; }
+  .bar-row { display: flex; flex-direction: column; gap: 6px; }
+  .bar-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+  .bar-label .total {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+    font-weight: 500;
+  }
+  .bar { display: flex; height: 34px; }
+  .seg {
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 1px solid var(--surface);
+  }
+  .seg:last-child { border-right: 0; }
+  .s-entry   { background: var(--accent);      color: var(--surface); }
+  .s-binding { background: var(--accent-wash); color: var(--ink); }
+  .s-slot    { background: var(--sunk);        color: var(--ink-soft); }
+  .s-events  { background: var(--sev-high-wash); color: var(--sev-high); box-shadow: inset 0 0 0 1px var(--sev-high); }
+  .s-fixed   { background: var(--sev-low-wash); color: var(--sev-low); box-shadow: inset 0 0 0 1px var(--sev-low); }
+  :root[data-theme="dark"] .s-entry, :root:not([data-theme="light"]) .s-entry { color: #0E1418; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .s-entry { color: #FFFFFF; } }
+
+  .scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    border-top: 1px solid var(--rule);
+    padding-top: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hops { display: flex; flex-direction: column; gap: 13px; }
+  .hop { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 14px; align-items: center; }
+  .hop .what { font-size: 0.9rem; color: var(--ink-soft); }
+  .hop .track { display: flex; align-items: center; gap: 9px; }
+  .hop .fill { height: 13px; background: var(--accent); }
+  .hop .n { font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; font-variant-numeric: tabular-nums; color: var(--ink-faint); }
+
+  /* ---------- tables ---------- */
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 520px; }
+  th {
+    text-align: left;
+    font-size: 0.68rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+  td { padding: 10px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.mono { font-size: 0.85rem; }
+
+  /* ---------- findings ---------- */
+
+  .findings { display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--rule); }
+
+  .finding {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    gap: 0 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .finding .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding-top: 2px;
+  }
+
+  .finding .body { display: flex; flex-direction: column; gap: 9px; }
+  .finding .body > p { font-size: 0.955rem; }
+  .finding h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+  .chip {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    padding: 2.5px 7px;
+    border: 1px solid currentColor;
+  }
+  .c-high { color: var(--sev-high); background: var(--sev-high-wash); }
+  .c-med  { color: var(--sev-med);  background: var(--sev-med-wash); }
+  .c-low  { color: var(--sev-low);  background: var(--sev-low-wash); }
+  .c-done { color: var(--accent); background: var(--accent-wash); }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    font-family: Archivo, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    background: var(--accent-wash);
+    border: 1px solid var(--accent);
+    padding: 7px 14px;
+  }
+  .status b { font-variant-numeric: tabular-nums; }
+
+  .delta { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .delta div { background: var(--surface); padding: 16px 18px; display: flex; flex-direction: column; gap: 5px; }
+  .delta .k { font-family: Archivo, sans-serif; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
+  .delta .v { font-family: "IBM Plex Mono", monospace; font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+  .delta .v s { color: var(--ink-faint); text-decoration-color: var(--sev-high); }
+
+  .ref {
+    font-size: 0.775rem;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+
+  .fix {
+    font-size: 0.925rem;
+    border-left: 2px solid var(--accent);
+    padding-left: 14px;
+    color: var(--ink-soft);
+  }
+  .fix b { color: var(--ink); font-weight: 600; font-family: Archivo, sans-serif; font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* ---------- ranked list ---------- */
+
+  ol.ranked { list-style: none; counter-reset: r; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; border-top: 2px solid var(--ink); }
+  ol.ranked > li {
+    counter-increment: r;
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    gap: 0 18px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  ol.ranked > li::before {
+    content: counter(r, decimal-leading-zero);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  ol.ranked .line { display: flex; flex-direction: column; gap: 7px; }
+  ol.ranked .head { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+  ol.ranked .head strong { font-family: Archivo, sans-serif; font-weight: 600; font-size: 1.02rem; letter-spacing: -0.008em; }
+  ol.ranked p { font-size: 0.93rem; color: var(--ink-soft); max-width: 82ch; }
+  .effort {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  /* ---------- keeps / method ---------- */
+
+  ul.plain { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 11px; }
+  ul.plain > li { padding-left: 20px; position: relative; font-size: 0.955rem; max-width: 84ch; }
+  ul.plain > li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0.62em;
+    width: 9px; height: 1px;
+    background: var(--accent);
+  }
+
+  .method { background: var(--sunk); border: 1px solid var(--rule); padding: 22px 24px; display: flex; flex-direction: column; gap: 13px; }
+  .method p, .method li { font-size: 0.91rem; color: var(--ink-soft); }
+  .method strong { color: var(--ink); }
+
+  footer {
+    margin-top: 58px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 26px;
+  }
+
+  @media (max-width: 680px) {
+    .shell { padding: 0 20px 72px; }
+    .finding { grid-template-columns: 1fr; gap: 10px; }
+    .hop { grid-template-columns: 1fr; gap: 6px; }
+    .fact { border-right: 0; padding-right: 0; margin-right: 26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="eyebrow">Library assessment &middot; Assets/Scripts/Tween</p>
+    <h1>Prowl.Tween Teardown</h1>
+    <p class="standfirst">A read of all 3,183 lines against four axes — throughput, resident memory, allocation behaviour and API design — with the struct layouts measured rather than estimated, and a ranked list of what to fix.</p>
+    <span class="status">Every item below has since been applied &middot; <b>138</b> tests, <b>0</b> build warnings</span>
+    <div class="facts">
+      <div class="fact"><span class="k">Files</span><span class="v">15 &middot; 3,183 lines</span></div>
+      <div class="fact"><span class="k">Target</span><span class="v">net10.0</span></div>
+      <div class="fact"><span class="k">Build</span><span class="v">377 &rarr; 0 warnings</span></div>
+      <div class="fact"><span class="k">Tests</span><span class="v">0 &rarr; 138 passing</span></div>
+      <div class="fact"><span class="k">Reviewed</span><span class="v">as of d2b9800</span></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <h2>Verdict</h2>
+      <p class="eyebrow">Four axes</p>
+    </div>
+
+    <p>The core is genuinely well built: a dense array of unmanaged entries, a sparse slot table with versioned handles, struct adapters that the JIT devirtualises, and a steady-state update loop that allocates nothing. The problems are all at the edges — a cold-data array that the most common helper switches on for every tween, memory that only ever grows, a repeated-lookup pattern in the fluent API, and one build-level duplication that makes the whole thing ambiguous.</p>
+
+    <div class="scorecard">
+      <div class="axis">
+        <span class="grade g-good">Strong core</span>
+        <h3>Performance</h3>
+        <p>Linear walk over contiguous entries, inlined adapters, no virtual dispatch per value. Undone in places by redundant handle resolution and per-entry update-type filtering.</p>
+        <span class="metric">sequence lookups/frame: 63 &rarr; 0 when nothing moved</span>
+      </div>
+      <div class="axis">
+        <span class="grade g-mixed">Never returns any</span>
+        <h3>Memory</h3>
+        <p>Predictable and compact per tween, but every array is grow-only, the sweep runs on one tick type out of four, and nothing releases a tween when its target dies.</p>
+        <span class="metric">tagged tween: 196 B &rarr; 132 B</span>
+      </div>
+      <div class="axis">
+        <span class="grade g-good">Zero, on the fast path</span>
+        <h3>Allocations</h3>
+        <p>The hot loop and the <code>Bind(state, …)</code> creation path are allocation-free. The convenient overload costs four allocations per call and has no allocation-free twin.</p>
+        <span class="metric">0/frame and 0/creation, now asserted by test</span>
+      </div>
+      <div class="axis">
+        <span class="grade g-mixed">Coherent, loose ends</span>
+        <h3>Design</h3>
+        <p>Handle semantics, doc comments and layering are unusually disciplined. Undermined by a duplicated assembly reference, a hot-reload hazard, and several silent traps.</p>
+        <span class="metric">377 build warnings &rarr; 0</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>What changed</h2>
+      <p class="eyebrow">Applied &amp; measured</p>
+    </div>
+
+    <p>Everything in the ranked list at the bottom has been applied. The library still has no
+    dependency on the engine: the portable half stays in <code>Prowl.Tweening</code>, the four
+    engine-coupled files (<code>ProwlTween</code>, <code>ProwlTweenAdapters</code>,
+    <code>TransformTweenExtensions</code>, <code>TweenMaster</code>) sit in <code>Prowl.Runtime</code>
+    around it, and the test project compiles only the portable half &mdash; which makes that boundary a
+    standing build-time check rather than a convention.</p>
+
+    <div class="delta">
+      <div><span class="k">Build warnings</span><span class="v"><s>377</s> &rarr; 0</span></div>
+      <div><span class="k">Tests</span><span class="v"><s>0</s> &rarr; 138</span></div>
+      <div><span class="k">Tagged tween</span><span class="v"><s>196 B</s> &rarr; 132 B</span></div>
+      <div><span class="k">Cold array reads/tick</span><span class="v"><s>4</s> &rarr; 0</span></div>
+    </div>
+
+    <ul class="plain">
+      <li><strong>The duplicate definition is gone at the build level, not the file level.</strong> Prowl
+      regenerates the <code>.csproj</code> on every recompile, so deleting the <code>&lt;Reference&gt;</code>
+      by hand would not have survived. It is now removed in
+      <code>Directory.Build.targets</code>, which MSBuild imports <em>after</em> the generated project
+      body and which Prowl never touches &mdash; one commented ItemGroup to delete if the library ever
+      moves back out.</li>
+      <li><strong>Identity split from callbacks.</strong> <code>TweenTags</code> (32 B: id, target, link)
+      and <code>TweenEvents</code> (80 B: eight delegates plus state) are separate lazily-allocated
+      arrays behind separate flags. <code>SetTarget</code> no longer drags the callback record into the
+      hot loop.</li>
+      <li><strong>Handles resolve once per call.</strong> <code>Storage()</code> used to compute the dense
+      index and throw it away, leaving <code>CoreRef</code> to recompute it; <code>TryGet</code> now
+      returns both. Sequences cache their children's dense indices and revalidate them against a
+      compaction stamp, so a steady-state sequence does no slot-table lookups at all.</li>
+      <li><strong>Lifetime links.</strong> <code>SetLink(owner, isAlive)</code> is checked at the start of
+      every tick, before any value is applied, and the transform helpers apply it by default &mdash; so a
+      tween can no longer write to a destroyed GameObject.</li>
+      <li><strong>Reset is the reload seam.</strong> <code>TweenManager.Reset()</code> drops the
+      registrations; <code>Of&lt;T, TAdapter&gt;</code> then notices its storage is no longer registered
+      and makes a fresh one. <code>TweenMaster</code>'s module initializer calls it, which is what runs
+      after a hot reload. The same method is what isolates each test.</li>
+      <li><strong>Two bugs the tests found, not the review.</strong> Fixing the yoyo callback direction
+      introduced a regression where the loop-counter change at final completion flipped the playhead
+      direction and swallowed a callback near the end; and <code>Pause</code>/<code>Play</code> exposed
+      that all <code>On*(state, &hellip;)</code> overloads share one state slot, so two different state
+      objects silently collide. The first is fixed; the second now warns through the diagnostics hook
+      &mdash; it is a deliberate trade-off (one slot rather than eight references per tween), just no
+      longer a silent one.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>What it already gets right</h2>
+      <p class="eyebrow">Keep these</p>
+    </div>
+    <ul class="plain">
+      <li><strong>The storage shape is correct.</strong> <code>TweenStorage&lt;T, TAdapter&gt;</code> packs <code>TweenCore</code> + start + end inline in one dense array with no holes, and structural removal is batched into <code>Sweep</code> rather than done per kill — so a kill from inside a callback can never invalidate the loop's indices.</li>
+      <li><strong>Handles are 12 bytes and fail safe.</strong> Slot + version means a stale <code>Tween</code> stops resolving instead of dangling, and entries can be swapped during compaction without invalidating anything the user holds.</li>
+      <li><strong>Adapters are struct generic arguments, not interfaces.</strong> <code>default(TAdapter).Evaluate(…)</code> devirtualises and inlines; there is no boxing and no per-value delegate call.</li>
+      <li><strong>The update loop allocates nothing.</strong> <code>Action&lt;T, object?&gt;</code> over an unmanaged <code>T</code> does not box, and <code>Fire</code> reuses the stored delegate. This is the property most tween libraries fail, and this one holds it.</li>
+      <li><strong>Awaits are polled, not hooked.</strong> <code>TweenAwaiterRegistry</code> deliberately avoids stealing the user's <code>OnComplete</code> delegate, and a program that never awaits pays one <code>if</code> per tick.</li>
+      <li><strong>The doc comments are real.</strong> They explain intent and trade-offs, not signatures — including the reentrancy rules around "user code below this line", which is exactly where this kind of library breaks.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Measured layout</h2>
+      <p class="eyebrow">x64 · Unsafe.SizeOf</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Struct</th><th class="n">Bytes</th><th>Held in</th><th>Touched by the update loop</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">TweenCore</td><td class="n">44</td><td>inline in <code>Entry</code></td><td>every tick, every tween</td></tr>
+          <tr><td class="mono">Entry&lt;float&gt;</td><td class="n">56</td><td><code>_entries</code></td><td>every tick, every tween</td></tr>
+          <tr><td class="mono">Entry&lt;Float3&gt;</td><td class="n">72</td><td><code>_entries</code></td><td>every tick, every tween</td></tr>
+          <tr><td class="mono">Entry&lt;Quaternion&gt;</td><td class="n">80</td><td><code>_entries</code></td><td>every tick, every tween</td></tr>
+          <tr><td class="mono">Binding</td><td class="n">16</td><td><code>_bindings</code></td><td>every tick (setter + state)</td></tr>
+          <tr><td class="mono">Slot</td><td class="n">12</td><td><code>_slots</code></td><td>on handle resolution only</td></tr>
+          <tr><td class="mono">TweenEvents</td><td class="n">96</td><td><code>_events</code></td><td>every tick <em>if</em> <code>HasEvents</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <figure>
+      <div class="bars">
+        <div class="bar-row">
+          <span class="bar-label">A Float3 tween, untagged <span class="total">100 B</span></span>
+          <div class="bar" role="img" aria-label="Entry 72 bytes, Binding 16 bytes, Slot 12 bytes, total 100 bytes">
+            <span class="seg s-entry" style="width:36.7%">Entry 72</span>
+            <span class="seg s-binding" style="width:8.2%">16</span>
+            <span class="seg s-slot" style="width:6.1%">12</span>
+          </div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">The same tween after <code>.SetTarget(transform)</code> <span class="total">196 B &nbsp;(+96%)</span></span>
+          <div class="bar" role="img" aria-label="Entry 72 bytes, Binding 16, Slot 12, plus TweenEvents 96 bytes, total 196 bytes">
+            <span class="seg s-entry" style="width:36.7%">Entry 72</span>
+            <span class="seg s-binding" style="width:8.2%">16</span>
+            <span class="seg s-slot" style="width:6.1%">12</span>
+            <span class="seg s-events" style="width:49%">TweenEvents 96 — cold data, read every tick</span>
+          </div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">After the fix: tags split from callbacks <span class="total">132 B &nbsp;(&minus;33%)</span></span>
+          <div class="bar" role="img" aria-label="Entry 72 bytes, Binding 16, Slot 12, plus TweenTags 32 bytes, total 132 bytes">
+            <span class="seg s-entry" style="width:36.7%">Entry 72</span>
+            <span class="seg s-binding" style="width:8.2%">16</span>
+            <span class="seg s-slot" style="width:6.1%">12</span>
+            <span class="seg s-fixed" style="width:16.3%">Tags 32</span>
+          </div>
+        </div>
+        <div class="scale"><span>0 B</span><span>98 B</span><span>196 B</span></div>
+      </div>
+      <figcaption>Every helper in <code>TransformTweenExtensions</code> ends in <code>.SetTarget(transform)</code>, and <code>SetTarget</code> went through <code>EventsRef</code>, which set <code>TweenFlags.HasEvents</code>. So the 196-byte row was not the exception in this project — it was what <code>transform.Move(…)</code> produced, and the events array was then read four times per tween per tick to find eight null delegates. Identity now lives in its own 32-byte <code>TweenTags</code> record behind a separate flag, so a tagged and lifetime-linked transform tween costs 132 bytes and the update loop never touches the callback array at all. All three figures are measured with <code>Unsafe.SizeOf</code>.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="hops">
+        <div class="hop">
+          <span class="what"><code>SetEase(Ease.OutQuad)</code></span>
+          <span class="track"><span class="fill" style="width:3.2%"></span><span class="n">2</span></span>
+        </div>
+        <div class="hop">
+          <span class="what">A five-call fluent chain</span>
+          <span class="track"><span class="fill" style="width:15.9%"></span><span class="n">10</span></span>
+        </div>
+        <div class="hop">
+          <span class="what"><code>Sequence.Append(child)</code></span>
+          <span class="track"><span class="fill" style="width:12.7%"></span><span class="n">8</span></span>
+        </div>
+        <div class="hop">
+          <span class="what">A 20-child sequence, per frame</span>
+          <span class="track"><span class="fill" style="width:100%"></span><span class="n">63</span></span>
+        </div>
+      </div>
+      <figcaption>Registry and slot-table lookups, counted from the code — not profiled. Each one is a bounds check plus a version compare behind an interface call; individually trivial, but they are pure duplication. <code>Storage()</code> already resolves the dense index and then throws it away, so every accessor resolves it a second time through <code>CoreRef</code>.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Findings</h2>
+      <p class="eyebrow">Axis · severity · location</p>
+    </div>
+
+    <div class="findings">
+
+      <div class="finding">
+        <span class="tag">PERF</span>
+        <div class="body">
+          <h3>Tagging a tween puts it on the cold-data path forever <span class="chip c-high">High</span></h3>
+          <p><code>SetId</code> and <code>SetTarget</code> both route through <code>EventsRef</code>, which allocates <code>_events</code> and sets <code>HasEvents</code>. <code>Step</code> then reads <code>_events[dense]</code> four separate times per tick to check callbacks that were never assigned. Identity and callbacks are different concerns sharing one flag.</p>
+          <div class="ref"><span>TweenStorage.cs:170–181</span><span>TweenStorage.cs:290, 303–317</span><span>Tween.cs:253–266</span><span>TransformTweenExtensions.cs:159</span></div>
+          <p class="fix"><b>Fix</b> Split <code>Id</code>/<code>Target</code> into their own small array (or a side dictionary keyed by slot, since bulk kills are rare and cold), and gate the hot path on a separate <code>HasCallbacks</code> flag set only by the <code>On*</code> methods.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">PERF</span>
+        <div class="body">
+          <h3>Every fluent call resolves the handle twice <span class="chip c-med">Medium</span></h3>
+          <p><code>Storage()</code> performs <code>Resolve</code> plus <code>IsAlive</code> — which computes the dense index — then returns only the storage, so <code>CoreRef</code> recomputes the same index. <code>Sequence</code> composition is the worst case: <code>Append</code> costs eight lookups across <code>Data</code>, <code>Adopt</code> and <code>SyncDuration</code>.</p>
+          <div class="ref"><span>Tween.cs:33–41</span><span>TweenStorage.cs:142–181</span><span>Sequence.cs:47–59, 164–169</span></div>
+          <p class="fix"><b>Fix</b> Add an internal <code>bool TryResolve(out ITweenStorage storage, out int dense)</code> and a dense-indexed <code>CoreAt(int dense)</code>. The fluent methods then resolve once. For sequences, cache the resolved storage reference on <code>SequenceData</code> alongside <code>Owner</code>.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">PERF</span>
+        <div class="body">
+          <h3>Update type is filtered per entry, not partitioned <span class="chip c-med">Medium</span></h3>
+          <p><code>Update</code> walks the whole dense array and skips on <code>c.UpdateType != type</code>. Today <code>s_usesUpdateType</code> saves you: <code>Late</code>, <code>Fixed</code> and <code>Manual</code> are all <code>false</code> until someone opts in. The moment a single tween calls <code>SetUpdate(UpdateType.Fixed)</code>, every storage's full array is walked on every fixed step, which may run several times per frame.</p>
+          <div class="ref"><span>TweenStorage.cs:227–247</span><span>TweenManager.cs:25, 133–144</span></div>
+          <p class="fix"><b>Fix</b> Cheapest: keep a per-storage count of entries per update type and skip the walk when it is zero. Cleaner: partition the dense array into four contiguous ranges and let <code>Sweep</code> maintain the boundaries.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">PERF</span>
+        <div class="body">
+          <h3>Sequences pay per child, per frame, through the interface <span class="chip c-med">Medium</span></h3>
+          <p><code>SequenceData.Evaluate</code> reads <code>Owner.CompletedLoops</code> (three lookups) and then, for each child, does <code>Resolve</code> + <code>IsAlive</code> + <code>Goto</code> — three more lookups and a non-inlinable interface call. Children also remain in the main dense array and are re-tested by flag on every tick even though only the sequence drives them.</p>
+          <div class="ref"><span>Sequence.cs:340–385</span><span>TweenStorage.cs:236</span></div>
+          <p class="fix"><b>Fix</b> Store the resolved dense index on each <code>Element</code> and invalidate it in <code>Sweep</code>; or move sequenced entries to the tail of the dense array so the main loop's range excludes them.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">PERF</span>
+        <div class="body">
+          <h3>The runtime bootstrap runs on every single tween creation <span class="chip c-high">High</span></h3>
+          <p><code>Create</code> calls <code>EnsureRuntime()</code> → <code>TweenMaster.Ensure()</code> per tween. The happy path is three chained validity checks. The unhappy path — driver null or its scene invalid, which is exactly what a scene transition produces — runs <code>Scene.Current.FindObjectsOfType&lt;TweenMaster&gt;()</code>, a full scene-graph scan with an allocation, <em>for every tween created</em>.</p>
+          <div class="ref"><span>TweenStorage.cs:73</span><span>TweenManager.cs:82–86</span><span>TweenMaster.cs:45–81</span></div>
+          <p class="fix"><b>Fix</b> Latch a <code>static bool s_installed</code> once a driver exists and return immediately; re-arm it only from an explicit scene-load / driver-destroyed hook rather than by re-probing the scene.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">PERF</span>
+        <div class="body">
+          <h3><code>AggressiveInlining</code> on a 70-line switch <span class="chip c-low">Low</span></h3>
+          <p><code>EaseUtility.Evaluate</code> is far past the JIT's inlining budget, so the attribute is almost certainly ignored — and if it were honoured it would bloat <code>Step</code> and hurt the icache. It is a misleading signal either way.</p>
+          <div class="ref"><span>EaseUtility.cs:93–166</span></div>
+          <p class="fix"><b>Fix</b> Drop the attribute, or keep an inlined fast path for Linear/Quad/Cubic and tail-call a <code>[MethodImpl(NoInlining)]</code> method for the rest.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">MEM</span>
+        <div class="body">
+          <h3>Nothing ever shrinks, and there is no API to ask <span class="chip c-med">Medium</span></h3>
+          <p><code>_entries</code>, <code>_bindings</code>, <code>_events</code>, <code>_slots</code>, <code>SequenceData._elements</code> and <code>s_waiters</code> all double on demand and stay at their high-water mark for the life of the process. A one-frame burst of 10,000 <code>Float3</code> tweens permanently pins roughly 2 MB in that storage. The pooled <code>SequenceData</code> instances keep their grown <code>Element[]</code> too, so one 4,096-element sequence retains that array in the pool.</p>
+          <div class="ref"><span>TweenStorage.cs:109–116, 128–130</span><span>Sequence.cs:333–337, 398</span><span>TweenAwaiter.cs:156–158</span></div>
+          <p class="fix"><b>Fix</b> Add <code>TweenManager.Trim()</code> (shrink each storage to <code>_count</code> rounded up, and drop <code>_events</code> entirely when no live tween has <code>HasEvents</code>) plus a <code>Reserve(int)</code> so callers can pre-size instead of doubling mid-frame. Cap the pooled element array length, not just the instance count.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">MEM</span>
+        <div class="body">
+          <h3><code>Sweep</code> runs on one tick type out of four <span class="chip c-high">High</span></h3>
+          <p><code>TweenManager.Update</code> sweeps; <code>LateUpdate</code>, <code>FixedUpdate</code> and <code>ManualUpdate</code> do not. Dead entries are cheap to skip, but they still hold their <code>Binding.State</code> and <code>TweenEvents</code> object references — so a killed tween keeps its target object and captured state alive until the next <code>Normal</code> tick. A host that drives only the fixed step never reclaims anything.</p>
+          <div class="ref"><span>TweenManager.cs:101–131</span><span>TweenStorage.cs:479–511</span></div>
+          <p class="fix"><b>Fix</b> Sweep from whichever tick ran, guarded by <code>_deadCount != 0</code> (already the first line of <code>Sweep</code>, so this is nearly free), or expose <code>TweenManager.Collect()</code> and call it from all four.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">MEM</span>
+        <div class="body">
+          <h3>A tween outlives its target with no link <span class="chip c-high">High</span></h3>
+          <p>Nothing kills a tween when the object it animates is destroyed. <code>Binding.State</code> holds a strong reference, so destroying a <code>GameObject</code> mid-tween leaves the setter running against a detached <code>Transform</code> every frame — a leak and a latent crash at once. The static registry survives scene unload, so this persists across scene loads.</p>
+          <div class="ref"><span>TweenStorage.cs:44–48, 306–307</span><span>TransformTweenExtensions.cs:156–159</span></div>
+          <p class="fix"><b>Fix</b> A <code>SetLink(object owner)</code> that stores a validity predicate (or an <code>EngineObject</code> the storage can null-check) and auto-kills on the next tick when it fails; the transform helpers should apply it by default. At minimum, have <code>TransformTweenExtensions</code> call <code>KillTweens</code> from the component's destroy path.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">MEM</span>
+        <div class="body">
+          <h3>Statics in generic types do not survive hot reload <span class="chip c-high">High</span></h3>
+          <p>The build emits five <code>EMBA001</code> warnings for exactly this. <code>TweenManager.Of&lt;T, TAdapter&gt;.Storage</code> is the dangerous one: after a reload it re-runs and registers a <em>fresh</em> storage, while the old one stays in <code>s_storages</code> and keeps getting ticked. You get duplicated ticking, orphaned tweens driving stale delegates, and a leak on every reload.</p>
+          <div class="ref"><span>TweenManager.cs:46–51</span><span>Tween.Static.cs:305–308</span><span>TweenBuilder.cs:29</span><span>TweenStorage.cs:61–62</span></div>
+          <p class="fix"><b>Fix</b> Move the per-type storage lookup out of the generic type — a non-generic registry keyed by <code>typeof(T)</code>/<code>typeof(TAdapter)</code>, with the generic field only caching the id — or apply <code>[ReloadIgnore]</code> and add an explicit <code>TweenManager.Reset()</code> that the reload hook calls.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">ALLOC</span>
+        <div class="body">
+          <h3>The convenient overload has no allocation-free twin <span class="chip c-high">High</span></h3>
+          <p><code>Tween.To(getter, setter, …)</code> costs two closure objects plus two delegates per call, and it is the one path this game actually uses: <code>TransitionManager.Transition</code> allocates four objects per screen transition. The library documents the cost and points at <code>Bind</code>, but <code>Bind</code> cannot read a start value, so there is no non-allocating way to express "tween from wherever it is now".</p>
+          <div class="ref"><span>Tween.Static.cs:262–303</span><span>TransitionManager.cs:27–30</span></div>
+          <p class="fix"><b>Fix</b> Add <code>To&lt;T, TAdapter, TState&gt;(TState state, Func&lt;TState, T&gt; getter, Action&lt;T, TState&gt; setter, T to, float duration)</code> using the same erased-delegate trick as <code>Bind&lt;TState&gt;</code>. Both lambdas then stay <code>static</code> and the path is allocation-free.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>The library is compiled twice and the copies disagree <span class="chip c-high">High</span></h3>
+          <p>372 of the build's 377 warnings are <code>CS0436</code>: every type here collides with the same type in the referenced <code>Prowl.Tweening.dll</code>, and the local source silently wins. The upstream <code>Prowl/Prowl.Tweening/</code> folder now contains only <code>obj/</code> — the sources were moved into <code>Assets/Scripts</code> for iteration and the stale assembly reference was never removed. Anything you add here is invisible to that DLL's other consumers.</p>
+          <div class="ref"><span>Quick — …Game.csproj:106–107</span><span>Quick — …Editor.csproj:106–107</span></div>
+          <p class="fix"><b>Fix</b> Pick one home. Either drop the two <code>&lt;Reference Include="Prowl.Tweening"&gt;</code> blocks and keep developing in <code>Assets/Scripts/Tween</code>, or move the sources back to <code>Prowl.Tweening</code> and reference the project. Do this first — the other findings are hard to verify while two definitions are in flight.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>A sequence built across two frames is already dead <span class="chip c-high">High</span></h3>
+          <p><code>Sequence.Create</code> produces a live, unpaused tween with <code>Duration = 1e-6</code> and auto-kill on. Hold the handle for one frame before appending and it has completed, auto-killed, and recycled its <code>SequenceData</code> back to the pool — after which every <code>Append</code> resolves <code>Data</code> to <code>null</code> and silently no-ops. Nothing warns.</p>
+          <div class="ref"><span>Sequence.cs:33–42</span><span>TweenStorage.cs:268–299</span></div>
+          <p class="fix"><b>Fix</b> Create the owner paused and add an explicit <code>Play()</code> requirement, or give it a "building" flag that <code>Step</code> skips until the first element is added. Either way, make a no-op <code>Append</code> on a dead sequence loud in debug builds.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>Sequence timelines freeze their children's durations <span class="chip c-med">Medium</span></h3>
+          <p><code>Adopt</code> captures <code>core.FullDuration</code> at insertion time and the timeline never re-reads it. Calling <code>SetDelay</code>, <code>SetLoops</code> or changing a duration on a child after it has been appended desynchronises the sequence silently — the child is then clamped to a window that no longer matches it.</p>
+          <div class="ref"><span>Sequence.cs:289–299, 369–381</span></div>
+          <p class="fix"><b>Fix</b> Recompute each element's window from the child's live <code>FullDuration</code> during <code>Evaluate</code> (you already resolve the storage there), or lock configuration on adopted tweens and say so.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>Cross-thread awaits are advertised but not safe <span class="chip c-med">Medium</span></h3>
+          <p><code>TweenAwaiterRegistry</code> takes a lock because "registration can come from any thread", but <code>TweenAwaiter.IsCompleted</code> → <code>IsSatisfied</code> reads the storage's dense arrays with no synchronisation at all, and <code>CoreRef</code> <em>writes</em> the shared <code>static s_noCore</code> when a handle misses. An await registered from a pool thread can therefore race the game thread's tick.</p>
+          <div class="ref"><span>TweenAwaiter.cs:104, 136–138, 224–241</span><span>TweenStorage.cs:61–62, 161–181</span></div>
+          <p class="fix"><b>Fix</b> Decide the contract. Either declare awaits main-thread-only (matching <code>TweenManager</code>'s own single-threaded doc) and drop the lock, or queue registrations through a lock-free inbox that the pump drains, and never touch storage off-thread.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>Shared mutable statics as the dead-handle sink <span class="chip c-med">Medium</span></h3>
+          <p><code>s_noCore</code> and <code>s_noEvents</code> let <code>CoreRef</code> return a writable reference for a handle that no longer resolves. Writes silently vanish, two stale handles can observe each other's writes, and the "every operation on a dead handle is a no-op" guarantee becomes "…usually". It is also the reason two of the <code>EMBA001</code> warnings exist.</p>
+          <div class="ref"><span>TweenStorage.cs:60–62, 161–181</span></div>
+          <p class="fix"><b>Fix</b> Replace with <code>bool TryGetCore(int slot, int version, out int dense)</code> and let callers branch. The public surface already wants to no-op explicitly, so the scratch sink buys nothing.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>Silent traps in the semantics <span class="chip c-med">Medium</span></h3>
+          <p>Five places where behaviour differs from what the code or docs imply:</p>
+          <ul class="plain">
+            <li><code>Ease.Unset</code> is documented as resolving to <code>Tween.DefaultEase</code>, but <code>Create</code> writes the default directly and <code>EaseUtility</code> falls through <code>Unset</code> to <code>return t</code> — so <code>SetEase(Ease.Unset)</code> quietly means Linear.</li>
+            <li><code>Tween.EasedValue</code> uses <code>EaseUtility</code>'s own <code>1.70158f</code> const rather than <code>Tween.DefaultEaseOvershootOrAmplitude</code>, so changing the global default does not affect it.</li>
+            <li>If a setter kills its own tween, <code>Step</code> carries on firing <code>OnUpdate</code>, <code>OnStepComplete</code> and <code>OnComplete</code> on the now-dead tween.</li>
+            <li><code>TimeScale = 0</code> is skipped before <code>Step</code>, so such a tween never fires <code>OnStart</code> and never reports as started.</li>
+            <li>Sequence callbacks fire only while the playhead moves forward, so <code>LoopType.Yoyo</code> never fires an inserted callback on the reverse pass — and a callback sitting at position 0 is missed after <code>Restart</code>.</li>
+          </ul>
+          <div class="ref"><span>Enums.cs:113</span><span>EaseUtility.cs:164</span><span>Tween.Static.cs:338</span><span>TweenStorage.cs:242, 306–317</span><span>Sequence.cs:351, 359</span></div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>No input validation on time <span class="chip c-med">Medium</span></h3>
+          <p><code>duration</code> is clamped against negatives but not against <code>NaN</code> or <code>Infinity</code>, and neither is <code>delay</code> or the incoming delta. One <code>NaN</code> makes <code>c.Position &gt;= duration</code> permanently false: the tween never completes, never auto-kills and is never swept. Separately, a zero-duration tween is clamped to <code>MinDuration = 1e-6</code>, so a single 16 ms frame computes roughly 16,000 loop steps — reported as one <code>OnStepComplete</code>, and on an infinite loop <code>CompletedLoops</code> will eventually overflow.</p>
+          <div class="ref"><span>TweenStorage.cs:88, 268–285, 313</span></div>
+          <p class="fix"><b>Fix</b> Reject non-finite <code>duration</code>/<code>delay</code>/delta at the boundary, clamp <code>steps</code>, and fire <code>OnStepComplete</code> once per cycle actually crossed (or document the collapse).</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>Unverifiable delegate reinterpretation <span class="chip c-low">Low</span></h3>
+          <p>Three sites cast <code>Action&lt;TState&gt;</code> to <code>Action&lt;object?&gt;</code> via <code>Unsafe.As</code> to avoid a closure. The <code>where TState : class</code> guard is the right one and this works on CoreCLR and NativeAOT today, but it is outside the spec — a future IL verifier, trimming pass, or a different runtime is where it would surface, and the failure mode is silent memory corruption rather than an exception.</p>
+          <div class="ref"><span>Tween.cs:382–393</span><span>TweenBuilder.cs:53–61</span><span>Sequence.cs:154–162</span></div>
+          <p class="fix"><b>Fix</b> Keep it, but add a <code>Debug.Assert</code> that the delegate's target type is a reference type, and a single comment naming the assumption so it is greppable if a runtime ever breaks it.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>API gaps and asymmetries <span class="chip c-low">Low</span></h3>
+          <ul class="plain">
+            <li><code>Tween.To</code> has concrete overloads only for <code>System.Numerics</code> types. Prowl's own <code>Float2/3/4</code>, <code>Quaternion</code> and <code>Color</code> need the verbose <code>Tween.To&lt;Float3, Float3Adapter&gt;(…)</code> because the adapters live in <code>Prowl.Runtime</code>, which <code>Prowl.Tweening</code> cannot reference. A <code>ProwlTween</code> façade in <code>Prowl.Runtime</code> closes it.</li>
+            <li><code>Sequence</code> passthrough is missing <code>Goto</code>, <code>Flip</code>, <code>TogglePause</code>, <code>OnPlay</code>, <code>OnPause</code>, <code>OnRewind</code> and <code>SetUpdate(bool)</code>, so callers drop to <code>.Tween</code> and lose the chain.</li>
+            <li>Global defaults are mutable public <code>static</code> fields — no validation and not binary-compatible. Properties, or a single <code>TweenSettings</code> struct, would be safer.</li>
+            <li><code>LookAt</code> resolves its rotation once at creation and will not track a moving target; <code>RotateTo(Float3 euler)</code> interpolates raw angles, so 350° → 10° takes the long way round. Both are defensible, neither is documented.</li>
+            <li><code>TweenMaster</code> is the only file with no <code>namespace</code>, sitting in the global one.</li>
+          </ul>
+          <div class="ref"><span>Tween.Static.cs:190–199, 221–242</span><span>Sequence.cs:175–196</span><span>TransformTweenExtensions.cs:216–252</span><span>TweenMaster.cs:1–16</span></div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">DESIGN</span>
+        <div class="body">
+          <h3>No tests, no benchmarks, and nullability is unenforced <span class="chip c-high">High</span></h3>
+          <p>For a library whose whole pitch is "dense, allocation-free, handle-safe", the invariants that matter are exactly the kind that regress silently: version bumps on kill, sweep correctness when a callback creates or kills tweens, yoyo and incremental loop maths, and zero steady-state allocation. None of them are covered. <code>ManualUpdate</code> means a test project needs no engine at all. Both csproj files also set <code>&lt;Nullable&gt;annotations&lt;/Nullable&gt;</code>, so the careful <code>?</code> annotations throughout produce no warnings.</p>
+          <div class="ref"><span>TweenManager.cs:127–131</span><span>Quick — …Game.csproj</span></div>
+          <p class="fix"><b>Fix</b> One xUnit project driving <code>Tween.ManualUpdate</code> with a fixed step, plus a <code>GC.GetAllocatedBytesForCurrentThread</code> assertion around a 1,000-tween 600-tick loop to lock the zero-allocation claim in. Raise nullable to <code>enable</code> for the library's own files.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="tag">HOUSE</span>
+        <div class="body">
+          <h3>Stale meta file <span class="chip c-low">Low</span></h3>
+          <p><code>Assets/Scripts/Tween/Controller.meta</code> has no matching folder — <code>Controller</code> moved to <code>Assets/Scripts/Controller</code>. It is untracked in git; delete it.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>What to fix, in order</h2>
+      <p class="eyebrow">Ranked by impact ÷ effort</p>
+    </div>
+
+    <p>The ordering was a real sequence, not a list of equals: items 1&ndash;3 were prerequisites for
+    trusting anything measured afterwards, and 4&ndash;8 were where the remaining runtime cost sat. All
+    eighteen are now applied; the effort figures are the original estimates, kept for calibration.</p>
+
+    <ol class="ranked">
+      <li><div class="line"><div class="head"><strong>Resolve the duplicate assembly</strong><span class="chip c-high">High</span><span class="chip c-done">Done</span><span class="effort">~10 min</span></div>
+        <p>Drop the two <code>Prowl.Tweening</code> references, or move the sources back and reference the project. 372 of 377 build warnings go with it, and every later change becomes verifiable.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Fix the hot-reload storage leak</strong><span class="chip c-high">High</span><span class="chip c-done">Done</span><span class="effort">~half a day</span></div>
+        <p>Move the per-type storage out of <code>Of&lt;T, TAdapter&gt;</code>, or add <code>[ReloadIgnore]</code> plus an explicit <code>TweenManager.Reset()</code>. Right now every reload duplicates ticking and orphans live tweens.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Add the test project</strong><span class="chip c-high">High</span><span class="chip c-done">Done</span><span class="effort">~1 day</span></div>
+        <p>Drive <code>ManualUpdate</code> with a fixed step; cover handle versioning, sweep-under-callback, loop maths, and an allocation assertion. Nothing here needs the engine, and every finding below becomes a regression test.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Separate identity from callbacks</strong><span class="chip c-high">High</span><span class="chip c-done">Done</span><span class="effort">~2 hours</span></div>
+        <p>Stop <code>SetTarget</code>/<code>SetId</code> from setting <code>HasEvents</code>. This alone takes the normal transform tween from 196 B back to ~112 B and removes four cold-array reads per tween per tick.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Latch the runtime bootstrap</strong><span class="chip c-high">High</span><span class="chip c-done">Done</span><span class="effort">~30 min</span></div>
+        <p>A full scene scan per tween creation is the single worst cliff in the library, and it only shows up during scene transitions — the exact moment you are creating the most tweens.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Sweep from every tick</strong><span class="chip c-high">High</span><span class="chip c-done">Done</span><span class="effort">~15 min</span></div>
+        <p><code>Sweep</code> already early-returns on <code>_deadCount == 0</code>, so calling it from all four ticks is nearly free and stops killed tweens from pinning their targets.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Link tweens to target lifetime</strong><span class="chip c-high">High</span><span class="chip c-done">Done</span><span class="effort">~half a day</span></div>
+        <p>A <code>SetLink</code> that auto-kills when its owner is destroyed, applied by default in the transform helpers. Currently a destroyed object keeps being animated across scene loads.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Add an allocation-free getter/setter overload</strong><span class="chip c-med">Medium</span><span class="chip c-done">Done</span><span class="effort">~1 hour</span></div>
+        <p><code>To&lt;T, TAdapter, TState&gt;(state, getter, setter, to, duration)</code>. The only tween call site in this game is on the 4-allocation path because no alternative exists.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Resolve handles once per call</strong><span class="chip c-med">Medium</span><span class="chip c-done">Done</span><span class="effort">~3 hours</span></div>
+        <p>An internal <code>TryResolve(out storage, out dense)</code> plus dense-indexed accessors halves the lookups in the fluent API and cuts a 20-child sequence's per-frame hops from 63 to about 23.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Make sequences safe to build over time</strong><span class="chip c-med">Medium</span><span class="chip c-done">Done</span><span class="effort">~2 hours</span></div>
+        <p>Create the owner paused or in a "building" state, and make a no-op <code>Append</code> on a dead sequence loud in debug. Silent no-ops here are very hard to diagnose.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Validate time inputs</strong><span class="chip c-med">Medium</span><span class="chip c-done">Done</span><span class="effort">~1 hour</span></div>
+        <p>Reject non-finite duration, delay and delta; clamp <code>steps</code>. A single <code>NaN</code> currently creates a tween that can never complete and can never be swept.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Decide the threading contract for awaits</strong><span class="chip c-med">Medium</span><span class="chip c-done">Done</span><span class="effort">~2 hours</span></div>
+        <p>Either main-thread-only (and drop the lock) or a proper lock-free inbox. Today the registry claims thread safety that <code>IsSatisfied</code> does not provide.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Partition or count update types</strong><span class="chip c-med">Medium</span><span class="chip c-done">Done</span><span class="effort">~2 hours</span></div>
+        <p>A per-storage per-type count is the cheap version and removes the cliff the first <code>SetUpdate(Fixed)</code> call introduces.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Add <code>Trim()</code> and <code>Reserve()</code></strong><span class="chip c-med">Medium</span><span class="chip c-done">Done</span><span class="effort">~2 hours</span></div>
+        <p>Let callers pre-size before a burst and hand memory back after one. Cap the pooled sequence element arrays by length, not just instance count.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Replace the static scratch sinks</strong><span class="chip c-low">Low</span><span class="chip c-done">Done</span><span class="effort">~1 hour</span></div>
+        <p><code>TryGetCore(out …)</code> instead of <code>s_noCore</code>/<code>s_noEvents</code>. Restores the dead-handle guarantee and removes two of the reload warnings.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Close the semantic traps</strong><span class="chip c-low">Low</span><span class="chip c-done">Done</span><span class="effort">~2 hours</span></div>
+        <p><code>Ease.Unset</code>, the split overshoot default, callbacks firing after a kill, <code>TimeScale = 0</code> suppressing <code>OnStart</code>, and yoyo sequences skipping reverse callbacks — each is small, and each will cost someone an afternoon.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Fill the API gaps</strong><span class="chip c-low">Low</span><span class="chip c-done">Done</span><span class="effort">~half a day</span></div>
+        <p>A <code>ProwlTween</code> façade for the engine's own math types, the missing <code>Sequence</code> passthroughs, defaults as properties, and doc lines on <code>LookAt</code> and euler <code>RotateTo</code>.</p></div></li>
+
+      <li><div class="line"><div class="head"><strong>Housekeeping</strong><span class="chip c-low">Low</span><span class="chip c-done">Done</span><span class="effort">~20 min</span></div>
+        <p>Delete the orphan <code>Controller.meta</code>, drop the misleading <code>AggressiveInlining</code> on <code>EaseUtility.Evaluate</code>, give <code>TweenMaster</code> a namespace, and raise the library to <code>&lt;Nullable&gt;enable&lt;/Nullable&gt;</code>.</p></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>How this was checked</h2>
+      <p class="eyebrow">Method and limits</p>
+    </div>
+    <div class="method">
+      <p><strong>Measured.</strong> Struct sizes come from <code>Unsafe.SizeOf&lt;T&gt;</code> on the verbatim <code>TweenCore</code> and <code>TweenEvents</code> declarations compiled for <code>net10.0</code> x64, with the <code>Entry</code>, <code>Binding</code> and <code>Slot</code> shapes reproduced from <code>TweenStorage</code>. Warning counts come from a clean <code>dotnet build -t:Rebuild</code> of the game project: 372 <code>CS0436</code>, 5 <code>EMBA001</code>, 0 errors.</p>
+      <p><strong>Counted from source.</strong> The lookup figures are static counts of <code>Resolve</code> and <code>TryDense</code> calls along each path, not sampled costs.</p>
+      <p><strong>Not done at review time.</strong> No profiler run, no allocation trace, no frame-time
+      measurement &mdash; there was no test or benchmark harness in the repo to hang one on, which was
+      itself finding 3. Severities reflect likely impact in this project, not measured cost.</p>
+      <p><strong>Verified since.</strong> The zero-allocation claim is no longer a reading of the code:
+      <code>AllocationTests</code> asserts an exact zero <code>GC.GetAllocatedBytesForCurrentThread</code>
+      delta across 500 ticks of 200 live tweens (and again with callbacks and links in play), across 200
+      creations, and across 200 build-and-kill sequence cycles &mdash; with tiered compilation disabled
+      for the test assembly so the JIT cannot charge its own allocation to the library. Frame time is
+      still unmeasured; there is no benchmark project.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Prowl.Tween &middot; Assets/Scripts/Tween</span>
+    <span>15 files, 3,183 lines</span>
+    <span>Reviewed 12 September 2026 against <code class="mono">d2b9800</code></span>
+  </footer>
+
+</div>

@@ -10,7 +10,7 @@ OutputDirectory: "Builds"
 PackagingMode: 1
 AssetMode: 1
 MaxPakSizeMB: 2048
-SelectedPipeline: ""
+SelectedPipeline: "Prowl.Editor.Build.DesktopBuildPipeline"
 PlatformProfiles:
   $id: 4
   $values:
@@ -22,5 +22,6 @@ PlatformProfiles:
       WindowHeight: 1080
       $id: 5
       $type: "Prowl.Editor.Build.DesktopBuildProfile, Prowl.Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+    - $id: 6
 $id: 1
 $type: "Prowl.Editor.Projects.Settings.BuildSettings, Prowl.Editor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"

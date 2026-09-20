@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Prowl.Runtime;
 using Prowl.Runtime.Resources;
 using Prowl.Tweening;
+using Prowl.Vector;
 
 using Xunit;
 
@@ -268,5 +269,74 @@ public sealed class PlayModeTests : IDisposable
         Assert.NotNull(TweenMaster.Driver);
         Frame();
         Assert.Equal(5f, box.Value, 3);
+    }
+
+    private static void AssertNear(Float3 expected, Float3 actual, string when)
+    {
+        bool near = MathF.Abs(expected.X - actual.X) < 1e-3f
+                 && MathF.Abs(expected.Y - actual.Y) < 1e-3f
+                 && MathF.Abs(expected.Z - actual.Z) < 1e-3f;
+
+        Assert.True(near, $"{when}: expected ({expected.X}, {expected.Y}, {expected.Z}), got ({actual.X}, {actual.Y}, {actual.Z})");
+    }
+
+    /// <summary>The reported sequence, verbatim: four shortcut moves appended to one looping sequence.</summary>
+    private static Transform StartSquarePath()
+    {
+        var mover = new GameObject("Mover");
+        Scene.Current.Add(mover);
+        Transform transform = mover.Transform;
+        transform.Position = new Float3(0, 1, 0);
+
+        var sequence = Tween.Sequence();
+        sequence.Append(transform.Move(new Float3(-3, 1, -3), 1f).SetEase(Ease.InOutQuad));
+        sequence.Append(transform.Move(new Float3(3, 1, -3), 1f).SetEase(Ease.InOutQuad));
+        sequence.Append(transform.Move(new Float3(3, 1, 3), 1f).SetEase(Ease.InOutQuad));
+        sequence.Append(transform.Move(new Float3(-3, 1, 3), 1f).SetEase(Ease.InOutQuad));
+        sequence.SetLoops(-1, LoopType.Restart);
+        sequence.Play();
+
+        return transform;
+    }
+
+    [Fact]
+    public void ASequenceOfMovesGoesFromWaypointToWaypoint()
+    {
+        EnterPlayMode();
+        Transform transform = StartSquarePath();
+
+        // Two quarter-second frames per sample: every other sample is a segment's midpoint (where
+        // InOutQuad is exactly half way) and every other one a waypoint.
+        Float3[] expected =
+        {
+            new(-1.5f, 1, -1.5f), new(-3, 1, -3),   // start -> A
+            new(0, 1, -3),        new(3, 1, -3),    // A -> B
+            new(3, 1, 0),         new(3, 1, 3),     // B -> C
+            new(0, 1, 3),                           // C -> D, half way
+        };
+
+        for (int i = 0; i < expected.Length; i++)
+        {
+            Frame();
+            Frame();
+            AssertNear(expected[i], transform.Position, $"after {(i + 1) * 0.5f}s");
+        }
+    }
+
+    [Fact(Skip = "Known issue: when a sequence loops back, the steps its playhead has already passed are "
+               + "driven back to their start values in timeline order, so the last step's start wins that "
+               + "frame - here the object flashes to (3, 1, 3). Unskip once passed steps are rewound in reverse.")]
+    public void ALoopingSequenceRestartsOnItsFirstStepWithoutFlashingToAnother()
+    {
+        EnterPlayMode();
+        Transform transform = StartSquarePath();
+
+        // Four seconds: the frame on which the second loop begins.
+        for (int i = 0; i < 16; i++)
+            Frame();
+
+        // The second loop opens on the first step's start - where the object began, read on the
+        // first pass - not on the start of whichever step happens to be driven last.
+        AssertNear(new Float3(0, 1, 0), transform.Position, "on the frame the second loop begins");
     }
 }

@@ -1,0 +1,27 @@
+<Project>
+
+  <!--
+    Directory.Build.targets (Prowl user MSBuild customization)
+
+    Like Directory.Build.props, Prowl never touches this file - but MSBuild imports it *after* the
+    generated .csproj body, which is the only place we can remove items the generator added.
+  -->
+
+  <!--
+    The tweening library is compiled from source out of Assets/Scripts/Tween. Prowl's project
+    generator also adds a <Reference> to every assembly it finds in the engine build output, and
+    that output still contains a stale Prowl.Tweening.dll from when this library lived in the
+    engine repo. Both copies declare the same types, so every one of them collided (CS0436, ~370
+    warnings) and the local source silently won.
+
+    Dropping the reference here makes the local sources the single definition, and survives the
+    .csproj being regenerated.
+
+    If this library is ever moved back out of Assets - into the engine, or a shared project - delete
+    this ItemGroup so the real assembly is referenced again.
+  -->
+  <ItemGroup>
+    <Reference Remove="Prowl.Tweening" />
+  </ItemGroup>
+
+</Project>
