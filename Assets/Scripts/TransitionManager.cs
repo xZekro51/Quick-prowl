@@ -1,4 +1,5 @@
 using Prowl.Runtime;
+using Prowl.Runtime.Resources;
 using Prowl.Runtime.UI;
 using Prowl.Tweening;
 
@@ -21,13 +22,19 @@ public class TransitionManager : MonoBehaviour
 
     public async System.Threading.Tasks.Task Transition(float targetValue = 0f,  float duration = 0.5f, Ease ease = Ease.InOutCubic)
     {
-        var material = Image.Material.Res;
+        Material material = Image.Material.Res;
         if (material == null) return;
 
-        // Unavailable, in Prowl.Tweening package
-        await Tween.To(() => material._properties.GetFloat("_TransitionStep"),
-                x => material.SetFloat("_TransitionStep", x), targetValue, duration)
+        // The state overload: the material is passed in rather than captured, so both lambdas stay
+        // static and the whole call allocates nothing. The Tween.To(getter, setter, ...) form reads
+        // a little shorter but costs two closures and two delegates every transition.
+        await Tween.To<float, FloatAdapter, Material>(
+                material,
+                static m => m._properties.GetFloat("_TransitionStep"),
+                static (v, m) => m.SetFloat("_TransitionStep", v),
+                targetValue, duration)
             .SetEase(ease)
-            .Play().AsyncWaitForCompletion();
+            .SetLink(material, static m => m.IsValid())
+            .AsyncWaitForCompletion();
     }
 }
