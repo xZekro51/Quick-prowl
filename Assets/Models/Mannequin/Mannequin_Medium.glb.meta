@@ -1,0 +1,20 @@
+{
+  "guid": "b1284072-7f91-45e9-9e61-2de2b1c2dbe6",
+  "importer": "EditorModelImporter",
+  "importerVersion": 1,
+  "settings": {
+    "generateNormals": true,
+    "generateSmoothNormals": true,
+    "recalculateNormals": false,
+    "calculateTangents": true,
+    "flipUVs": true,
+    "unitScale": 0.6F,
+    "generateLightmapUVs": false,
+    "sdf": {
+      "enabled": false,
+      "resolution": 64,
+      "padding": 0.1F,
+      "maxDistance": 0.25F
+    }
+  }
+}

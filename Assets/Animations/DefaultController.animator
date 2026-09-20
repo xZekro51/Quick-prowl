@@ -1,0 +1,78 @@
+{
+  "$id": 1,
+  "$type": "Prowl.Animate.AnimatorController, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "Parameters": {
+    "$id": 2,
+    "$values": [
+
+    ]
+  },
+  "Layers": {
+    "$id": 3,
+    "$values": [
+      {
+        "$id": 4,
+        "Name": "Default",
+        "States": {
+          "$id": 5,
+          "$values": [
+            {
+              "$id": 6,
+              "Name": "New State",
+              "Motion": {
+                "$id": 7,
+                "$type": "Prowl.Animate.ClipMotion, Quick - Before the world ends.Game, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "Clip": {
+                  "AssetID": "1b299fbe-63a1-48b8-b323-0606372483b5"
+                },
+                "Name": ""
+              },
+              "Speed": 1F,
+              "SpeedParameter": "",
+              "CycleOffset": 0F,
+              "Loop": true,
+              "Tag": "",
+              "Transitions": {
+                "$id": 8,
+                "$values": [
+
+                ]
+              },
+              "Events": {
+                "$id": 9,
+                "$values": [
+
+                ]
+              },
+              "EditorPosition": {
+                "X": 260F,
+                "Y": 60F
+              }
+            }
+          ]
+        },
+        "DefaultState": "New State",
+        "AnyStateTransitions": {
+          "$id": 10,
+          "$values": [
+
+          ]
+        },
+        "DefaultWeight": 1F,
+        "BlendMode": 0L,
+        "Mask": NULL,
+        "AnyStateEditorPosition": {
+          "X": -40F,
+          "Y": 180F
+        },
+        "EntryEditorPosition": {
+          "X": -40F,
+          "Y": 60F
+        }
+      }
+    ]
+  },
+  "AssetPath": "Animations/DefaultController.animator",
+  "AssetID": "00000000-0000-0000-0000-000000000000",
+  "Name": "DefaultController"
+}

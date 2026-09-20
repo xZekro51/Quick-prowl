@@ -1,0 +1,15 @@
+{
+  "$id": 1,
+  "$type": "Prowl.Runtime.AnimationClip, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "Name": "New Animation",
+  "Duration": 1F,
+  "TicksPerSecond": 30F,
+  "DurationInTicks": 0F,
+  "Wrap": 0,
+  "Bones": [
+
+  ],
+  "BlendShapes": [
+
+  ]
+}

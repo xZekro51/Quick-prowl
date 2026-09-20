@@ -1,0 +1,105 @@
+{
+  "$id": 1,
+  "$type": "Prowl.Runtime.InputActionMap, Prowl.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "Name": "DefaultActions",
+  "actions": [
+    {
+      "name": "Move",
+      "type": 0,
+      "valueType": "Float2",
+      "bindings": [
+        {
+          "bindingType": 4,
+          "interaction": 0,
+          "gamepadButton": 9,
+          "axisIndex": 0,
+          "deviceIndex": 0,
+          "holdDuration": 0.4F,
+          "tapCount": 2,
+          "tapWindow": 0.3F,
+          "maxTapDuration": 0.2F,
+          "processors": [
+            {
+              "type": "Deadzone",
+              "threshold": 0.1F
+            }
+          ]
+        }
+      ],
+      "composites": [
+        {
+          "type": "Vector2",
+          "normalize": true,
+          "parts": {
+            "up": {
+              "bindingType": 0,
+              "interaction": 0,
+              "key": 87,
+              "holdDuration": 0.4F,
+              "tapCount": 2,
+              "tapWindow": 0.3F,
+              "maxTapDuration": 0.2F
+            },
+            "down": {
+              "bindingType": 0,
+              "interaction": 0,
+              "key": 83,
+              "holdDuration": 0.4F,
+              "tapCount": 2,
+              "tapWindow": 0.3F,
+              "maxTapDuration": 0.2F
+            },
+            "left": {
+              "bindingType": 0,
+              "interaction": 0,
+              "key": 65,
+              "holdDuration": 0.4F,
+              "tapCount": 2,
+              "tapWindow": 0.3F,
+              "maxTapDuration": 0.2F
+            },
+            "right": {
+              "bindingType": 0,
+              "interaction": 0,
+              "key": 68,
+              "holdDuration": 0.4F,
+              "tapCount": 2,
+              "tapWindow": 0.3F,
+              "maxTapDuration": 0.2F
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jump",
+      "type": 1,
+      "valueType": "float",
+      "bindings": [
+        {
+          "bindingType": 0,
+          "interaction": 0,
+          "key": 32,
+          "mouseButton": 0,
+          "holdDuration": 0.4F,
+          "tapCount": 2,
+          "tapWindow": 0.3F,
+          "maxTapDuration": 0.2F
+        },
+        {
+          "bindingType": 3,
+          "interaction": 0,
+          "gamepadButton": 0,
+          "deviceIndex": 0,
+          "holdDuration": 0.4F,
+          "tapCount": 2,
+          "tapWindow": 0.3F,
+          "maxTapDuration": 0.2F
+        }
+      ],
+      "composites": [
+
+      ]
+    }
+  ]
+}
